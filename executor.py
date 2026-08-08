@@ -20,9 +20,11 @@ Security posture:
     batch (e.g. after fixing one template and regenerating) is idempotent
     rather than duplicating or corrupting already-migrated rows.
 """
+import argparse
 import ast
 import importlib.util
 import json
+import yaml
 import sqlite3
 import sys
 import os
@@ -156,7 +158,7 @@ def _worker_process_chunk(args):
     return {"clean_rows": clean_rows, "quarantined_records": quarantined_records}
 
 
-def run_table(table: str, engine_url: str, generated_dir="generated", q_conn=None):
+def run_table(table: str, engine_url: str, generated_dir="generated", q_conn=None, workers="auto"):
     module_path = os.path.join(generated_dir, f"{table}_transform.py")
     module_name = f"gen_{table}"
 
@@ -173,8 +175,9 @@ def run_table(table: str, engine_url: str, generated_dir="generated", q_conn=Non
         from multiprocessing import Pool
         import multiprocessing
         
-        # Use a pool sized to the available CPU cores
-        with Pool(processes=multiprocessing.cpu_count()) as pool:
+        num_cores = multiprocessing.cpu_count() if workers == "auto" else int(workers)
+        
+        with Pool(processes=num_cores) as pool:
             while True:
                 chunk = cursor.fetchmany(10000)
                 if not chunk:
@@ -213,7 +216,7 @@ def run_table(table: str, engine_url: str, generated_dir="generated", q_conn=Non
     }
 
 
-def run_migration(engine_url="sqlite:///legacy_source.db", profile_path="profile.json", generated_dir="generated", quarantine_path="quarantine/quarantine.db"):
+def run_migration(engine_url="sqlite:///legacy_source.db", profile_path="profile.json", generated_dir="generated", quarantine_path="quarantine/quarantine.db", workers="auto"):
     with open(profile_path) as f:
         profile = json.load(f)
     load_order = profile["load_order"]
@@ -221,7 +224,7 @@ def run_migration(engine_url="sqlite:///legacy_source.db", profile_path="profile
     q_conn = init_quarantine_db(path=quarantine_path)
     results = []
     for table in load_order:
-        result = run_table(table, engine_url, generated_dir=generated_dir, q_conn=q_conn)
+        result = run_table(table, engine_url, generated_dir=generated_dir, q_conn=q_conn, workers=workers)
         results.append(result)
         status = "HALTED - exceeds quarantine threshold, needs human review" if result["halted_for_review"] else "OK"
         print(f"[{status}] {table}: {result['clean_rows']}/{result['total_rows']} clean, "
@@ -230,4 +233,34 @@ def run_migration(engine_url="sqlite:///legacy_source.db", profile_path="profile
 
 
 if __name__ == "__main__":
-    run_migration()
+    import multiprocessing
+    multiprocessing.freeze_support()
+    
+    parser = argparse.ArgumentParser(description="Crucible MaaS Engine - Execution Phase")
+    parser.add_argument("--config", type=str, help="Path to the configuration YAML file", required=False)
+    args = parser.parse_args()
+    
+    if args.config:
+        with open(args.config, 'r') as f:
+            config = yaml.safe_load(f)
+        
+        db_config = config.get("databases", {})
+        exec_config = config.get("execution", {})
+        
+        engine_url = db_config.get("source", "sqlite:///legacy_source.db")
+        quarantine_url = db_config.get("quarantine", "quarantine/quarantine.db")
+        profile_path = exec_config.get("profile_path", "profile.json")
+        generated_dir = exec_config.get("generated_dir", "generated")
+        workers = exec_config.get("workers", "auto")
+        
+        print(f"Loading configuration from {args.config}...")
+        run_migration(
+            engine_url=engine_url,
+            profile_path=profile_path,
+            generated_dir=generated_dir,
+            quarantine_path=quarantine_url,
+            workers=workers
+        )
+    else:
+        # Fallback to default run if no config provided
+        run_migration()
