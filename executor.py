@@ -115,12 +115,57 @@ def _json_default(o):
     return str(o)
 
 
+def _worker_process_chunk(args):
+    table, chunk_rows, module_path, module_name = args
+    module = load_vetted_module(module_path, module_name)
+    
+    clean_rows = []
+    quarantined_records = []
+    
+    model_cls = next(
+        v for k, v in vars(module).items()
+        if k.endswith("Clean") and isinstance(v, type)
+    )
+    
+    for raw_dict in chunk_rows:
+        try:
+            cleaned = module.clean_row(raw_dict)
+            validated = model_cls(**cleaned)
+            clean_rows.append(validated.model_dump())
+        except module.QuarantineRow as e:
+            quarantined_records.append({
+                "table_name": table,
+                "row_identity": json.dumps(raw_dict, default=_json_default)[:200],
+                "column_name": e.column,
+                "raw_value": str(e.raw_value),
+                "reason": e.reason,
+                "raw_row_json": json.dumps(raw_dict, default=_json_default),
+                "quarantined_at": datetime.now(timezone.utc).isoformat()
+            })
+        except Exception as e:
+            quarantined_records.append({
+                "table_name": table,
+                "row_identity": json.dumps(raw_dict, default=_json_default)[:200],
+                "column_name": "UNKNOWN",
+                "raw_value": "",
+                "reason": f"unexpected error: {type(e).__name__}: {e}",
+                "raw_row_json": json.dumps(raw_dict, default=_json_default),
+                "quarantined_at": datetime.now(timezone.utc).isoformat()
+            })
+            
+    return {"clean_rows": clean_rows, "quarantined_records": quarantined_records}
+
+
 def run_table(table: str, engine_url: str, generated_dir="generated", q_conn=None):
     module_path = os.path.join(generated_dir, f"{table}_transform.py")
-    module = load_vetted_module(module_path, f"gen_{table}")
+    module_name = f"gen_{table}"
 
     from sqlalchemy import create_engine
     src_engine = create_engine(engine_url)
+
+    total = 0
+    clean_rows = []
+    quarantined = 0
 
     with src_engine.connect() as conn:
         cursor = conn.execution_options(yield_per=10000).exec_driver_sql(f'SELECT * FROM "{table}"').mappings()
@@ -128,62 +173,31 @@ def run_table(table: str, engine_url: str, generated_dir="generated", q_conn=Non
         from multiprocessing import Pool
         import multiprocessing
         
-        # In a real enterprise system, we would map chunks of data to worker processes.
-        # For this homelab architecture, we simulate the structure here:
-        total = 0
-        clean_rows = []
-        quarantined = 0
-        
-        # We iterate over chunks of 10000 to prevent OOM
-        while True:
-            chunk = cursor.fetchmany(10000)
-            if not chunk:
-                break
-            
-            rows = [dict(r) for r in chunk]
-            total += len(rows)
-            
-            for raw_dict in rows:
-                try:
-                    cleaned = module.clean_row(raw_dict)
-                    model_cls = next(
-                        v for k, v in vars(module).items()
-                        if k.endswith("Clean") and isinstance(v, type)
-                    )
-                    validated = model_cls(**cleaned)
-                    clean_rows.append(validated.model_dump())
-                except module.QuarantineRow as e:
-                    quarantined += 1
-                    if q_conn:
-                        with q_conn.begin() as conn:
-                            conn.execute(
-                                quarantined_table.insert().values(
-                                    table_name=table,
-                                    row_identity=json.dumps(raw_dict, default=_json_default)[:200],
-                                    column_name=e.column,
-                                    raw_value=str(e.raw_value),
-                                    reason=e.reason,
-                                    raw_row_json=json.dumps(raw_dict, default=_json_default),
-                                    quarantined_at=datetime.now(timezone.utc).isoformat()
-                                )
+        # Use a pool sized to the available CPU cores
+        with Pool(processes=multiprocessing.cpu_count()) as pool:
+            while True:
+                chunk = cursor.fetchmany(10000)
+                if not chunk:
+                    break
+                
+                rows = [dict(r) for r in chunk]
+                total += len(rows)
+                
+                # Split the 10,000 fetch into smaller sub-chunks for the worker cores
+                sub_chunks = [rows[i:i+1000] for i in range(0, len(rows), 1000)]
+                args_list = [(table, sub, module_path, module_name) for sub in sub_chunks]
+                
+                results = pool.map(_worker_process_chunk, args_list)
+                
+                for res in results:
+                    clean_rows.extend(res["clean_rows"])
+                    quarantined += len(res["quarantined_records"])
+                    if q_conn and res["quarantined_records"]:
+                        with q_conn.begin() as q_transaction:
+                            q_transaction.execute(
+                                quarantined_table.insert(),
+                                res["quarantined_records"]
                             )
-                except Exception as e:
-                    quarantined += 1
-                    if q_conn:
-                        with q_conn.begin() as conn:
-                            conn.execute(
-                                quarantined_table.insert().values(
-                                    table_name=table,
-                                    row_identity=json.dumps(raw_dict, default=_json_default)[:200],
-                                    column_name="UNKNOWN",
-                                    raw_value="",
-                                    reason=f"unexpected error: {type(e).__name__}: {e}",
-                                    raw_row_json=json.dumps(raw_dict, default=_json_default),
-                                    quarantined_at=datetime.now(timezone.utc).isoformat()
-                                )
-                            )
-                        
-    # No manual q_conn.commit() needed with SQLAlchemy begin()
 
     failure_rate = quarantined / total if total else 0
     halted = failure_rate > QUARANTINE_FAILURE_THRESHOLD
