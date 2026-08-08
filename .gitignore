@@ -1,0 +1,16 @@
+# Ignore SQLite databases (quarantine and case studies)
+*.db
+*.sqlite
+*.sqlite3
+
+# Ignore Python caches
+__pycache__/
+*.pyc
+
+# Ignore dynamically generated files and directories
+generated/
+caseStudy/
+quarantine/
+
+# Ignore profiling artifacts
+profile.json

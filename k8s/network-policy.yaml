@@ -1,0 +1,48 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: migration-engine
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: engine-egress
+  namespace: migration-engine
+spec:
+  podSelector:
+    matchLabels:
+      app: migration-engine
+  policyTypes:
+    - Egress
+  egress:
+    # Allow egress to internal Postgres DB
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgres
+      ports:
+        - protocol: TCP
+          port: 5432
+    # Allow egress to external databases (Update CIDR blocks to match specific external DB IPs)
+    - to:
+        - ipBlock:
+            cidr: 10.0.0.0/8 # Placeholder, adjust as necessary
+      ports:
+        - protocol: TCP
+          port: 5432 # Adjust port if external databases use different ports
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
