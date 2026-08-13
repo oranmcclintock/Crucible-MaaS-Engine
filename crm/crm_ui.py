@@ -129,9 +129,13 @@ with tab1:
                 title_col, action_col = st.columns([3, 1])
                 
                 with title_col:
-                    watchlist_indicator = "⭐ [WATCHLIST] " if row['watchlist'] == 1 else ""
+                    watchlist_indicator = "[WATCHLIST] " if row['watchlist'] == 1 else ""
                     st.markdown(f"### {watchlist_indicator}{row['si_agency']}")
-                    st.markdown(f"**Project:** {row['project_title']} | **Value:** £{row['contract_value']:,.2f}")
+                    
+                    # Metadata grid - Row 1
+                    meta1, meta2, meta3 = st.columns(3)
+                    meta1.write(f"**Project**\n\n{row['project_title']}")
+                    meta2.write(f"**Buyer**\n\n{row['buyer']}")
                     
                     status_colors = {
                         "Untouched": "blue",
@@ -140,8 +144,13 @@ with tab1:
                         "Rejected": "red"
                     }
                     col_status = status_colors.get(row['status'], "gray")
-                    st.markdown(f"**Status:** :{col_status}[{row['status']}]")
-                    st.markdown(f"**Buyer:** {row['buyer']} | **Awarded:** {row['awarded_date']} ({row['days_since_award']} days ago)")
+                    meta3.markdown(f"**Status**\n\n:{col_status}[{row['status']}]")
+                    
+                    # Metadata grid - Row 2
+                    meta4, meta5, meta6 = st.columns(3)
+                    meta4.write(f"**Value**\n\n£{row['contract_value']:,.2f}")
+                    meta5.write(f"**Awarded**\n\n{row['awarded_date']}")
+                    meta6.write(f"**Days Since Award**\n\n{row['days_since_award']}")
                     
                 with action_col:
                     current_status = row['status'] if row['status'] in ["Untouched", "Messaged", "Audit Won", "Rejected"] else "Untouched"
@@ -160,21 +169,21 @@ with tab1:
                     if new_watch != is_watched:
                         update_watchlist(notice_id, 1 if new_watch else 0)
                         st.rerun()
-
+ 
                 st.markdown("---")
                 
                 link_col1, link_col2 = st.columns(2)
                 with link_col1:
-                    st.link_button("🌐 View Contract Notice", row['link'], use_container_width=True)
+                    st.link_button("View Contract Notice", row['link'], use_container_width=True)
                 with link_col2:
                     if pd.notna(row['decision_maker_url']) and row['decision_maker_url']:
-                        st.link_button("🔗 LinkedIn Decision Makers", row['decision_maker_url'], use_container_width=True)
+                        st.link_button("LinkedIn Decision Makers", row['decision_maker_url'], use_container_width=True)
                     else:
-                        st.button("🔗 LinkedIn (No URL Available)", disabled=True, use_container_width=True)
-
+                        st.button("LinkedIn (No URL Available)", disabled=True, use_container_width=True)
+ 
                 st.markdown("")
                 
-                with st.expander("📝 Edit Details & Access Pitch Generator", expanded=False):
+                with st.expander("Edit Details & Access Pitch Generator", expanded=False):xpanded=False):
                     form_col1, form_col2, form_col3 = st.columns(3)
                     
                     with form_col1:
