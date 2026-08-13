@@ -5,6 +5,10 @@ import os
 import json
 import lead_pipeline
 import lead_enrichment
+import migrate_db
+
+# Run migration check on startup
+migrate_db.migrate()
 
 DB_PATH = "leads.db"
 CONFIG_PATH = "crm_config.json"

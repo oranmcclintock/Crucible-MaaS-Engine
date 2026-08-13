@@ -37,7 +37,19 @@ def init_db():
             decision_maker_url TEXT,
             crucible_match_score INTEGER,
             partner_strategy TEXT,
-            watchlist INTEGER DEFAULT 0
+            watchlist INTEGER DEFAULT 0,
+            dm_name TEXT DEFAULT '',
+            dm_role TEXT DEFAULT '',
+            dm_email TEXT DEFAULT '',
+            outreach_channel TEXT DEFAULT '',
+            last_contacted_date TEXT DEFAULT '',
+            follow_up_date TEXT DEFAULT '',
+            ddl_received BOOLEAN DEFAULT 0,
+            synthetic_sample_verified TEXT DEFAULT 'Pending',
+            phase_1_audit_sent BOOLEAN DEFAULT 0,
+            phase_2_code_sent BOOLEAN DEFAULT 0,
+            uat_round INTEGER DEFAULT 0,
+            out_of_scope_flag BOOLEAN DEFAULT 0
         )
     ''')
     conn.commit()
