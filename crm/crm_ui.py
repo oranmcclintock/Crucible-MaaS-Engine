@@ -183,7 +183,7 @@ with tab1:
  
                 st.markdown("")
                 
-                with st.expander("Edit Details & Access Pitch Generator", expanded=False):xpanded=False):
+                with st.expander("Edit Details & Access Pitch Generator", expanded=False):
                     form_col1, form_col2, form_col3 = st.columns(3)
                     
                     with form_col1:
