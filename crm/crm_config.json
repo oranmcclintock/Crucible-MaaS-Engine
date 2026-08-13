@@ -13,6 +13,15 @@
     "data consolidation",
     "electronic health record",
     "ai readiness",
-    "master data management"
+    "master data management",
+    "data",
+    "migration"
+  ],
+  "target_titles": [
+    "Delivery Manager",
+    "Data Architect",
+    "Solution Architect",
+    "Program Manager",
+    "Migration Lead"
   ]
 }

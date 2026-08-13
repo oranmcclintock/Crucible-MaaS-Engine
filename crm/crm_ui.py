@@ -99,28 +99,50 @@ with tab2:
     
     config = load_config()
     keywords = config.get("target_keywords", [])
+    titles = config.get("target_titles", [])
     
-    # Display current keywords
-    if keywords:
+    col_k, col_t = st.columns(2)
+    
+    with col_k:
         st.markdown("**Active Keywords:**")
-        for kw in keywords:
-            col_kw, col_del = st.columns([4, 1])
-            col_kw.text(kw)
-            if col_del.button("Remove", key=f"del_{kw}"):
-                keywords.remove(kw)
+        if keywords:
+            for kw in keywords:
+                col_kw, col_del = st.columns([4, 1])
+                col_kw.text(kw)
+                if col_del.button("Remove", key=f"del_kw_{kw}"):
+                    keywords.remove(kw)
+                    config["target_keywords"] = keywords
+                    save_config(config)
+                    st.rerun()
+        else:
+            st.info("No active keywords.")
+            
+        new_kw = st.text_input("Add new keyword (e.g. 'data consolidation')")
+        if st.button("Add Keyword"):
+            if new_kw and new_kw.lower() not in keywords:
+                keywords.append(new_kw.lower())
                 config["target_keywords"] = keywords
                 save_config(config)
                 st.rerun()
-    else:
-        st.info("No active keywords.")
-        
-    st.divider()
-    
-    # Add new keyword
-    new_kw = st.text_input("Add new keyword (e.g. 'data consolidation')")
-    if st.button("Add Keyword"):
-        if new_kw and new_kw.lower() not in keywords:
-            keywords.append(new_kw.lower())
-            config["target_keywords"] = keywords
-            save_config(config)
-            st.rerun()
+                
+    with col_t:
+        st.markdown("**Target Job Titles:**")
+        if titles:
+            for title in titles:
+                col_ti, col_tdel = st.columns([4, 1])
+                col_ti.text(title)
+                if col_tdel.button("Remove", key=f"del_ti_{title}"):
+                    titles.remove(title)
+                    config["target_titles"] = titles
+                    save_config(config)
+                    st.rerun()
+        else:
+            st.info("No active titles.")
+            
+        new_title = st.text_input("Add new job title (e.g. 'Migration Lead')")
+        if st.button("Add Job Title"):
+            if new_title and new_title not in titles:
+                titles.append(new_title)
+                config["target_titles"] = titles
+                save_config(config)
+                st.rerun()

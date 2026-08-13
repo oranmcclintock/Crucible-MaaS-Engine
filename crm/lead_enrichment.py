@@ -1,8 +1,19 @@
 import sqlite3
 import urllib.parse
 import os
+import json
 
 DB_PATH = "leads.db"
+CONFIG_PATH = "crm_config.json"
+
+def get_target_titles():
+    try:
+        with open(CONFIG_PATH, 'r') as f:
+            config = json.load(f)
+            return config.get("target_titles", ["Delivery Manager", "Data Architect"])
+    except Exception as e:
+        print(f"Error loading config: {e}")
+        return ["Delivery Manager", "Data Architect"]
 
 def add_enrichment_column(cursor):
     """Ensures the decision_maker_url column exists in the database."""
@@ -19,9 +30,12 @@ def generate_dork_url(si_name):
     # Clean up the SI name (remove trailing "Ltd", "Limited", etc. for better search results)
     clean_name = si_name.replace(" Ltd", "").replace(" Limited", "").replace(" UK", "").strip()
     
+    target_titles = get_target_titles()
+    titles_dork = " OR ".join([f'"{title}"' for title in target_titles])
+    
     # The Google Dork: 
-    # site:linkedin.com/in/ "Company Name" ("Delivery Manager" OR "Data Architect" OR "Solution Architect") UK
-    query = f'site:linkedin.com/in/ "{clean_name}" ("Delivery Manager" OR "Data Architect" OR "Solution Architect") UK'
+    # site:linkedin.com/in/ "Company Name" ("Title 1" OR "Title 2") UK
+    query = f'site:linkedin.com/in/ "{clean_name}" ({titles_dork}) UK'
     
     encoded_query = urllib.parse.quote_plus(query)
     return f"https://www.google.com/search?q={encoded_query}"
