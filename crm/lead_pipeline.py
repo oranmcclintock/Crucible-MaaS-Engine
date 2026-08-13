@@ -4,23 +4,18 @@ import os
 from datetime import datetime, timezone
 import dateutil.parser
 
-# Hyper-targeted keywords for the legacy decay problem
-TARGET_KEYWORDS = [
-    "data migration", 
-    "legacy database", 
-    "legacy modernisation", 
-    "cloud migration",
-    "data transition",
-    "data platform",
-    "digital transformation",
-    "etl",
-    "data lakehouse",
-    "system integration",
-    "data consolidation",
-    "electronic health record",
-    "ai readiness",
-    "master data management"
-]
+import json
+
+CONFIG_PATH = "crm_config.json"
+
+def get_target_keywords():
+    try:
+        with open(CONFIG_PATH, 'r') as f:
+            config = json.load(f)
+            return config.get("target_keywords", [])
+    except Exception as e:
+        print(f"Error loading config: {e}")
+        return []
 
 API_URL = "https://www.contractsfinder.service.gov.uk/api/rest/2/search_notices/json"
 DB_PATH = "leads.db"
@@ -100,7 +95,8 @@ def run_pipeline():
             desc = item.get("description", "").lower()
             text_blob = f"{title} {desc}"
             
-            if not any(kw in text_blob for kw in TARGET_KEYWORDS):
+            target_keywords = get_target_keywords()
+            if not any(kw in text_blob for kw in target_keywords):
                 continue
                 
             # 3. Time Filter (The Zone of Pain)
