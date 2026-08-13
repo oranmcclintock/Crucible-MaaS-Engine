@@ -3,9 +3,11 @@ import sqlite3
 import pandas as pd
 import os
 import json
+import re
 import lead_pipeline
 import lead_enrichment
 import migrate_db
+
 
 # Run migration check on startup
 migrate_db.migrate()
@@ -96,15 +98,10 @@ with tab1:
         st.info("No leads found in the database. Execute pipeline to ingest leads.")
     else:
         # Top Metrics
-        active_pipeline_df = df[df['status'] != 'Rejected']
-        pipeline_value = active_pipeline_df['contract_value'].sum()
-        expected_margin = pipeline_value * 0.20
-
-        col1, col2, col3, col4 = st.columns(4)
-        col1.metric("Pipeline Value (£)", f"£{pipeline_value:,.2f}")
-        col2.metric("Expected Margin (£)", f"£{expected_margin:,.2f}")
-        col3.metric("Pending Qualification", len(df[df['status'] == 'Untouched']))
-        col4.metric("Audits Won", len(df[df['status'] == 'Audit Won']))
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Pending Qualification", len(df[df['status'] == 'Untouched']))
+        col2.metric("Outreach Sent", len(df[df['status'] == 'Messaged']))
+        col3.metric("Audits Won", len(df[df['status'] == 'Audit Won']))
         
         st.divider()
         
@@ -128,20 +125,25 @@ with tab1:
         for index, row in display_df.iterrows():
             notice_id = row['notice_id']
             
-            title_text = f"{row['si_agency']} - {row['project_title']} (£{row['contract_value']:,.2f})"
-            if row['watchlist'] == 1:
-                title_text = "[WATCHLIST] " + title_text
-
-            with st.expander(title_text):
-                basic_col1, basic_col2 = st.columns([3, 1])
+            with st.container(border=True):
+                title_col, action_col = st.columns([3, 1])
                 
-                with basic_col1:
+                with title_col:
+                    watchlist_indicator = "⭐ [WATCHLIST] " if row['watchlist'] == 1 else ""
+                    st.markdown(f"### {watchlist_indicator}{row['si_agency']}")
+                    st.markdown(f"**Project:** {row['project_title']} | **Value:** £{row['contract_value']:,.2f}")
+                    
+                    status_colors = {
+                        "Untouched": "blue",
+                        "Messaged": "orange",
+                        "Audit Won": "green",
+                        "Rejected": "red"
+                    }
+                    col_status = status_colors.get(row['status'], "gray")
+                    st.markdown(f"**Status:** :{col_status}[{row['status']}]")
                     st.markdown(f"**Buyer:** {row['buyer']} | **Awarded:** {row['awarded_date']} ({row['days_since_award']} days ago)")
-                    st.markdown(f"[View Contract Notice]({row['link']})")
-                    if pd.notna(row['decision_maker_url']) and row['decision_maker_url']:
-                        st.markdown(f"[LinkedIn Decision Makers]({row['decision_maker_url']})")
-                
-                with basic_col2:
+                    
+                with action_col:
                     current_status = row['status'] if row['status'] in ["Untouched", "Messaged", "Audit Won", "Rejected"] else "Untouched"
                     new_status = st.selectbox(
                         "Status", 
@@ -161,39 +163,61 @@ with tab1:
 
                 st.markdown("---")
                 
-                form_col1, form_col2, form_col3 = st.columns(3)
-                
-                with form_col1:
-                    st.markdown("**Contact Management**")
-                    dm_name = st.text_input("DM Name", value=row.get('dm_name') or "", key=f"dm_name_{notice_id}")
-                    dm_role = st.text_input("DM Role", value=row.get('dm_role') or "", key=f"dm_role_{notice_id}")
-                    dm_email = st.text_input("DM Email", value=row.get('dm_email') or "", key=f"dm_email_{notice_id}")
-                    outreach_channel = st.text_input("Outreach Channel", value=row.get('outreach_channel') or "", key=f"channel_{notice_id}")
-                    last_contacted = st.text_input("Last Contacted Date", value=row.get('last_contacted_date') or "", key=f"last_cont_{notice_id}")
-                    follow_up = st.text_input("Follow Up Date", value=row.get('follow_up_date') or "", key=f"follow_up_{notice_id}")
-                    
-                with form_col2:
-                    st.markdown("**SLA Tracking**")
-                    ddl_received = st.checkbox("DDL Received", value=bool(row.get('ddl_received', False)), key=f"ddl_{notice_id}")
-                    phase_1_audit = st.checkbox("Phase 1 Audit Sent", value=bool(row.get('phase_1_audit_sent', False)), key=f"p1_{notice_id}")
-                    out_of_scope = st.checkbox("Out of Scope Flag", value=bool(row.get('out_of_scope_flag', False)), key=f"oos_{notice_id}")
-                    
-                    st.write("")
-                    if st.button("Save Lead Details", key=f"save_{notice_id}", type="primary"):
-                        save_lead_details(
-                            notice_id, dm_name, dm_role, dm_email, outreach_channel, 
-                            last_contacted, follow_up, int(ddl_received), int(phase_1_audit), int(out_of_scope)
-                        )
-                        st.success("Details successfully saved.")
-                
-                with form_col3:
-                    st.markdown("**Pitch Generator**")
-                    agency_name = row['si_agency'] if pd.notna(row['si_agency']) and str(row['si_agency']).strip() else "your agency"
-                    buyer_name = row['buyer'] if pd.notna(row['buyer']) and str(row['buyer']).strip() else "the client"
-                    target_name = dm_name.strip() if dm_name and dm_name.strip() else "there"
-                    
-                    pitch_text = f"""Subject: De-risking {buyer_name} migration delivery
+                link_col1, link_col2 = st.columns(2)
+                with link_col1:
+                    st.link_button("🌐 View Contract Notice", row['link'], use_container_width=True)
+                with link_col2:
+                    if pd.notna(row['decision_maker_url']) and row['decision_maker_url']:
+                        st.link_button("🔗 LinkedIn Decision Makers", row['decision_maker_url'], use_container_width=True)
+                    else:
+                        st.button("🔗 LinkedIn (No URL Available)", disabled=True, use_container_width=True)
 
+                st.markdown("")
+                
+                with st.expander("📝 Edit Details & Access Pitch Generator", expanded=False):
+                    form_col1, form_col2, form_col3 = st.columns(3)
+                    
+                    with form_col1:
+                        st.markdown("**Contact Management**")
+                        dm_name = st.text_input("DM Name", value=row.get('dm_name') or "", key=f"dm_name_{notice_id}")
+                        dm_role = st.text_input("DM Role", value=row.get('dm_role') or "", key=f"dm_role_{notice_id}")
+                        dm_email = st.text_input("DM Email", value=row.get('dm_email') or "", key=f"dm_email_{notice_id}")
+                        outreach_channel = st.text_input("Outreach Channel", value=row.get('outreach_channel') or "", key=f"channel_{notice_id}")
+                        last_contacted = st.text_input("Last Contacted Date", value=row.get('last_contacted_date') or "", key=f"last_cont_{notice_id}")
+                        follow_up = st.text_input("Follow Up Date", value=row.get('follow_up_date') or "", key=f"follow_up_{notice_id}")
+                        
+                    with form_col2:
+                        st.markdown("**SLA Tracking**")
+                        ddl_received = st.checkbox("DDL Received", value=bool(row.get('ddl_received', False)), key=f"ddl_{notice_id}")
+                        phase_1_audit = st.checkbox("Phase 1 Audit Sent", value=bool(row.get('phase_1_audit_sent', False)), key=f"p1_{notice_id}")
+                        out_of_scope = st.checkbox("Out of Scope Flag", value=bool(row.get('out_of_scope_flag', False)), key=f"oos_{notice_id}")
+                        
+                        st.write("")
+                        if st.button("Save Lead Details", key=f"save_{notice_id}", type="primary", use_container_width=True):
+                            dm_name_clean = dm_name.strip()
+                            dm_role_clean = dm_role.strip()
+                            dm_email_clean = dm_email.strip()
+                            outreach_channel_clean = outreach_channel.strip()
+                            
+                            if not any([dm_name_clean, dm_role_clean, dm_email_clean, outreach_channel_clean]):
+                                st.error("Cannot save details: All contact fields (DM Name, DM Role, DM Email, and Outreach Channel) are empty. At least one must be filled.")
+                            elif dm_email_clean and not re.match(r"^[^@]+@[^@]+\.[^@]+$", dm_email_clean):
+                                st.error("Cannot save details: Please enter a valid email address.")
+                            else:
+                                save_lead_details(
+                                    notice_id, dm_name_clean, dm_role_clean, dm_email_clean, outreach_channel_clean, 
+                                    last_contacted, follow_up, int(ddl_received), int(phase_1_audit), int(out_of_scope)
+                                )
+                                st.success("Details successfully saved.")
+                    
+                    with form_col3:
+                        st.markdown("**Pitch Generator**")
+                        agency_name = row['si_agency'] if pd.notna(row['si_agency']) and str(row['si_agency']).strip() else "your agency"
+                        buyer_name = row['buyer'] if pd.notna(row['buyer']) and str(row['buyer']).strip() else "the client"
+                        target_name = dm_name.strip() if dm_name and dm_name.strip() else "there"
+                        
+                        pitch_text = f"""Subject: De-risking {buyer_name} migration delivery
+    
 Hi {target_name},
 
 Noticed {agency_name} won the {buyer_name} contract. 
@@ -203,7 +227,7 @@ We specialize in deterministic data migration audits that protect your expected 
 
 Open to exploring?
 """
-                    st.code(pitch_text, language='text')
+                        st.code(pitch_text, language='text')
 
 with tab2:
     st.subheader("Filter Configuration")
