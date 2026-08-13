@@ -1,7 +1,7 @@
 import sqlite3
 import os
 
-DB_PATH = "crm/leads.db"
+DB_PATH = "leads.db"
 
 def migrate():
     if not os.path.exists(DB_PATH):
