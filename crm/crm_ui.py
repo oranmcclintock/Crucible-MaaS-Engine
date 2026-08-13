@@ -9,13 +9,13 @@ import lead_enrichment
 DB_PATH = "leads.db"
 CONFIG_PATH = "crm_config.json"
 
-st.set_page_config(page_title="Crucible CRM Pipeline", layout="wide")
+st.set_page_config(page_title="Automated Pipeline Command Center", layout="wide")
 
 def load_data():
     if not os.path.exists(DB_PATH):
         return pd.DataFrame()
     conn = sqlite3.connect(DB_PATH)
-    df = pd.read_sql_query("SELECT notice_id, project_title, buyer, si_agency, contract_value, awarded_date, days_since_award, status, link, decision_maker_url FROM target_leads", conn)
+    df = pd.read_sql_query("SELECT * FROM target_leads", conn)
     conn.close()
     return df
 
@@ -23,6 +23,24 @@ def update_status(notice_id, new_status):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("UPDATE target_leads SET status = ? WHERE notice_id = ?", (new_status, notice_id))
+    conn.commit()
+    conn.close()
+
+def update_watchlist(notice_id, watchlist_val):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE target_leads SET watchlist = ? WHERE notice_id = ?", (watchlist_val, notice_id))
+    conn.commit()
+    conn.close()
+
+def save_lead_details(notice_id, dm_name, dm_role, dm_email, outreach_channel, last_contacted, follow_up, ddl, p1_audit, out_of_scope):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE target_leads 
+        SET dm_name=?, dm_role=?, dm_email=?, outreach_channel=?, last_contacted_date=?, follow_up_date=?, ddl_received=?, phase_1_audit_sent=?, out_of_scope_flag=?
+        WHERE notice_id=?
+    """, (dm_name, dm_role, dm_email, outreach_channel, last_contacted, follow_up, ddl, p1_audit, out_of_scope, notice_id))
     conn.commit()
     conn.close()
 
@@ -36,25 +54,24 @@ def save_config(config):
     with open(CONFIG_PATH, 'w') as f:
         json.dump(config, f, indent=2)
 
-st.title("Crucible MaaS CRM Pipeline")
-st.markdown("Contracts CRM Pipeline & Target Acquisition Dashboard")
+st.title("Automated Pipeline Command Center")
 
 # --- SIDEBAR: PIPELINE CONTROLS ---
 with st.sidebar:
-    st.header("⚡ Action Center")
+    st.header("Action Center")
     st.markdown("Execute backend data pipelines directly from the UI.")
     
     st.divider()
     
     if st.button("Fetch Fresh Contracts", type="primary", use_container_width=True):
-        with st.spinner("Ingesting Contracts Finder API..."):
+        with st.spinner("Ingesting Contracts API..."):
             result = lead_pipeline.run_pipeline()
             if result and result.get("success"):
                 st.success(f"Pipeline Complete! Inserted {result.get('inserted', 0)} new targets.")
             else:
                 st.error("Pipeline failed to execute.")
                 
-    if st.button("Generate Google Dorks (Enrich)", use_container_width=True):
+    if st.button("Generate Enrichment Data", use_container_width=True):
         with st.spinner("Generating search operators..."):
             result = lead_enrichment.enrich_leads()
             if result and result.get("success"):
@@ -63,7 +80,7 @@ with st.sidebar:
                 st.error("Enrichment failed.")
                 
     st.divider()
-    st.caption("Crucible Engine v2.0")
+    st.caption("System Version: 2.0")
 
 # --- MAIN TABS ---
 tab1, tab2 = st.tabs(["Pipeline Management", "Filter Configuration"])
@@ -72,59 +89,121 @@ with tab1:
     df = load_data()
 
     if df.empty:
-        st.info("No leads found in the database. Execute `lead_pipeline.py` to ingest leads.")
+        st.info("No leads found in the database. Execute pipeline to ingest leads.")
     else:
-        # Top Level KPIs
-        untouched_count = len(df[df['status'] == 'Untouched'])
-        messaged_count = len(df[df['status'] == 'Messaged'])
-        won_count = len(df[df['status'] == 'Audit Won'])
-        
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Pending Qualification", untouched_count)
-        col2.metric("Outreach Sent", messaged_count)
-        col3.metric("Audits Won", won_count)
+        # Top Metrics
+        active_pipeline_df = df[df['status'] != 'Rejected']
+        pipeline_value = active_pipeline_df['contract_value'].sum()
+        expected_margin = pipeline_value * 0.20
+
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Pipeline Value (£)", f"£{pipeline_value:,.2f}")
+        col2.metric("Expected Margin (£)", f"£{expected_margin:,.2f}")
+        col3.metric("Pending Qualification", len(df[df['status'] == 'Untouched']))
+        col4.metric("Audits Won", len(df[df['status'] == 'Audit Won']))
         
         st.divider()
         
+        # Pipeline View
         st.subheader("Target Pipeline")
         
-        # Filter by status
-        status_filter = st.selectbox("Filter by Status", ["All", "Untouched", "Messaged", "Audit Won", "Rejected"])
+        filter_col1, filter_col2 = st.columns(2)
+        with filter_col1:
+            status_filter = st.selectbox("Filter by Status", ["All", "Untouched", "Messaged", "Audit Won", "Rejected"])
+        with filter_col2:
+            st.write("")
+            st.write("")
+            show_watchlist_only = st.toggle("Show Watchlist Only", value=False)
+            
+        display_df = df.copy()
         if status_filter != "All":
-            display_df = df[df['status'] == status_filter]
-        else:
-            display_df = df
+            display_df = display_df[display_df['status'] == status_filter]
+        if show_watchlist_only:
+            display_df = display_df[display_df['watchlist'] == 1]
             
         for index, row in display_df.iterrows():
-            with st.expander(f"{row['si_agency']} - {row['project_title']}"):
-                cols = st.columns([3, 1])
+            notice_id = row['notice_id']
+            
+            title_text = f"{row['si_agency']} - {row['project_title']} (£{row['contract_value']:,.2f})"
+            if row['watchlist'] == 1:
+                title_text = "[WATCHLIST] " + title_text
+
+            with st.expander(title_text):
+                basic_col1, basic_col2 = st.columns([3, 1])
                 
-                with cols[0]:
-                    st.markdown(f"**Buyer:** {row['buyer']}")
-                    st.markdown(f"**Contract Value:** £{row['contract_value']:,.2f}")
-                    st.markdown(f"**Awarded:** {row['awarded_date']} ({row['days_since_award']} days ago)")
+                with basic_col1:
+                    st.markdown(f"**Buyer:** {row['buyer']} | **Awarded:** {row['awarded_date']} ({row['days_since_award']} days ago)")
                     st.markdown(f"[View Contract Notice]({row['link']})")
-                    
                     if pd.notna(row['decision_maker_url']) and row['decision_maker_url']:
-                        st.markdown(f"[Find Decision Makers on LinkedIn]({row['decision_maker_url']})")
-                    else:
-                        st.info("No Decision Maker URL generated. Execute `lead_enrichment.py`.")
+                        st.markdown(f"[LinkedIn Decision Makers]({row['decision_maker_url']})")
                 
-                with cols[1]:
+                with basic_col2:
+                    current_status = row['status'] if row['status'] in ["Untouched", "Messaged", "Audit Won", "Rejected"] else "Untouched"
                     new_status = st.selectbox(
-                        "Update Status", 
+                        "Status", 
                         options=["Untouched", "Messaged", "Audit Won", "Rejected"],
-                        index=["Untouched", "Messaged", "Audit Won", "Rejected"].index(row['status']),
-                        key=f"status_{row['notice_id']}"
+                        index=["Untouched", "Messaged", "Audit Won", "Rejected"].index(current_status),
+                        key=f"status_{notice_id}"
                     )
-                    
                     if new_status != row['status']:
-                        update_status(row['notice_id'], new_status)
+                        update_status(notice_id, new_status)
                         st.rerun()
+                    
+                    is_watched = bool(row['watchlist'])
+                    new_watch = st.toggle("Watchlist", value=is_watched, key=f"watch_{notice_id}")
+                    if new_watch != is_watched:
+                        update_watchlist(notice_id, 1 if new_watch else 0)
+                        st.rerun()
+
+                st.markdown("---")
+                
+                form_col1, form_col2, form_col3 = st.columns(3)
+                
+                with form_col1:
+                    st.markdown("**Contact Management**")
+                    dm_name = st.text_input("DM Name", value=row.get('dm_name') or "", key=f"dm_name_{notice_id}")
+                    dm_role = st.text_input("DM Role", value=row.get('dm_role') or "", key=f"dm_role_{notice_id}")
+                    dm_email = st.text_input("DM Email", value=row.get('dm_email') or "", key=f"dm_email_{notice_id}")
+                    outreach_channel = st.text_input("Outreach Channel", value=row.get('outreach_channel') or "", key=f"channel_{notice_id}")
+                    last_contacted = st.text_input("Last Contacted Date", value=row.get('last_contacted_date') or "", key=f"last_cont_{notice_id}")
+                    follow_up = st.text_input("Follow Up Date", value=row.get('follow_up_date') or "", key=f"follow_up_{notice_id}")
+                    
+                with form_col2:
+                    st.markdown("**SLA Tracking**")
+                    ddl_received = st.checkbox("DDL Received", value=bool(row.get('ddl_received', False)), key=f"ddl_{notice_id}")
+                    phase_1_audit = st.checkbox("Phase 1 Audit Sent", value=bool(row.get('phase_1_audit_sent', False)), key=f"p1_{notice_id}")
+                    out_of_scope = st.checkbox("Out of Scope Flag", value=bool(row.get('out_of_scope_flag', False)), key=f"oos_{notice_id}")
+                    
+                    st.write("")
+                    if st.button("Save Lead Details", key=f"save_{notice_id}", type="primary"):
+                        save_lead_details(
+                            notice_id, dm_name, dm_role, dm_email, outreach_channel, 
+                            last_contacted, follow_up, int(ddl_received), int(phase_1_audit), int(out_of_scope)
+                        )
+                        st.success("Details successfully saved.")
+                
+                with form_col3:
+                    st.markdown("**Pitch Generator**")
+                    agency_name = row['si_agency'] if pd.notna(row['si_agency']) and str(row['si_agency']).strip() else "your agency"
+                    buyer_name = row['buyer'] if pd.notna(row['buyer']) and str(row['buyer']).strip() else "the client"
+                    target_name = dm_name.strip() if dm_name and dm_name.strip() else "there"
+                    
+                    pitch_text = f"""Subject: De-risking {buyer_name} migration delivery
+
+Hi {target_name},
+
+Noticed {agency_name} won the {buyer_name} contract. 
+Given the 83% failure rate of legacy data migrations, margins are often eroded by scope creep and undocumented edge cases.
+
+We specialize in deterministic data migration audits that protect your expected margin. We can run a phase 1 audit sample to de-risk the pipeline within 48 hours.
+
+Open to exploring?
+"""
+                    st.code(pitch_text, language='text')
 
 with tab2:
     st.subheader("Filter Configuration")
-    st.markdown("Manage the target keywords used by the lead generation and sniper scripts.")
+    st.markdown("Manage target keywords and titles.")
     
     config = load_config()
     keywords = config.get("target_keywords", [])
@@ -146,7 +225,7 @@ with tab2:
         else:
             st.info("No active keywords.")
             
-        new_kw = st.text_input("Add new keyword (e.g. 'data consolidation')")
+        new_kw = st.text_input("Add new keyword")
         if st.button("Add Keyword"):
             if new_kw and new_kw.lower() not in keywords:
                 keywords.append(new_kw.lower())
@@ -168,7 +247,7 @@ with tab2:
         else:
             st.info("No active titles.")
             
-        new_title = st.text_input("Add new job title (e.g. 'Migration Lead')")
+        new_title = st.text_input("Add new job title")
         if st.button("Add Job Title"):
             if new_title and new_title not in titles:
                 titles.append(new_title)

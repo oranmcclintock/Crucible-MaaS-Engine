@@ -34,7 +34,10 @@ def init_db():
             days_since_award INTEGER,
             status TEXT DEFAULT 'Untouched',
             link TEXT,
-            decision_maker_url TEXT
+            decision_maker_url TEXT,
+            crucible_match_score INTEGER,
+            partner_strategy TEXT,
+            watchlist INTEGER DEFAULT 0
         )
     ''')
     conn.commit()
@@ -107,19 +110,43 @@ def run_pipeline():
             if not in_zone:
                 continue
             
-            # 4. Extract data and insert
+            # 4. Extract data and filter
+            value = item.get("awardedValue") or item.get("valueHigh") or item.get("valueLow") or 0
+            
+            if not value or value < 20000:
+                continue
+                
             agency = awarded_supplier if awarded_supplier else "Not Listed (Check Notice)"
             buyer = item.get("organisationName", "Unknown Buyer")
-            value = item.get("awardedValue") or item.get("valueHigh") or item.get("valueLow") or 0
             notice_id = item.get("id", "")
             link = f"https://www.contractsfinder.service.gov.uk/Notice/{notice_id}"
+            
+            crucible_match_score = 0
+            if 'legacy' in text_blob:
+                crucible_match_score += 20
+            if 'migration' in text_blob:
+                crucible_match_score += 30
+            if 'data quality' in text_blob:
+                crucible_match_score += 20
+            if 'erp' in text_blob:
+                crucible_match_score += 20
+            if 'transformation' in text_blob:
+                crucible_match_score += 10
+            crucible_match_score = min(crucible_match_score, 100)
+            
+            if agency and "Not Listed" not in agency:
+                partner_strategy = 'SI White-Label'
+            elif value < 50000:
+                partner_strategy = 'Direct Loss-Leader'
+            else:
+                partner_strategy = "Finder's Fee Candidate"
             
             try:
                 cursor.execute('''
                     INSERT INTO target_leads 
-                    (notice_id, project_title, buyer, si_agency, contract_value, awarded_date, days_since_award, link)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                ''', (notice_id, item.get("title", ""), buyer, agency, value, awarded_date_str, days_ago, link))
+                    (notice_id, project_title, buyer, si_agency, contract_value, awarded_date, days_since_award, link, crucible_match_score, partner_strategy, watchlist)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (notice_id, item.get("title", ""), buyer, agency, value, awarded_date_str, days_ago, link, crucible_match_score, partner_strategy, 0))
                 inserted_count += 1
             except sqlite3.IntegrityError:
                 # Already exists in the database
