@@ -52,7 +52,7 @@ def firehose_sniper():
             desc = item.get("description", "").lower()
             text_blob = f"{title} {desc}"
             
-            if not any(kw in text_blob for kw in target_keywords):
+            if not any(all(word in text_blob for word in kw.split()) for kw in target_keywords):
                 continue
             
             # 3. Extract data

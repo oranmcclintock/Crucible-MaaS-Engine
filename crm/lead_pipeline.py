@@ -96,7 +96,7 @@ def run_pipeline():
             text_blob = f"{title} {desc}"
             
             target_keywords = get_target_keywords()
-            if not any(kw in text_blob for kw in target_keywords):
+            if not any(all(word in text_blob for word in kw.split()) for kw in target_keywords):
                 continue
                 
             # 3. Time Filter (The Zone of Pain)
