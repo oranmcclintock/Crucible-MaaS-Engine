@@ -43,7 +43,7 @@ def generate_dork_url(si_name):
 def enrich_leads():
     if not os.path.exists(DB_PATH):
         print(f"Error: Database {DB_PATH} not found. Run lead_pipeline.py first.")
-        return
+        return {"success": False, "error": "Database not found."}
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -57,7 +57,7 @@ def enrich_leads():
     if not leads:
         print("No new 'Untouched' leads found to enrich.")
         conn.close()
-        return
+        return {"success": True, "enriched": 0}
         
     print(f"Enriching {len(leads)} leads with decision-maker search queries...\n")
     
@@ -76,6 +76,7 @@ def enrich_leads():
     conn.commit()
     conn.close()
     print("Enrichment complete. Database updated.")
+    return {"success": True, "enriched": len(leads)}
 
 if __name__ == "__main__":
     enrich_leads()

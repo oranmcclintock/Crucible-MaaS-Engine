@@ -3,6 +3,8 @@ import sqlite3
 import pandas as pd
 import os
 import json
+import lead_pipeline
+import lead_enrichment
 
 DB_PATH = "leads.db"
 CONFIG_PATH = "crm_config.json"
@@ -37,6 +39,33 @@ def save_config(config):
 st.title("Crucible MaaS CRM Pipeline")
 st.markdown("Contracts CRM Pipeline & Target Acquisition Dashboard")
 
+# --- SIDEBAR: PIPELINE CONTROLS ---
+with st.sidebar:
+    st.header("⚡ Action Center")
+    st.markdown("Execute backend data pipelines directly from the UI.")
+    
+    st.divider()
+    
+    if st.button("Fetch Fresh Contracts", type="primary", use_container_width=True):
+        with st.spinner("Ingesting Contracts Finder API..."):
+            result = lead_pipeline.run_pipeline()
+            if result and result.get("success"):
+                st.success(f"Pipeline Complete! Inserted {result.get('inserted', 0)} new targets.")
+            else:
+                st.error("Pipeline failed to execute.")
+                
+    if st.button("Generate Google Dorks (Enrich)", use_container_width=True):
+        with st.spinner("Generating search operators..."):
+            result = lead_enrichment.enrich_leads()
+            if result and result.get("success"):
+                st.success(f"Enrichment Complete! Generated links for {result.get('enriched', 0)} targets.")
+            else:
+                st.error("Enrichment failed.")
+                
+    st.divider()
+    st.caption("Crucible Engine v2.0")
+
+# --- MAIN TABS ---
 tab1, tab2 = st.tabs(["Pipeline Management", "Filter Configuration"])
 
 with tab1:

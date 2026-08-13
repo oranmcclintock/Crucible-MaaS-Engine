@@ -127,9 +127,11 @@ def run_pipeline():
                 
         conn.commit()
         print(f"Pipeline execution complete. Inserted {inserted_count} new 'Zone of Pain' targets into leads.db.")
+        return {"success": True, "inserted": inserted_count, "processed": len(notice_list)}
             
     except Exception as e:
         print(f"Pipeline Error: {e}")
+        return {"success": False, "error": str(e)}
     finally:
         conn.close()
 
