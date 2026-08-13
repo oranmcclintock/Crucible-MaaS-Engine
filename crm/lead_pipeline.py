@@ -14,7 +14,12 @@ TARGET_KEYWORDS = [
     "data platform",
     "digital transformation",
     "etl",
-    "data lakehouse"
+    "data lakehouse",
+    "system integration",
+    "data consolidation",
+    "electronic health record",
+    "ai readiness",
+    "master data management"
 ]
 
 API_URL = "https://www.contractsfinder.service.gov.uk/api/rest/2/search_notices/json"
