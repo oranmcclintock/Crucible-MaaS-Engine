@@ -33,7 +33,8 @@ def init_db():
             awarded_date TEXT,
             days_since_award INTEGER,
             status TEXT DEFAULT 'Untouched',
-            link TEXT
+            link TEXT,
+            decision_maker_url TEXT
         )
     ''')
     conn.commit()
