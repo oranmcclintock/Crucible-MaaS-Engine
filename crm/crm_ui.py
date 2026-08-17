@@ -70,11 +70,14 @@ with st.sidebar:
     
     st.divider()
     
+    import time
     if st.button("Fetch Fresh Contracts", type="primary", use_container_width=True):
-        with st.spinner("Ingesting Contracts API..."):
+        with st.spinner("Ingesting Contracts API (This takes ~60 seconds)..."):
             result = lead_pipeline.run_pipeline()
             if result and result.get("success"):
                 st.success(f"Pipeline Complete! Inserted {result.get('inserted', 0)} new targets.")
+                time.sleep(2)
+                st.rerun()
             else:
                 st.error("Pipeline failed to execute.")
                 
@@ -251,25 +254,7 @@ with tab2:
     
     with col_k:
         st.markdown("**Active Keywords:**")
-        if keywords:
-            for kw in keywords:
-                col_kw, col_del = st.columns([4, 1])
-                col_kw.text(kw)
-                if col_del.button("Remove", key=f"del_kw_{kw}"):
-                    keywords.remove(kw)
-                    config["target_keywords"] = keywords
-                    save_config(config)
-                    st.rerun()
-        else:
-            st.info("No active keywords.")
-            
-        new_kw = st.text_input("Add new keyword")
-        if st.button("Add Keyword"):
-            if new_kw and new_kw.lower() not in keywords:
-                keywords.append(new_kw.lower())
-                config["target_keywords"] = keywords
-                save_config(config)
-                st.rerun()
+        st.info("Keyword filtering is disabled. The pipeline is currently hardcoded to automatically pull CPV 72000000 (IT Services).")
                 
     with col_t:
         st.markdown("**Target Job Titles:**")
