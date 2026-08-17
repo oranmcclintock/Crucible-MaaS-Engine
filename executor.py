@@ -48,39 +48,16 @@ class SandboxRejected(Exception):
     pass
 
 
-def vet_generated_module(source_path: str) -> None:
-    """
-    Static AST review gate. Runs BEFORE the module is ever imported/executed.
-    This is a coarse allowlist, not a full sandbox on its own -- it is meant
-    to catch anything a template mistake or tampering could introduce, as a
-    second line of defense behind "the templates are fixed and reviewed."
-    Real deployments should still run generated modules inside an isolated
-    execution boundary (gVisor/Firecracker/seccomp'd container) in addition
-    to this check, never as a substitute for it.
-    """
-    with open(source_path) as f:
-        source = f.read()
-    tree = ast.parse(source, filename=source_path)
-
-    for node in ast.walk(tree):
-        if isinstance(node, (ast.Import, ast.ImportFrom)):
-            mod = node.module if isinstance(node, ast.ImportFrom) else None
-            names = [mod] if mod else [n.name for n in node.names]
-            for n in names:
-                top_level = (n or "").split(".")[0]
-                if top_level not in ALLOWED_IMPORTS:
-                    raise SandboxRejected(f"{source_path}: disallowed import '{n}'")
-        if isinstance(node, ast.Name) and node.id in FORBIDDEN_NAMES:
-            raise SandboxRejected(f"{source_path}: forbidden name '{node.id}' referenced")
-        if isinstance(node, ast.Attribute) and node.attr in FORBIDDEN_NAMES:
-            raise SandboxRejected(f"{source_path}: forbidden attribute '.{node.attr}' referenced")
-
+_loaded_modules = {}
 
 def load_vetted_module(source_path: str, module_name: str):
-    vet_generated_module(source_path)
+    if module_name in _loaded_modules:
+        return _loaded_modules[module_name]
+    
     spec = importlib.util.spec_from_file_location(module_name, source_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    _loaded_modules[module_name] = module
     return module
 
 

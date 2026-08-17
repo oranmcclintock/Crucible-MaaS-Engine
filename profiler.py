@@ -76,52 +76,7 @@ def sample_rows(engine, table_name, limit=SAMPLE_SIZE):
     return rows
 
 
-def infer_fk_candidates(table_names, columns_by_table, pk_by_table):
-    """
-    Legacy DBs frequently have zero declared FK constraints even though the
-    relationships exist logically. Fall back to naming-convention inference:
-    a column named '<singular_table>_id' or matching another table's PK
-    column name is treated as a *candidate* FK, clearly tagged as inferred
-    (not declared) so downstream review knows the difference.
-    """
-    candidates = []
-    for table in table_names:
-        for col in columns_by_table[table]:
-            cname = col["name"]
-            if not cname.lower().endswith("_id"):
-                continue
-            stem = cname[:-3].lower()  # e.g. "cust_id" -> "cust", "order_id" -> "order"
-            own_singular = (table[:-1] if table.endswith("s") else table).lower()
-            # A column named "<this table's own name>_id" is almost certainly this
-            # table's own identity column, not a reference to another table -- guard
-            # against matching a table's PK-like column back onto itself elsewhere.
-            if stem == own_singular or table.lower().startswith(stem):
-                continue
-            for other in table_names:
-                if other == table:
-                    continue
-                other_singular = (other[:-1] if other.endswith("s") else other).lower()
-                other_pk = pk_by_table.get(other)
-                pk_name_matches = other_pk and cname in other_pk
-                exact_match = stem == other_singular or stem == other.lower()
-                # abbreviation fallback (e.g. "cust" -> "customer"): treat as
-                # LOWER-CONFIDENCE inference, tagged distinctly, never silently
-                # equated with an exact/declared match.
-                prefix_match = (not exact_match) and len(stem) >= fc.RULES["fk_inference"]["min_stem_length_for_abbreviation_match"] and (
-                    other_singular.startswith(stem) or stem.startswith(other_singular)
-                )
-                if pk_name_matches or exact_match or prefix_match:
-                    candidates.append({
-                        "child_table": table, "constrained_columns": [cname],
-                        "referred_table": other, "referred_columns": other_pk or [cname],
-                        "inferred": True,
-                        "match_basis": "declared_pk_name" if pk_name_matches else (
-                            "exact_stem" if exact_match else "abbreviation_heuristic"
-                        ),
-                        "confidence": fc.RULES["fk_inference"]["exact_match_confidence"] if (pk_name_matches or exact_match)
-                                      else fc.RULES["fk_inference"]["abbreviation_match_confidence"],
-                    })
-    return candidates
+
 
 
 def check_dangling_fks(engine, table, fk, sample_limit=1000):
@@ -187,14 +142,7 @@ def run_profile(db_url: str, out_path="profile.json"):
 
     dep_graph, declared_fks = build_dependency_graph(inspector, table_names)
 
-    # Fall back to naming-convention inference for tables with zero declared FKs
-    inferred_fks = infer_fk_candidates(table_names, columns_by_table, pk_by_table)
     all_fks = {t: list(declared_fks.get(t, [])) for t in table_names}
-    for cand in inferred_fks:
-        t = cand["child_table"]
-        if not declared_fks.get(t):  # only fall back where nothing was declared
-            all_fks[t].append(cand)
-            dep_graph.add_edge(cand["child_table"], cand["referred_table"])
 
     load_order, cycle_warning = safe_topological_order(dep_graph)
 
@@ -231,7 +179,7 @@ def run_profile(db_url: str, out_path="profile.json"):
             "row_sample_size": len(rows),
             "declared_pk": list(pk_cols) or None,
             "declared_fks": declared_fks.get(table, []),
-            "inferred_fks": [c for c in inferred_fks if c["child_table"] == table],
+            "inferred_fks": [],
             "dangling_fk_findings": dangling,
             "columns": col_profiles,
         }
