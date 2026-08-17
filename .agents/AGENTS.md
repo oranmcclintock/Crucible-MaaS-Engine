@@ -21,3 +21,7 @@ Any agent working on the infrastructure, deployment, or orchestration of this pr
 ## 5. Storage and Databases
 - **No SQLite in K8s:** Do not use SQLite on Kubernetes Persistent Volume Claims (PVCs) for the `quarantine.db` due to file-locking issues with multiple replicas. 
 - **Postgres StatefulSets:** Use a dedicated PostgreSQL StatefulSet for the quarantine database, backed by the K3s `local-path` provisioner for bare-metal NVMe performance.
+
+## 6. The Ponytail Skill
+- **Manual Activation:** The Ponytail skill (a strict anti-bloat, YAGNI ruleset) is installed globally but is explicitly **disabled by default** via `~/.config/ponytail/config.json`.
+- **Usage:** As a blank agent, you must manually activate it or simulate its rules (e.g., writing the absolute minimum lines of code possible) only when the user explicitly requests an audit or asks for minimal, un-bloated code.
