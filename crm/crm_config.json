@@ -1,11 +1,8 @@
 {
   "target_keywords": [
     "data migration",
-    "legacy database",
     "legacy modernisation",
     "cloud migration",
-    "data transition",
-    "data platform",
     "digital transformation",
     "etl",
     "data lakehouse",
@@ -14,8 +11,15 @@
     "electronic health record",
     "ai readiness",
     "master data management",
-    "data",
-    "migration"
+    "data strategy",
+    "infrastructure modernisation",
+    "software implementation",
+    "system upgrade",
+    "data architecture",
+    "cloud platform",
+    "legacy replacement",
+    "data pipeline",
+    "legacy database"
   ],
   "target_titles": [
     "Delivery Manager",

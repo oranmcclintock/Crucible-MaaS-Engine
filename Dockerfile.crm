@@ -2,6 +2,9 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Create a non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
 # Install dependencies
 RUN pip install --no-cache-dir requests python-dateutil pandas streamlit
 
@@ -10,6 +13,10 @@ COPY crm/ /app/crm/
 
 # Set working directory to the CRM folder so SQLite db is in context
 WORKDIR /app/crm
+
+# Set ownership and switch to non-root user
+RUN chown -R appuser:appuser /app
+USER appuser
 
 # Expose Streamlit port
 EXPOSE 8501
