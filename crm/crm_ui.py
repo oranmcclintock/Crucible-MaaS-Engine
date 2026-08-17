@@ -9,9 +9,6 @@ import lead_enrichment
 import migrate_db
 
 
-# Run migration check on startup
-migrate_db.migrate()
-
 DB_PATH = "leads.db"
 CONFIG_PATH = "crm_config.json"
 
@@ -20,6 +17,10 @@ st.set_page_config(page_title="Automated Pipeline Command Center", layout="wide"
 def load_data():
     if not os.path.exists(DB_PATH):
         return pd.DataFrame()
+    
+    # Ensure database schema is up-to-date before querying
+    migrate_db.migrate()
+    
     conn = sqlite3.connect(DB_PATH)
     df = pd.read_sql_query("SELECT * FROM target_leads", conn)
     conn.close()
