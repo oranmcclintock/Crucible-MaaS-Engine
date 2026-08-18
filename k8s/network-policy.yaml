@@ -12,16 +12,22 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: engine-egress
+  name: crm-ui-policy
   namespace: migration-engine
 spec:
   podSelector:
     matchLabels:
-      app: migration-engine
+      app: crm-dashboard
   policyTypes:
+    - Ingress
     - Egress
+  ingress:
+    # Allow all ingress to the Streamlit UI (from Traefik/Ingress)
+    - ports:
+        - protocol: TCP
+          port: 8501
   egress:
-    # Allow egress to internal Postgres DB
+    # Allow egress to Postgres
     - to:
         - podSelector:
             matchLabels:
@@ -29,20 +35,34 @@ spec:
       ports:
         - protocol: TCP
           port: 5432
-    # Allow egress to external databases (Update CIDR blocks to match specific external DB IPs)
-    - to:
-        - ipBlock:
-            cidr: 10.0.0.0/8 # Placeholder, adjust as necessary
-      ports:
+    # Allow egress to internet (HTTPS) for API calls and DNS
+    - ports:
         - protocol: TCP
-          port: 5432 # Adjust port if external databases use different ports
-    # Allow DNS resolution
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: kube-system
-      ports:
+          port: 443
+        - protocol: TCP
+          port: 80
         - protocol: UDP
           port: 53
         - protocol: TCP
           port: 53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgres-policy
+  namespace: migration-engine
+spec:
+  podSelector:
+    matchLabels:
+      app: postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    # Allow ingress from CRM UI to Postgres
+    - from:
+        - podSelector:
+            matchLabels:
+              app: crm-dashboard
+      ports:
+        - protocol: TCP
+          port: 5432
