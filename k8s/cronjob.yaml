@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: crm-lead-pipeline
+  namespace: migration-engine
+spec:
+  schedule: "0 6 * * *"  # Run at 6:00 AM every day
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          imagePullSecrets:
+            - name: github-ghcr
+          containers:
+            - name: crm-pipeline
+              image: ghcr.io/oranmcclintock/crucible-maas-engine-crm:latest
+              imagePullPolicy: Always
+              command: ["python", "/app/crm/lead_pipeline.py"]
+              resources:
+                requests:
+                  memory: "256Mi"
+                  cpu: "100m"
+                limits:
+                  memory: "512Mi"
+                  cpu: "250m"
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - name: crm-data
+                  mountPath: /app/crm/leads.db
+                  subPath: leads.db
+                - name: crm-data
+                  mountPath: /app/crm/crm_config.json
+                  subPath: crm_config.json
+          restartPolicy: OnFailure
+          volumes:
+            - name: crm-data
+              persistentVolumeClaim:
+                claimName: crm-data-pvc
