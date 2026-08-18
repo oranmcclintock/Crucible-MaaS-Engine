@@ -3,13 +3,12 @@ import sqlite3
 import os
 from datetime import datetime, timezone
 import dateutil.parser
+import time
+import json
 import re
 
-import json
-import os
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_PATH = os.path.join(BASE_DIR, "crm_config.json")
+CONFIG_PATH = os.path.join(BASE_DIR, "data", "crm_config.json")
 
 def get_target_keywords():
     try:
@@ -21,10 +20,12 @@ def get_target_keywords():
         return []
 
 API_URL = "https://www.contractsfinder.service.gov.uk/api/rest/2/search_notices/json"
-DB_PATH = os.path.join(BASE_DIR, "leads.db")
+DB_PATH = os.path.join(BASE_DIR, "data", "leads.db")
 
 def init_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
+    # Enable WAL mode for high concurrency write/read access
+    conn.execute("PRAGMA journal_mode=WAL;")
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS target_leads (
@@ -79,6 +80,8 @@ def is_in_zone_of_pain(awarded_date_str):
         return False, 0
 
 def run_pipeline():
+    # Startup delay to ensure container networking/DNS resolves correctly on cold starts
+    time.sleep(5)
     print(f"[{datetime.now().strftime('%H:%M:%S')}] Initializing Lead Pipeline Database...")
     conn = init_db()
     cursor = conn.cursor()

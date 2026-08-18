@@ -1,14 +1,15 @@
 import sqlite3
 import os
 
-DB_PATH = "leads.db"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "data", "leads.db")
 
 def migrate():
     if not os.path.exists(DB_PATH):
         print("Database not found. Skipping migration.")
         return
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     cursor = conn.cursor()
     
     # Get existing columns

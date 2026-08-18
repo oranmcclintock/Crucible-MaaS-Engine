@@ -9,8 +9,8 @@ import lead_enrichment
 import migrate_db
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "leads.db")
-CONFIG_PATH = os.path.join(BASE_DIR, "crm_config.json")
+DB_PATH = os.path.join(BASE_DIR, "data", "leads.db")
+CONFIG_PATH = os.path.join(BASE_DIR, "data", "crm_config.json")
 
 st.set_page_config(page_title="Automated Pipeline Command Center", layout="wide")
 
@@ -21,27 +21,27 @@ def load_data():
     # Ensure database schema is up-to-date before querying
     migrate_db.migrate()
     
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     df = pd.read_sql_query("SELECT * FROM target_leads", conn)
     conn.close()
     return df
 
 def update_status(notice_id, new_status):
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     cursor = conn.cursor()
     cursor.execute("UPDATE target_leads SET status = ? WHERE notice_id = ?", (new_status, notice_id))
     conn.commit()
     conn.close()
 
 def update_watchlist(notice_id, watchlist_val):
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     cursor = conn.cursor()
     cursor.execute("UPDATE target_leads SET watchlist = ? WHERE notice_id = ?", (watchlist_val, notice_id))
     conn.commit()
     conn.close()
 
 def save_lead_details(notice_id, dm_name, dm_role, dm_email, outreach_channel, last_contacted, follow_up, ddl, p1_audit, out_of_scope):
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     cursor = conn.cursor()
     cursor.execute("""
         UPDATE target_leads 
