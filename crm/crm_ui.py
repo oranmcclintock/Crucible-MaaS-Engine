@@ -1,18 +1,15 @@
 import streamlit as st
 import psycopg2
+from psycopg2 import pool
 import pandas as pd
 import os
 import json
 import re
-import lead_pipeline
 import lead_enrichment
 import migrate_db
-import threading
 import time
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_PATH = os.path.join(BASE_DIR, "data", "crm_config.json")
-STATUS_PATH = os.path.join(BASE_DIR, "pipeline_status.json")
 
 DB_HOST = os.environ.get("DB_HOST", "postgres")
 DB_NAME = os.environ.get("DB_NAME", "quarantine")
@@ -21,67 +18,116 @@ DB_PASS = os.environ.get("DB_PASS", "postgres")
 
 st.set_page_config(page_title="Automated Pipeline Command Center", layout="wide")
 
+# Initialize global connection pool
+@st.cache_resource
+def get_pool():
+    try:
+        return psycopg2.pool.SimpleConnectionPool(
+            1, 20,
+            host=DB_HOST,
+            dbname=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS
+        )
+    except Exception as e:
+        st.error(f"Failed to initialize connection pool: {e}")
+        return None
+
+db_pool = get_pool()
+
 def get_connection():
-    return psycopg2.connect(
-        host=DB_HOST,
-        dbname=DB_NAME,
-        user=DB_USER,
-        password=DB_PASS
-    )
+    if db_pool:
+        return db_pool.getconn()
+    return None
+
+def release_connection(conn):
+    if db_pool and conn:
+        db_pool.putconn(conn)
 
 def load_data():
     migrate_db.migrate()
+    conn = get_connection()
+    if not conn:
+        return pd.DataFrame()
     try:
-        conn = get_connection()
         df = pd.read_sql_query("SELECT * FROM target_leads", conn)
-        conn.close()
         return df
     except Exception as e:
         st.error(f"Database error: {e}")
         return pd.DataFrame()
+    finally:
+        release_connection(conn)
 
 def update_status(notice_id, new_status):
     conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE target_leads SET status = %s WHERE notice_id = %s", (new_status, notice_id))
-    conn.commit()
-    conn.close()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE target_leads SET status = %s WHERE notice_id = %s", (new_status, notice_id))
+        conn.commit()
+    finally:
+        release_connection(conn)
 
 def update_watchlist(notice_id, watchlist_val):
     conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE target_leads SET watchlist = %s WHERE notice_id = %s", (watchlist_val, notice_id))
-    conn.commit()
-    conn.close()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE target_leads SET watchlist = %s WHERE notice_id = %s", (watchlist_val, notice_id))
+        conn.commit()
+    finally:
+        release_connection(conn)
 
 def save_lead_details(notice_id, dm_name, dm_role, dm_email, outreach_channel, last_contacted, follow_up, ddl, p1_audit, out_of_scope):
     conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        UPDATE target_leads 
-        SET dm_name=%s, dm_role=%s, dm_email=%s, outreach_channel=%s, last_contacted_date=%s, follow_up_date=%s, ddl_received=%s, phase_1_audit_sent=%s, out_of_scope_flag=%s
-        WHERE notice_id=%s
-    """, (dm_name, dm_role, dm_email, outreach_channel, last_contacted, follow_up, ddl, p1_audit, out_of_scope, notice_id))
-    conn.commit()
-    conn.close()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE target_leads 
+            SET dm_name=%s, dm_role=%s, dm_email=%s, outreach_channel=%s, last_contacted_date=%s, follow_up_date=%s, ddl_received=%s, phase_1_audit_sent=%s, out_of_scope_flag=%s
+            WHERE notice_id=%s
+        """, (dm_name, dm_role, dm_email, outreach_channel, last_contacted, follow_up, ddl, p1_audit, out_of_scope, notice_id))
+        conn.commit()
+    finally:
+        release_connection(conn)
 
 def load_config():
-    if not os.path.exists(CONFIG_PATH):
-        return {"target_keywords": []}
-    with open(CONFIG_PATH, 'r') as f:
-        return json.load(f)
+    conn = get_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT value FROM crm_config WHERE key = 'main'")
+        row = cursor.fetchone()
+        if row and row[0]:
+            # SQLite returns string, PostgreSQL returns dict for JSONB
+            if isinstance(row[0], str):
+                return json.loads(row[0])
+            return row[0]
+        return {"target_keywords": [], "target_titles": []}
+    except Exception as e:
+        print(f"Error loading config: {e}")
+        return {"target_keywords": [], "target_titles": []}
+    finally:
+        release_connection(conn)
 
 def save_config(config):
-    with open(CONFIG_PATH, 'w') as f:
-        json.dump(config, f, indent=2)
+    conn = get_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO crm_config (key, value)
+            VALUES ('main', %s)
+            ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+        ''', (json.dumps(config),))
+        conn.commit()
+    except Exception as e:
+        print(f"Error saving config: {e}")
+    finally:
+        release_connection(conn)
 
 def get_pipeline_status():
+    conn = get_connection()
     try:
-        conn = get_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT status, progress, percent, inserted, processed, error, cancel_requested FROM pipeline_state WHERE key = 'main'")
         row = cursor.fetchone()
-        conn.close()
         if row:
             return {
                 "status": row[0] or "idle",
@@ -94,37 +140,65 @@ def get_pipeline_status():
             }
     except Exception as e:
         print(f"Error fetching status: {e}")
+    finally:
+        release_connection(conn)
     return {"status": "idle"}
 
-def set_pipeline_status(status_obj):
+def set_pipeline_status(status_obj, trigger_pipeline=None):
+    conn = get_connection()
     try:
-        conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO pipeline_state (key, status, progress, percent, inserted, processed, error, cancel_requested, updated_at)
-            VALUES ('main', %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
-            ON CONFLICT (key) DO UPDATE SET 
-                status = EXCLUDED.status,
-                progress = EXCLUDED.progress,
-                percent = EXCLUDED.percent,
-                inserted = EXCLUDED.inserted,
-                processed = EXCLUDED.processed,
-                error = EXCLUDED.error,
-                cancel_requested = EXCLUDED.cancel_requested,
-                updated_at = CURRENT_TIMESTAMP
-        ''', (
-            status_obj.get("status", "idle"),
-            status_obj.get("progress", ""),
-            status_obj.get("percent", 0),
-            status_obj.get("inserted", 0),
-            status_obj.get("processed", 0),
-            status_obj.get("error", ""),
-            1 if status_obj.get("cancel_requested") else 0
-        ))
+        if trigger_pipeline is not None:
+            cursor.execute('''
+                INSERT INTO pipeline_state (key, status, progress, percent, inserted, processed, error, cancel_requested, trigger_pipeline, updated_at)
+                VALUES ('main', %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+                ON CONFLICT (key) DO UPDATE SET 
+                    status = EXCLUDED.status,
+                    progress = EXCLUDED.progress,
+                    percent = EXCLUDED.percent,
+                    inserted = EXCLUDED.inserted,
+                    processed = EXCLUDED.processed,
+                    error = EXCLUDED.error,
+                    cancel_requested = EXCLUDED.cancel_requested,
+                    trigger_pipeline = EXCLUDED.trigger_pipeline,
+                    updated_at = CURRENT_TIMESTAMP
+            ''', (
+                status_obj.get("status", "idle"),
+                status_obj.get("progress", ""),
+                status_obj.get("percent", 0),
+                status_obj.get("inserted", 0),
+                status_obj.get("processed", 0),
+                status_obj.get("error", ""),
+                1 if status_obj.get("cancel_requested") else 0,
+                trigger_pipeline
+            ))
+        else:
+            cursor.execute('''
+                INSERT INTO pipeline_state (key, status, progress, percent, inserted, processed, error, cancel_requested, updated_at)
+                VALUES ('main', %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+                ON CONFLICT (key) DO UPDATE SET 
+                    status = EXCLUDED.status,
+                    progress = EXCLUDED.progress,
+                    percent = EXCLUDED.percent,
+                    inserted = EXCLUDED.inserted,
+                    processed = EXCLUDED.processed,
+                    error = EXCLUDED.error,
+                    cancel_requested = EXCLUDED.cancel_requested,
+                    updated_at = CURRENT_TIMESTAMP
+            ''', (
+                status_obj.get("status", "idle"),
+                status_obj.get("progress", ""),
+                status_obj.get("percent", 0),
+                status_obj.get("inserted", 0),
+                status_obj.get("processed", 0),
+                status_obj.get("error", ""),
+                1 if status_obj.get("cancel_requested") else 0
+            ))
         conn.commit()
-        conn.close()
     except Exception as e:
         print(f"Error setting status: {e}")
+    finally:
+        release_connection(conn)
 
 # --- Callbacks ---
 def on_status_change(notice_id, key):
@@ -136,6 +210,9 @@ def on_watchlist_change(notice_id, key):
     update_watchlist(notice_id, 1 if new_watch else 0)
 
 st.title("Automated Pipeline Command Center")
+
+if "selected_notice_id" not in st.session_state:
+    st.session_state["selected_notice_id"] = None
 
 # --- SIDEBAR: PIPELINE CONTROLS ---
 with st.sidebar:
@@ -163,10 +240,7 @@ with st.sidebar:
                 st.error(f"Pipeline failed: {status.get('error', '')}")
                 
             if st.button("Fetch Fresh Contracts", type="primary", use_container_width=True, key="btn_fetch"):
-                set_pipeline_status({"status": "running"})
-                thread = threading.Thread(target=lead_pipeline.run_pipeline, daemon=True)
-                thread.start()
-                time.sleep(0.5)
+                set_pipeline_status({"status": "running"}, trigger_pipeline=1)
                 st.rerun()
 
     render_pipeline_progress()
@@ -180,7 +254,7 @@ with st.sidebar:
                 st.error("Enrichment failed.")
                 
     st.divider()
-    st.caption("System Version: 3.0 (PostgreSQL Native)")
+    st.caption("System Version: 3.1 (Stateless Architecture)")
 
 # --- MAIN TABS ---
 tab1, tab2 = st.tabs(["Pipeline Management", "Filter Configuration"])
@@ -238,11 +312,22 @@ with tab1:
         
         if selected_rows:
             selected_index = selected_rows[0]
-            row = display_df.iloc[selected_index]
-            notice_id = row['notice_id']
+            st.session_state["selected_notice_id"] = display_df.iloc[selected_index]['notice_id']
+            
+        notice_id_to_view = st.session_state["selected_notice_id"]
+        
+        if notice_id_to_view and notice_id_to_view in display_df['notice_id'].values:
+            row = display_df[display_df['notice_id'] == notice_id_to_view].iloc[0]
+            notice_id = notice_id_to_view
             
             st.markdown("---")
-            st.subheader(f"Lead Details: {row['si_agency']}")
+            col_head, col_close = st.columns([10, 1])
+            with col_head:
+                st.subheader(f"Lead Details: {row['si_agency']}")
+            with col_close:
+                if st.button("Close X"):
+                    st.session_state["selected_notice_id"] = None
+                    st.rerun()
             
             # Header info
             h1, h2, h3 = st.columns(3)
@@ -311,6 +396,7 @@ with tab1:
                             last_contacted, follow_up, int(ddl_received), int(phase_1_audit), int(out_of_scope)
                         )
                         st.success("Details successfully saved.")
+                        # The UI won't close because notice_id is cached in st.session_state!
                         
             with d_tab3:
                 agency_name = row['si_agency'] if pd.notna(row['si_agency']) and str(row['si_agency']).strip() else "your agency"

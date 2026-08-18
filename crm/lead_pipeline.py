@@ -1,5 +1,6 @@
 import requests
 import psycopg2
+from psycopg2 import pool
 import os
 from datetime import datetime, timezone
 import dateutil.parser
@@ -8,82 +9,110 @@ import json
 import re
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_PATH = os.path.join(BASE_DIR, "data", "crm_config.json")
-
-def get_target_keywords():
-    try:
-        with open(CONFIG_PATH, 'r') as f:
-            config = json.load(f)
-            return config.get("target_keywords", [])
-    except Exception as e:
-        print(f"Error loading config: {e}")
-        return []
-
-API_URL = "https://www.contractsfinder.service.gov.uk/api/rest/2/search_notices/json"
 
 DB_HOST = os.environ.get("DB_HOST", "postgres")
 DB_NAME = os.environ.get("DB_NAME", "quarantine")
 DB_USER = os.environ.get("DB_USER", "postgres")
 DB_PASS = os.environ.get("DB_PASS", "postgres")
 
-def get_connection():
-    return psycopg2.connect(
+# Initialize global connection pool
+try:
+    db_pool = psycopg2.pool.SimpleConnectionPool(
+        1, 10,
         host=DB_HOST,
         dbname=DB_NAME,
         user=DB_USER,
         password=DB_PASS
     )
+except Exception as e:
+    print(f"Failed to initialize connection pool: {e}")
+    db_pool = None
+
+def get_connection():
+    if db_pool:
+        return db_pool.getconn()
+    return None
+
+def release_connection(conn):
+    if db_pool and conn:
+        db_pool.putconn(conn)
+
+def get_target_keywords():
+    conn = get_connection()
+    try:
+        if conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT value FROM crm_config WHERE key = 'main'")
+            row = cursor.fetchone()
+            if row and row[0]:
+                if isinstance(row[0], str):
+                    config = json.loads(row[0])
+                else:
+                    config = row[0]
+                return config.get("target_keywords", [])
+        return []
+    except Exception as e:
+        print(f"Error loading config: {e}")
+        return []
+    finally:
+        release_connection(conn)
+
+API_URL = "https://www.contractsfinder.service.gov.uk/api/rest/2/search_notices/json"
 
 def get_pipeline_status():
+    conn = get_connection()
     try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT status, progress, percent, inserted, processed, error, cancel_requested FROM pipeline_state WHERE key = 'main'")
-        row = cursor.fetchone()
-        conn.close()
-        if row:
-            return {
-                "status": row[0] or "idle",
-                "progress": row[1] or "",
-                "percent": row[2] or 0,
-                "inserted": row[3] or 0,
-                "processed": row[4] or 0,
-                "error": row[5] or "",
-                "cancel_requested": bool(row[6])
-            }
+        if conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT status, progress, percent, inserted, processed, error, cancel_requested FROM pipeline_state WHERE key = 'main'")
+            row = cursor.fetchone()
+            if row:
+                return {
+                    "status": row[0] or "idle",
+                    "progress": row[1] or "",
+                    "percent": row[2] or 0,
+                    "inserted": row[3] or 0,
+                    "processed": row[4] or 0,
+                    "error": row[5] or "",
+                    "cancel_requested": bool(row[6])
+                }
     except Exception as e:
         print(f"Error fetching status: {e}")
+    finally:
+        release_connection(conn)
     return {"status": "idle"}
 
 def set_pipeline_status(status_obj):
+    conn = get_connection()
     try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO pipeline_state (key, status, progress, percent, inserted, processed, error, cancel_requested, updated_at)
-            VALUES ('main', %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
-            ON CONFLICT (key) DO UPDATE SET 
-                status = EXCLUDED.status,
-                progress = EXCLUDED.progress,
-                percent = EXCLUDED.percent,
-                inserted = EXCLUDED.inserted,
-                processed = EXCLUDED.processed,
-                error = EXCLUDED.error,
-                cancel_requested = EXCLUDED.cancel_requested,
-                updated_at = CURRENT_TIMESTAMP
-        ''', (
-            status_obj.get("status", "idle"),
-            status_obj.get("progress", ""),
-            status_obj.get("percent", 0),
-            status_obj.get("inserted", 0),
-            status_obj.get("processed", 0),
-            status_obj.get("error", ""),
-            1 if status_obj.get("cancel_requested") else 0
-        ))
-        conn.commit()
-        conn.close()
+        if conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO pipeline_state (key, status, progress, percent, inserted, processed, error, cancel_requested, updated_at)
+                VALUES ('main', %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+                ON CONFLICT (key) DO UPDATE SET 
+                    status = EXCLUDED.status,
+                    progress = EXCLUDED.progress,
+                    percent = EXCLUDED.percent,
+                    inserted = EXCLUDED.inserted,
+                    processed = EXCLUDED.processed,
+                    error = EXCLUDED.error,
+                    cancel_requested = EXCLUDED.cancel_requested,
+                    updated_at = CURRENT_TIMESTAMP
+            ''', (
+                status_obj.get("status", "idle"),
+                status_obj.get("progress", ""),
+                status_obj.get("percent", 0),
+                status_obj.get("inserted", 0),
+                status_obj.get("processed", 0),
+                status_obj.get("error", ""),
+                1 if status_obj.get("cancel_requested") else 0
+            ))
+            conn.commit()
     except Exception as e:
         print(f"Error setting status: {e}")
+    finally:
+        release_connection(conn)
 
 def is_in_zone_of_pain(awarded_date_str):
     """
@@ -107,7 +136,7 @@ def is_in_zone_of_pain(awarded_date_str):
 
 def run_pipeline():
     # Startup delay to ensure container networking/DNS resolves correctly on cold starts
-    time.sleep(5)
+    time.sleep(2)
     print(f"[{datetime.now().strftime('%H:%M:%S')}] Initializing Lead Pipeline Database...")
     
     # Ensure schema exists by calling migrate_db (we can just import it)
@@ -115,20 +144,24 @@ def run_pipeline():
     migrate_db.migrate()
     
     conn = get_connection()
-    cursor = conn.cursor()
-    
-    from datetime import timedelta
-    now = datetime.now(timezone.utc)
-    # The Zone of Pain is between 200 days ago and 90 days ago
-    start_date = now - timedelta(days=200)
-    end_date = now - timedelta(days=90)
-    
-    print(f"Ingesting Contracts Finder API Firehose for Zone of Pain ({start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')})...")
-    
-    inserted_count = 0
-    total_processed = 0
-    
+    if not conn:
+        print("Failed to get DB connection for pipeline.")
+        return {"success": False, "error": "DB connection failed"}
+        
     try:
+        cursor = conn.cursor()
+        
+        from datetime import timedelta
+        now = datetime.now(timezone.utc)
+        # The Zone of Pain is between 200 days ago and 90 days ago
+        start_date = now - timedelta(days=200)
+        end_date = now - timedelta(days=90)
+        
+        print(f"Ingesting Contracts Finder API Firehose for Zone of Pain ({start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')})...")
+        
+        inserted_count = 0
+        total_processed = 0
+        
         # Time-chunking to bypass API pagination limits: 10-day windows
         current_date = start_date
         total_windows = 11
@@ -253,8 +286,44 @@ def run_pipeline():
         set_pipeline_status({"status": "failed", "error": str(e)})
         return {"success": False, "error": str(e)}
     finally:
-        if 'conn' in locals() and conn:
-            conn.close()
+        release_connection(conn)
 
 if __name__ == "__main__":
-    run_pipeline()
+    print(f"[{datetime.now(timezone.utc).isoformat()}] Pipeline worker started. Polling for 'trigger_pipeline' flag...")
+    while True:
+        conn = get_connection()
+        if conn:
+            try:
+                cursor = conn.cursor()
+                # Create table if it doesn't exist to prevent crash on fresh start
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS pipeline_state (
+                        key TEXT PRIMARY KEY,
+                        status TEXT,
+                        progress TEXT,
+                        percent INTEGER,
+                        inserted INTEGER,
+                        processed INTEGER,
+                        error TEXT,
+                        cancel_requested INTEGER DEFAULT 0,
+                        trigger_pipeline INTEGER DEFAULT 0,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                ''')
+                conn.commit()
+                
+                cursor.execute("SELECT trigger_pipeline FROM pipeline_state WHERE key = 'main'")
+                row = cursor.fetchone()
+                if row and row[0] == 1:
+                    cursor.execute("UPDATE pipeline_state SET trigger_pipeline = 0 WHERE key = 'main'")
+                    conn.commit()
+                    release_connection(conn)
+                    print(f"[{datetime.now(timezone.utc).isoformat()}] Pipeline trigger detected. Starting execution...")
+                    run_pipeline()
+                else:
+                    release_connection(conn)
+            except Exception as e:
+                print(f"Worker polling error: {e}")
+                conn.rollback()
+                release_connection(conn)
+        time.sleep(5)

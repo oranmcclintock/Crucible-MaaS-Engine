@@ -30,6 +30,7 @@ import sys
 import os
 from datetime import date, datetime, timezone
 from decimal import Decimal
+import multiprocessing
 
 import flaw_catalog as fc
 
@@ -61,15 +62,20 @@ class ASTValidator(ast.NodeVisitor):
         
     def visit_Call(self, node):
         if isinstance(node.func, ast.Name):
-            if node.func.id in FORBIDDEN_NAMES:
+            if node.func.id in FORBIDDEN_NAMES or "__" in node.func.id:
                 raise SandboxRejected(f"Forbidden function call: {node.func.id}")
         elif isinstance(node.func, ast.Attribute):
-            if node.func.attr in FORBIDDEN_NAMES:
+            if node.func.attr in FORBIDDEN_NAMES or "__" in node.func.attr:
                 raise SandboxRejected(f"Forbidden attribute call: {node.func.attr}")
         self.generic_visit(node)
 
+    def visit_Attribute(self, node):
+        if node.attr in FORBIDDEN_NAMES or "__" in node.attr:
+            raise SandboxRejected(f"Forbidden attribute access: {node.attr}")
+        self.generic_visit(node)
+
     def visit_Name(self, node):
-        if node.id in FORBIDDEN_NAMES:
+        if node.id in FORBIDDEN_NAMES or "__" in node.id:
             raise SandboxRejected(f"Forbidden name access: {node.id}")
         self.generic_visit(node)
 
@@ -88,6 +94,7 @@ def load_vetted_module(source_path: str, module_name: str):
     
     spec = importlib.util.spec_from_file_location(module_name, source_path)
     module = importlib.util.module_from_spec(spec)
+    module.__builtins__ = {} # Strip builtins for sandbox escape mitigation
     spec.loader.exec_module(module)
     _loaded_modules[module_name] = module
     return module
@@ -113,7 +120,7 @@ def init_quarantine_db(path="quarantine/quarantine.db"):
         url = f"sqlite:///{path}"
     else:
         url = path
-    engine = create_engine(url)
+    engine = create_engine(url, pool_pre_ping=True, pool_recycle=3600)
     metadata.create_all(engine)
     return engine
 
@@ -173,7 +180,7 @@ def _worker_process_chunk(args):
     return {"clean_rows": clean_rows, "quarantined_records": quarantined_records}
 
 
-def run_table(table: str, engine_url: str, target_engine_url: str, generated_dir="generated", q_conn=None, workers="auto"):
+def run_table(table: str, engine_url: str, target_engine_url: str, pool: multiprocessing.Pool, generated_dir="generated", q_conn=None):
     module_path = os.path.join(generated_dir, f"{table}_transform.py")
     module_name = f"gen_{table}"
 
@@ -201,67 +208,84 @@ def run_table(table: str, engine_url: str, target_engine_url: str, generated_dir
     total_clean = 0
     quarantined = 0
     sample_clean = []
+    
+    # Use server_side_cursors for PostgreSQL to prevent OOM
+    exec_options = {"yield_per": 10000}
+    if src_engine.dialect.name == "postgresql":
+        exec_options["server_side_cursors"] = True
 
     with src_engine.connect() as conn:
-        cursor = conn.execution_options(yield_per=10000).exec_driver_sql(f'SELECT * FROM "{table}"').mappings()
+        cursor = conn.execution_options(**exec_options).exec_driver_sql(f'SELECT * FROM "{table}"').mappings()
         
-        from multiprocessing import Pool
-        import multiprocessing
-        
-        num_cores = multiprocessing.cpu_count() if workers == "auto" else int(workers)
-        
-        with Pool(processes=num_cores) as pool:
-            while True:
-                chunk = cursor.fetchmany(10000)
-                if not chunk:
-                    break
-                
-                rows = [dict(r) for r in chunk]
-                total += len(rows)
-                
-                # Split the 10,000 fetch into smaller sub-chunks for the worker cores
-                sub_chunks = [rows[i:i+1000] for i in range(0, len(rows), 1000)]
-                args_list = [(table, sub, module_path, module_name) for sub in sub_chunks]
-                
-                results = pool.map(_worker_process_chunk, args_list)
-                
-                clean_chunk_to_insert = []
-                for res in results:
-                    clean_chunk_to_insert.extend(res["clean_rows"])
-                    quarantined += len(res["quarantined_records"])
-                    if q_conn and res["quarantined_records"]:
-                        with q_conn.begin() as q_transaction:
-                            q_transaction.execute(
-                                quarantined_table.insert(),
-                                res["quarantined_records"]
-                            )
-                            
-                # Progressive Chunk Insertion into Target Database
-                if target_engine and target_table_ref is not None and clean_chunk_to_insert:
-                    from sqlalchemy.dialects.postgresql import insert as pg_insert
-                    with target_engine.begin() as target_conn:
-                        dialect = target_engine.dialect.name
-                        primary_keys = [c.name for c in target_table_ref.primary_key.columns]
+        while True:
+            chunk = cursor.fetchmany(10000)
+            if not chunk:
+                break
+            
+            rows = [dict(r) for r in chunk]
+            total += len(rows)
+            
+            # Split the 10,000 fetch into smaller sub-chunks for the worker cores
+            sub_chunks = [rows[i:i+1000] for i in range(0, len(rows), 1000)]
+            args_list = [(table, sub, module_path, module_name) for sub in sub_chunks]
+            
+            results = pool.map(_worker_process_chunk, args_list)
+            
+            clean_chunk_to_insert = []
+            for res in results:
+                clean_chunk_to_insert.extend(res["clean_rows"])
+                quarantined += len(res["quarantined_records"])
+                if q_conn and res["quarantined_records"]:
+                    with q_conn.begin() as q_transaction:
+                        q_transaction.execute(
+                            quarantined_table.insert(),
+                            res["quarantined_records"]
+                        )
+            
+            # In-memory chunk deduplication before upsert
+            if target_table_ref is not None and clean_chunk_to_insert:
+                primary_keys = [c.name for c in target_table_ref.primary_key.columns]
+                dedup = {}
+                if primary_keys:
+                    for row in clean_chunk_to_insert:
+                        key = tuple(row[pk] for pk in primary_keys if pk in row)
+                        dedup[key] = row
+                else:
+                    for row in clean_chunk_to_insert:
+                        dedup[json.dumps(row, sort_keys=True, default=_json_default)] = row
+                clean_chunk_to_insert = list(dedup.values())
                         
-                        if dialect == 'postgresql' and primary_keys:
-                            stmt = pg_insert(target_table_ref).values(clean_chunk_to_insert)
-                            update_dict = {c.name: c for c in stmt.excluded if not c.primary_key}
-                            if update_dict:
-                                stmt = stmt.on_conflict_do_update(index_elements=primary_keys, set_=update_dict)
-                            else:
-                                stmt = stmt.on_conflict_do_nothing(index_elements=primary_keys)
-                            target_conn.execute(stmt)
+            # Progressive Chunk Insertion into Target Database
+            if target_engine and target_table_ref is not None and clean_chunk_to_insert:
+                from sqlalchemy.dialects.postgresql import insert as pg_insert
+                with target_engine.begin() as target_conn:
+                    dialect = target_engine.dialect.name
+                    primary_keys = [c.name for c in target_table_ref.primary_key.columns]
+                    
+                    if dialect == 'postgresql' and primary_keys:
+                        stmt = pg_insert(target_table_ref).values(clean_chunk_to_insert)
+                        update_dict = {c.name: c for c in stmt.excluded if not c.primary_key}
+                        if update_dict:
+                            stmt = stmt.on_conflict_do_update(index_elements=primary_keys, set_=update_dict)
                         else:
-                            # Fallback for non-postgres or tables without PKs
-                            target_conn.execute(target_table_ref.insert(), clean_chunk_to_insert)
-                
-                total_clean += len(clean_chunk_to_insert)
-                
-                if not sample_clean and clean_chunk_to_insert:
-                    sample_clean = clean_chunk_to_insert[:2]
+                            stmt = stmt.on_conflict_do_nothing(index_elements=primary_keys)
+                        target_conn.execute(stmt)
+                    else:
+                        # Fallback for non-postgres or tables without PKs
+                        target_conn.execute(target_table_ref.insert(), clean_chunk_to_insert)
+            
+            total_clean += len(clean_chunk_to_insert)
+            
+            if not sample_clean and clean_chunk_to_insert:
+                sample_clean = clean_chunk_to_insert[:2]
 
     failure_rate = quarantined / total if total else 0
     halted = failure_rate > QUARANTINE_FAILURE_THRESHOLD
+    
+    # Dispose engines to prevent connection leaks
+    src_engine.dispose()
+    if target_engine:
+        target_engine.dispose()
 
     return {
         "table": table,
@@ -281,17 +305,22 @@ def run_migration(engine_url="sqlite:///legacy_source.db", target_engine_url="sq
 
     q_conn = init_quarantine_db(path=quarantine_path)
     results = []
-    for table in load_order:
-        result = run_table(table, engine_url, target_engine_url=target_engine_url, generated_dir=generated_dir, q_conn=q_conn, workers=workers)
-        results.append(result)
-        status = "HALTED - exceeds quarantine threshold, needs human review" if result["halted_for_review"] else "OK"
-        print(f"[{status}] {table}: {result['clean_rows']}/{result['total_rows']} clean, "
-              f"{result['quarantined_rows']} quarantined ({result['failure_rate']*100:.1f}%)")
+    
+    # Initialize Multiprocessing Pool globally to prevent forking inside loop
+    num_cores = multiprocessing.cpu_count() if workers == "auto" else int(workers)
+    with multiprocessing.Pool(processes=num_cores) as pool:
+        for table in load_order:
+            result = run_table(table, engine_url, target_engine_url=target_engine_url, pool=pool, generated_dir=generated_dir, q_conn=q_conn)
+            results.append(result)
+            status = "HALTED - exceeds quarantine threshold, needs human review" if result["halted_for_review"] else "OK"
+            print(f"[{status}] {table}: {result['clean_rows']}/{result['total_rows']} clean, "
+                  f"{result['quarantined_rows']} quarantined ({result['failure_rate']*100:.1f}%)")
+            
+    q_conn.dispose()
     return results
 
 
 if __name__ == "__main__":
-    import multiprocessing
     multiprocessing.freeze_support()
     
     parser = argparse.ArgumentParser(description="Crucible MaaS Engine - Execution Phase")

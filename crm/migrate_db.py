@@ -90,7 +90,16 @@ def migrate():
                 processed INTEGER,
                 error TEXT,
                 cancel_requested INTEGER DEFAULT 0,
+                trigger_pipeline INTEGER DEFAULT 0,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        # Create crm_config table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS crm_config (
+                key TEXT PRIMARY KEY,
+                value JSONB
             )
         ''')
         
