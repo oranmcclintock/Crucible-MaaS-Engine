@@ -53,11 +53,7 @@ spec:
                 - ALL
           volumeMounts:
             - name: crm-data
-              mountPath: /app/crm/leads.db 
-              subPath: leads.db
-            - name: crm-data
-              mountPath: /app/crm/crm_config.json
-              subPath: crm_config.json
+              mountPath: /app/crm/data
       volumes:
         - name: crm-data
           persistentVolumeClaim:
