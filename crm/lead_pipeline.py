@@ -215,8 +215,10 @@ def run_pipeline():
                 except sqlite3.IntegrityError:
                     # Already exists in the database
                     pass
+            
+            # Commit after every 10-day chunk to ensure progressive saving
+            conn.commit()
                     
-        conn.commit()
         print(f"Pipeline execution complete. Processed {total_processed} notices. Inserted {inserted_count} new 'Zone of Pain' targets into leads.db.")
         
         status_file = os.path.join(BASE_DIR, "pipeline_status.json")
