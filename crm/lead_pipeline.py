@@ -34,6 +34,57 @@ def get_connection():
         password=DB_PASS
     )
 
+def get_pipeline_status():
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT status, progress, percent, inserted, processed, error, cancel_requested FROM pipeline_state WHERE key = 'main'")
+        row = cursor.fetchone()
+        conn.close()
+        if row:
+            return {
+                "status": row[0] or "idle",
+                "progress": row[1] or "",
+                "percent": row[2] or 0,
+                "inserted": row[3] or 0,
+                "processed": row[4] or 0,
+                "error": row[5] or "",
+                "cancel_requested": bool(row[6])
+            }
+    except Exception as e:
+        print(f"Error fetching status: {e}")
+    return {"status": "idle"}
+
+def set_pipeline_status(status_obj):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO pipeline_state (key, status, progress, percent, inserted, processed, error, cancel_requested, updated_at)
+            VALUES ('main', %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+            ON CONFLICT (key) DO UPDATE SET 
+                status = EXCLUDED.status,
+                progress = EXCLUDED.progress,
+                percent = EXCLUDED.percent,
+                inserted = EXCLUDED.inserted,
+                processed = EXCLUDED.processed,
+                error = EXCLUDED.error,
+                cancel_requested = EXCLUDED.cancel_requested,
+                updated_at = CURRENT_TIMESTAMP
+        ''', (
+            status_obj.get("status", "idle"),
+            status_obj.get("progress", ""),
+            status_obj.get("percent", 0),
+            status_obj.get("inserted", 0),
+            status_obj.get("processed", 0),
+            status_obj.get("error", ""),
+            1 if status_obj.get("cancel_requested") else 0
+        ))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Error setting status: {e}")
+
 def is_in_zone_of_pain(awarded_date_str):
     """
     Returns (True, days_ago) if the contract was awarded between 90 and 200 days ago.
@@ -84,31 +135,23 @@ def run_pipeline():
         current_window = 0
         
         while current_date < end_date:
-            status_file = os.path.join(BASE_DIR, "pipeline_status.json")
-            try:
-                with open(status_file, "r") as f:
-                    current_status = json.load(f)
-                    if current_status.get("cancel_requested"):
-                        print("Pipeline cancellation requested. Aborting loop...")
-                        conn.commit()
-                        with open(status_file, "w") as fw:
-                            json.dump({"status": "cancelled", "inserted": inserted_count, "processed": total_processed}, fw)
-                        return {"success": False, "cancelled": True, "inserted": inserted_count, "processed": total_processed}
-            except Exception:
-                pass
+            current_status = get_pipeline_status()
+            if current_status.get("cancel_requested"):
+                print("Pipeline cancellation requested. Aborting loop...")
+                conn.commit()
+                set_pipeline_status({"status": "cancelled", "inserted": inserted_count, "processed": total_processed})
+                return {"success": False, "cancelled": True, "inserted": inserted_count, "processed": total_processed}
                 
             current_window += 1
             percent = int((current_window / total_windows) * 100)
             chunk_end = min(current_date + timedelta(days=10), end_date)
             
-            # Write progress to status file
-            status_file = os.path.join(BASE_DIR, "pipeline_status.json")
-            with open(status_file, "w") as f:
-                json.dump({
-                    "status": "running", 
-                    "progress": f"Scanning window {current_date.strftime('%Y-%m-%d')} to {chunk_end.strftime('%Y-%m-%d')} ({current_window}/{total_windows})...",
-                    "percent": percent
-                }, f)
+            # Write progress to db
+            set_pipeline_status({
+                "status": "running", 
+                "progress": f"Scanning window {current_date.strftime('%Y-%m-%d')} to {chunk_end.strftime('%Y-%m-%d')} ({current_window}/{total_windows})...",
+                "percent": percent
+            })
             
             payload = {
                 "size": 1000,
@@ -202,17 +245,12 @@ def run_pipeline():
                     
         print(f"Pipeline execution complete. Processed {total_processed} notices. Inserted {inserted_count} new 'Zone of Pain' targets into leads.db.")
         
-        status_file = os.path.join(BASE_DIR, "pipeline_status.json")
-        with open(status_file, "w") as f:
-            json.dump({"status": "completed", "inserted": inserted_count, "processed": total_processed}, f)
-            
+        set_pipeline_status({"status": "completed", "inserted": inserted_count, "processed": total_processed})
         return {"success": True, "inserted": inserted_count, "processed": total_processed}
             
     except Exception as e:
         print(f"Pipeline Error: {e}")
-        status_file = os.path.join(BASE_DIR, "pipeline_status.json")
-        with open(status_file, "w") as f:
-            json.dump({"status": "failed", "error": str(e)}, f)
+        set_pipeline_status({"status": "failed", "error": str(e)})
         return {"success": False, "error": str(e)}
     finally:
         if 'conn' in locals() and conn:

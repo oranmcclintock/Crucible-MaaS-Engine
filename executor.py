@@ -47,12 +47,44 @@ FORBIDDEN_NAMES = {
 class SandboxRejected(Exception):
     pass
 
+class ASTValidator(ast.NodeVisitor):
+    def visit_Import(self, node):
+        for alias in node.names:
+            if alias.name.split('.')[0] not in ALLOWED_IMPORTS:
+                raise SandboxRejected(f"Forbidden import: {alias.name}")
+        self.generic_visit(node)
+        
+    def visit_ImportFrom(self, node):
+        if node.module and node.module.split('.')[0] not in ALLOWED_IMPORTS:
+            raise SandboxRejected(f"Forbidden import: {node.module}")
+        self.generic_visit(node)
+        
+    def visit_Call(self, node):
+        if isinstance(node.func, ast.Name):
+            if node.func.id in FORBIDDEN_NAMES:
+                raise SandboxRejected(f"Forbidden function call: {node.func.id}")
+        elif isinstance(node.func, ast.Attribute):
+            if node.func.attr in FORBIDDEN_NAMES:
+                raise SandboxRejected(f"Forbidden attribute call: {node.func.attr}")
+        self.generic_visit(node)
+
+    def visit_Name(self, node):
+        if node.id in FORBIDDEN_NAMES:
+            raise SandboxRejected(f"Forbidden name access: {node.id}")
+        self.generic_visit(node)
 
 _loaded_modules = {}
 
 def load_vetted_module(source_path: str, module_name: str):
     if module_name in _loaded_modules:
         return _loaded_modules[module_name]
+    
+    with open(source_path, 'r', encoding='utf-8') as f:
+        source_code = f.read()
+        
+    tree = ast.parse(source_code, filename=source_path)
+    validator = ASTValidator()
+    validator.visit(tree)
     
     spec = importlib.util.spec_from_file_location(module_name, source_path)
     module = importlib.util.module_from_spec(spec)
@@ -89,7 +121,7 @@ def get_engine(url):
     if not url.startswith("postgres") and not url.startswith("sqlite") and not url.startswith("oracle"):
         os.makedirs(os.path.dirname(url), exist_ok=True)
         url = f"sqlite:///{url}"
-    return create_engine(url)
+    return create_engine(url, pool_pre_ping=True, pool_recycle=3600)
 
 
 def _json_default(o):
@@ -206,8 +238,22 @@ def run_table(table: str, engine_url: str, target_engine_url: str, generated_dir
                             
                 # Progressive Chunk Insertion into Target Database
                 if target_engine and target_table_ref is not None and clean_chunk_to_insert:
+                    from sqlalchemy.dialects.postgresql import insert as pg_insert
                     with target_engine.begin() as target_conn:
-                        target_conn.execute(target_table_ref.insert(), clean_chunk_to_insert)
+                        dialect = target_engine.dialect.name
+                        primary_keys = [c.name for c in target_table_ref.primary_key.columns]
+                        
+                        if dialect == 'postgresql' and primary_keys:
+                            stmt = pg_insert(target_table_ref).values(clean_chunk_to_insert)
+                            update_dict = {c.name: c for c in stmt.excluded if not c.primary_key}
+                            if update_dict:
+                                stmt = stmt.on_conflict_do_update(index_elements=primary_keys, set_=update_dict)
+                            else:
+                                stmt = stmt.on_conflict_do_nothing(index_elements=primary_keys)
+                            target_conn.execute(stmt)
+                        else:
+                            # Fallback for non-postgres or tables without PKs
+                            target_conn.execute(target_table_ref.insert(), clean_chunk_to_insert)
                 
                 total_clean += len(clean_chunk_to_insert)
                 

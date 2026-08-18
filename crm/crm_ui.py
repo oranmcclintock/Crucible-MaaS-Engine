@@ -76,17 +76,55 @@ def save_config(config):
         json.dump(config, f, indent=2)
 
 def get_pipeline_status():
-    if not os.path.exists(STATUS_PATH):
-        return {"status": "idle"}
     try:
-        with open(STATUS_PATH, 'r') as f:
-            return json.load(f)
-    except:
-        return {"status": "idle"}
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT status, progress, percent, inserted, processed, error, cancel_requested FROM pipeline_state WHERE key = 'main'")
+        row = cursor.fetchone()
+        conn.close()
+        if row:
+            return {
+                "status": row[0] or "idle",
+                "progress": row[1] or "",
+                "percent": row[2] or 0,
+                "inserted": row[3] or 0,
+                "processed": row[4] or 0,
+                "error": row[5] or "",
+                "cancel_requested": bool(row[6])
+            }
+    except Exception as e:
+        print(f"Error fetching status: {e}")
+    return {"status": "idle"}
 
 def set_pipeline_status(status_obj):
-    with open(STATUS_PATH, 'w') as f:
-        json.dump(status_obj, f)
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO pipeline_state (key, status, progress, percent, inserted, processed, error, cancel_requested, updated_at)
+            VALUES ('main', %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+            ON CONFLICT (key) DO UPDATE SET 
+                status = EXCLUDED.status,
+                progress = EXCLUDED.progress,
+                percent = EXCLUDED.percent,
+                inserted = EXCLUDED.inserted,
+                processed = EXCLUDED.processed,
+                error = EXCLUDED.error,
+                cancel_requested = EXCLUDED.cancel_requested,
+                updated_at = CURRENT_TIMESTAMP
+        ''', (
+            status_obj.get("status", "idle"),
+            status_obj.get("progress", ""),
+            status_obj.get("percent", 0),
+            status_obj.get("inserted", 0),
+            status_obj.get("processed", 0),
+            status_obj.get("error", ""),
+            1 if status_obj.get("cancel_requested") else 0
+        ))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Error setting status: {e}")
 
 # --- Callbacks ---
 def on_status_change(notice_id, key):
@@ -116,7 +154,6 @@ with st.sidebar:
             if st.button("Cancel Pipeline", type="primary", key="btn_cancel_pipeline"):
                 status["cancel_requested"] = True
                 set_pipeline_status(status)
-                st.rerun()
         else:
             if status.get("status") == "completed":
                 st.success(f"Pipeline Complete! Inserted {status.get('inserted', 0)} new targets.")

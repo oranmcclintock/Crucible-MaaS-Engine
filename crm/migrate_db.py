@@ -79,8 +79,21 @@ def migrate():
                     print(f"Added column: {col_name}")
                 except Exception as e:
                     print(f"Error adding {col_name}: {e}")
-                    conn.rollback()
-                    
+        # Create pipeline_state table for k8s stateless pod design
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS pipeline_state (
+                key TEXT PRIMARY KEY,
+                status TEXT,
+                progress TEXT,
+                percent INTEGER,
+                inserted INTEGER,
+                processed INTEGER,
+                error TEXT,
+                cancel_requested INTEGER DEFAULT 0,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
         conn.commit()
         conn.close()
         print("Migration complete.")
