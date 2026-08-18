@@ -8,9 +8,9 @@ import lead_pipeline
 import lead_enrichment
 import migrate_db
 
-
-DB_PATH = "leads.db"
-CONFIG_PATH = "crm_config.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "leads.db")
+CONFIG_PATH = os.path.join(BASE_DIR, "crm_config.json")
 
 st.set_page_config(page_title="Automated Pipeline Command Center", layout="wide")
 
