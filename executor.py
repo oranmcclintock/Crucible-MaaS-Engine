@@ -61,11 +61,11 @@ def load_vetted_module(source_path: str, module_name: str):
     return module
 
 
-from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text, inspect
 metadata = MetaData()
 quarantined_table = Table(
     'quarantined_rows', metadata,
-    Column('id', Integer, primary_key=True),
+    Column('id', Integer, primary_key=True, autoincrement=True),
     Column('table_name', String),
     Column('row_identity', String),
     Column('column_name', String),
@@ -84,6 +84,12 @@ def init_quarantine_db(path="quarantine/quarantine.db"):
     engine = create_engine(url)
     metadata.create_all(engine)
     return engine
+
+def get_engine(url):
+    if not url.startswith("postgres") and not url.startswith("sqlite") and not url.startswith("oracle"):
+        os.makedirs(os.path.dirname(url), exist_ok=True)
+        url = f"sqlite:///{url}"
+    return create_engine(url)
 
 
 def _json_default(o):
@@ -135,16 +141,34 @@ def _worker_process_chunk(args):
     return {"clean_rows": clean_rows, "quarantined_records": quarantined_records}
 
 
-def run_table(table: str, engine_url: str, generated_dir="generated", q_conn=None, workers="auto"):
+def run_table(table: str, engine_url: str, target_engine_url: str, generated_dir="generated", q_conn=None, workers="auto"):
     module_path = os.path.join(generated_dir, f"{table}_transform.py")
     module_name = f"gen_{table}"
 
-    from sqlalchemy import create_engine
-    src_engine = create_engine(engine_url)
+    src_engine = get_engine(engine_url)
+    target_engine = get_engine(target_engine_url) if target_engine_url else None
+
+    # Sync source table schema to target database
+    target_table_ref = None
+    if target_engine:
+        src_meta = MetaData()
+        src_meta.reflect(bind=src_engine, only=[table])
+        if table in src_meta.tables:
+            src_table = src_meta.tables[table]
+            target_meta = MetaData()
+            
+            # Recreate table definition for target
+            columns = []
+            for col in src_table.columns:
+                columns.append(Column(col.name, col.type, primary_key=col.primary_key))
+                
+            target_table_ref = Table(table, target_meta, *columns)
+            target_meta.create_all(bind=target_engine)
 
     total = 0
-    clean_rows = []
+    total_clean = 0
     quarantined = 0
+    sample_clean = []
 
     with src_engine.connect() as conn:
         cursor = conn.execution_options(yield_per=10000).exec_driver_sql(f'SELECT * FROM "{table}"').mappings()
@@ -169,8 +193,9 @@ def run_table(table: str, engine_url: str, generated_dir="generated", q_conn=Non
                 
                 results = pool.map(_worker_process_chunk, args_list)
                 
+                clean_chunk_to_insert = []
                 for res in results:
-                    clean_rows.extend(res["clean_rows"])
+                    clean_chunk_to_insert.extend(res["clean_rows"])
                     quarantined += len(res["quarantined_records"])
                     if q_conn and res["quarantined_records"]:
                         with q_conn.begin() as q_transaction:
@@ -178,6 +203,16 @@ def run_table(table: str, engine_url: str, generated_dir="generated", q_conn=Non
                                 quarantined_table.insert(),
                                 res["quarantined_records"]
                             )
+                            
+                # Progressive Chunk Insertion into Target Database
+                if target_engine and target_table_ref is not None and clean_chunk_to_insert:
+                    with target_engine.begin() as target_conn:
+                        target_conn.execute(target_table_ref.insert(), clean_chunk_to_insert)
+                
+                total_clean += len(clean_chunk_to_insert)
+                
+                if not sample_clean and clean_chunk_to_insert:
+                    sample_clean = clean_chunk_to_insert[:2]
 
     failure_rate = quarantined / total if total else 0
     halted = failure_rate > QUARANTINE_FAILURE_THRESHOLD
@@ -185,15 +220,15 @@ def run_table(table: str, engine_url: str, generated_dir="generated", q_conn=Non
     return {
         "table": table,
         "total_rows": total,
-        "clean_rows": len(clean_rows),
+        "clean_rows": total_clean,
         "quarantined_rows": quarantined,
         "failure_rate": round(failure_rate, 3),
         "halted_for_review": halted,
-        "sample_clean_output": clean_rows[:2],
+        "sample_clean_output": sample_clean,
     }
 
 
-def run_migration(engine_url="sqlite:///legacy_source.db", profile_path="profile.json", generated_dir="generated", quarantine_path="quarantine/quarantine.db", workers="auto"):
+def run_migration(engine_url="sqlite:///legacy_source.db", target_engine_url="sqlite:///modern_target.db", profile_path="profile.json", generated_dir="generated", quarantine_path="quarantine/quarantine.db", workers="auto"):
     with open(profile_path) as f:
         profile = json.load(f)
     load_order = profile["load_order"]
@@ -201,7 +236,7 @@ def run_migration(engine_url="sqlite:///legacy_source.db", profile_path="profile
     q_conn = init_quarantine_db(path=quarantine_path)
     results = []
     for table in load_order:
-        result = run_table(table, engine_url, generated_dir=generated_dir, q_conn=q_conn, workers=workers)
+        result = run_table(table, engine_url, target_engine_url=target_engine_url, generated_dir=generated_dir, q_conn=q_conn, workers=workers)
         results.append(result)
         status = "HALTED - exceeds quarantine threshold, needs human review" if result["halted_for_review"] else "OK"
         print(f"[{status}] {table}: {result['clean_rows']}/{result['total_rows']} clean, "
@@ -226,6 +261,7 @@ if __name__ == "__main__":
         
         engine_url = db_config.get("source", "sqlite:///legacy_source.db")
         quarantine_url = db_config.get("quarantine", "quarantine/quarantine.db")
+        target_url = db_config.get("target", "sqlite:///modern_target.db")
         profile_path = exec_config.get("profile_path", "profile.json")
         generated_dir = exec_config.get("generated_dir", "generated")
         workers = exec_config.get("workers", "auto")
@@ -233,6 +269,7 @@ if __name__ == "__main__":
         print(f"Loading configuration from {args.config}...")
         run_migration(
             engine_url=engine_url,
+            target_engine_url=target_url,
             profile_path=profile_path,
             generated_dir=generated_dir,
             quarantine_path=quarantine_url,

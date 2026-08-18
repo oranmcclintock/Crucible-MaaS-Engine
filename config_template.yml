@@ -3,10 +3,11 @@
 
 databases:
   # The legacy database being migrated (SQLAlchemy URL)
-  source: "sqlite:///caseStudy/Chicago_Food_Inspections/chicago_food_inspections.db"
+  source: "oracle+oracledb://admin:password@10.0.1.55:1521/?service_name=legacy_prod"
   
   # The Postgres (or SQLite for local testing) database where rotten rows are isolated
-  quarantine: "postgresql://postgres:postgres@postgres:5432/quarantine"
+  quarantine: "postgresql://admin:password@10.0.2.100:5432/quarantine_db"
+  target: "postgresql://admin:password@10.0.3.150:5432/modern_cloud_db"
 
 execution:
   # Path to the directory containing the generated Pydantic modules
