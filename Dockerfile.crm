@@ -3,7 +3,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Create a non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+RUN groupadd -r appuser && useradd -m -r -g appuser appuser
 
 # Install dependencies
 RUN pip install --no-cache-dir requests python-dateutil pandas streamlit psycopg2-binary
