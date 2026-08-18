@@ -188,10 +188,18 @@ def run_pipeline():
                     
         conn.commit()
         print(f"Pipeline execution complete. Processed {total_processed} notices. Inserted {inserted_count} new 'Zone of Pain' targets into leads.db.")
+        
+        status_file = os.path.join(BASE_DIR, "pipeline_status.json")
+        with open(status_file, "w") as f:
+            json.dump({"status": "completed", "inserted": inserted_count, "processed": total_processed}, f)
+            
         return {"success": True, "inserted": inserted_count, "processed": total_processed}
             
     except Exception as e:
         print(f"Pipeline Error: {e}")
+        status_file = os.path.join(BASE_DIR, "pipeline_status.json")
+        with open(status_file, "w") as f:
+            json.dump({"status": "failed", "error": str(e)}, f)
         return {"success": False, "error": str(e)}
     finally:
         conn.close()

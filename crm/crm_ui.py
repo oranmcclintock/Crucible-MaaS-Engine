@@ -61,6 +61,21 @@ def save_config(config):
     with open(CONFIG_PATH, 'w') as f:
         json.dump(config, f, indent=2)
 
+STATUS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pipeline_status.json")
+
+def get_pipeline_status():
+    if not os.path.exists(STATUS_PATH):
+        return {"status": "idle"}
+    try:
+        with open(STATUS_PATH, 'r') as f:
+            return json.load(f)
+    except:
+        return {"status": "idle"}
+
+def set_pipeline_status(status_obj):
+    with open(STATUS_PATH, 'w') as f:
+        json.dump(status_obj, f)
+
 st.title("Automated Pipeline Command Center")
 
 # --- SIDEBAR: PIPELINE CONTROLS ---
@@ -70,16 +85,31 @@ with st.sidebar:
     
     st.divider()
     
+    import threading
     import time
-    if st.button("Fetch Fresh Contracts", type="primary", use_container_width=True):
-        with st.spinner("Ingesting Contracts API (This takes ~60 seconds)..."):
-            result = lead_pipeline.run_pipeline()
-            if result and result.get("success"):
-                st.success(f"Pipeline Complete! Inserted {result.get('inserted', 0)} new targets.")
-                time.sleep(2)
-                st.rerun()
-            else:
-                st.error("Pipeline failed to execute.")
+    
+    status = get_pipeline_status()
+    
+    if status.get("status") == "running":
+        st.info("Pipeline is running in the background... This takes ~60 seconds.")
+        if st.button("Refresh Status", use_container_width=True):
+            st.rerun()
+    else:
+        if status.get("status") == "completed":
+            st.success(f"Pipeline Complete! Inserted {status.get('inserted', 0)} new targets.")
+        elif status.get("status") == "failed":
+            st.error(f"Pipeline failed: {status.get('error', '')}")
+            
+        if st.button("Fetch Fresh Contracts", type="primary", use_container_width=True):
+            set_pipeline_status({"status": "running"})
+            
+            def run_in_background():
+                lead_pipeline.run_pipeline()
+                
+            thread = threading.Thread(target=run_in_background, daemon=True)
+            thread.start()
+            time.sleep(0.5)
+            st.rerun()
                 
     if st.button("Generate Enrichment Data", use_container_width=True):
         with st.spinner("Generating search operators..."):
