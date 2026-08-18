@@ -93,7 +93,15 @@ with st.sidebar:
     if status.get("status") == "running":
         progress_text = status.get("progress", "Initializing...")
         progress_val = status.get("percent", 0)
-        st.progress(progress_val, text=progress_text)
+        
+        col_prog, col_cancel = st.columns([3, 1])
+        with col_prog:
+            st.progress(progress_val, text=progress_text)
+        with col_cancel:
+            if st.button("Cancel Pipeline", type="primary"):
+                status["cancel_requested"] = True
+                set_pipeline_status(status)
+                st.rerun()
         
         # Auto-polling loop
         time.sleep(2)
@@ -101,6 +109,8 @@ with st.sidebar:
     else:
         if status.get("status") == "completed":
             st.success(f"Pipeline Complete! Inserted {status.get('inserted', 0)} new targets.")
+        elif status.get("status") == "cancelled":
+            st.warning(f"Pipeline Cancelled. Saved {status.get('inserted', 0)} targets before aborting.")
         elif status.get("status") == "failed":
             st.error(f"Pipeline failed: {status.get('error', '')}")
             

@@ -101,6 +101,19 @@ def run_pipeline():
         current_window = 0
         
         while current_date < end_date:
+            status_file = os.path.join(BASE_DIR, "pipeline_status.json")
+            try:
+                with open(status_file, "r") as f:
+                    current_status = json.load(f)
+                    if current_status.get("cancel_requested"):
+                        print("Pipeline cancellation requested. Aborting loop...")
+                        conn.commit()
+                        with open(status_file, "w") as fw:
+                            json.dump({"status": "cancelled", "inserted": inserted_count, "processed": total_processed}, fw)
+                        return {"success": False, "cancelled": True, "inserted": inserted_count, "processed": total_processed}
+            except Exception:
+                pass
+                
             current_window += 1
             percent = int((current_window / total_windows) * 100)
             chunk_end = min(current_date + timedelta(days=10), end_date)
