@@ -227,7 +227,7 @@ with tab1:
                     if pd.notna(row['decision_maker_url']) and row['decision_maker_url']:
                         st.link_button("LinkedIn Decision Makers", row['decision_maker_url'], use_container_width=True)
                     else:
-                        st.button("LinkedIn (No URL Available)", disabled=True, use_container_width=True)
+                        st.button("LinkedIn (No URL Available)", disabled=True, use_container_width=True, key=f"li_no_url_{notice_id}")
  
                 st.markdown("")
                 
