@@ -91,9 +91,13 @@ with st.sidebar:
     status = get_pipeline_status()
     
     if status.get("status") == "running":
-        st.info("Pipeline is running in the background... This takes ~60 seconds.")
-        if st.button("Refresh Status", use_container_width=True):
-            st.rerun()
+        progress_text = status.get("progress", "Initializing...")
+        progress_val = status.get("percent", 0)
+        st.progress(progress_val, text=progress_text)
+        
+        # Auto-polling loop
+        time.sleep(2)
+        st.rerun()
     else:
         if status.get("status") == "completed":
             st.success(f"Pipeline Complete! Inserted {status.get('inserted', 0)} new targets.")

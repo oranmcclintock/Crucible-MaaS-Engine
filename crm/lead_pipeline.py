@@ -97,8 +97,22 @@ def run_pipeline():
     try:
         # Time-chunking to bypass API pagination limits: 10-day windows
         current_date = start_date
+        total_windows = 11
+        current_window = 0
+        
         while current_date < end_date:
+            current_window += 1
+            percent = int((current_window / total_windows) * 100)
             chunk_end = min(current_date + timedelta(days=10), end_date)
+            
+            # Write progress to status file
+            status_file = os.path.join(BASE_DIR, "pipeline_status.json")
+            with open(status_file, "w") as f:
+                json.dump({
+                    "status": "running", 
+                    "progress": f"Scanning window {current_date.strftime('%Y-%m-%d')} to {chunk_end.strftime('%Y-%m-%d')} ({current_window}/{total_windows})...",
+                    "percent": percent
+                }, f)
             
             payload = {
                 "size": 1000,
