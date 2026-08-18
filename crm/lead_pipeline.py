@@ -1,5 +1,5 @@
 import requests
-import sqlite3
+import psycopg2
 import os
 from datetime import datetime, timezone
 import dateutil.parser
@@ -20,44 +20,19 @@ def get_target_keywords():
         return []
 
 API_URL = "https://www.contractsfinder.service.gov.uk/api/rest/2/search_notices/json"
-DB_PATH = os.path.join(BASE_DIR, "data", "leads.db")
 
-def init_db():
-    conn = sqlite3.connect(DB_PATH, timeout=30.0)
-    # Enable WAL mode for high concurrency write/read access
-    conn.execute("PRAGMA journal_mode=WAL;")
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS target_leads (
-            notice_id TEXT PRIMARY KEY,
-            project_title TEXT,
-            buyer TEXT,
-            si_agency TEXT,
-            contract_value REAL,
-            awarded_date TEXT,
-            days_since_award INTEGER,
-            status TEXT DEFAULT 'Untouched',
-            link TEXT,
-            decision_maker_url TEXT,
-            crucible_match_score INTEGER,
-            partner_strategy TEXT,
-            watchlist INTEGER DEFAULT 0,
-            dm_name TEXT DEFAULT '',
-            dm_role TEXT DEFAULT '',
-            dm_email TEXT DEFAULT '',
-            outreach_channel TEXT DEFAULT '',
-            last_contacted_date TEXT DEFAULT '',
-            follow_up_date TEXT DEFAULT '',
-            ddl_received BOOLEAN DEFAULT 0,
-            synthetic_sample_verified TEXT DEFAULT 'Pending',
-            phase_1_audit_sent BOOLEAN DEFAULT 0,
-            phase_2_code_sent BOOLEAN DEFAULT 0,
-            uat_round INTEGER DEFAULT 0,
-            out_of_scope_flag BOOLEAN DEFAULT 0
-        )
-    ''')
-    conn.commit()
-    return conn
+DB_HOST = os.environ.get("DB_HOST", "postgres")
+DB_NAME = os.environ.get("DB_NAME", "quarantine")
+DB_USER = os.environ.get("DB_USER", "postgres")
+DB_PASS = os.environ.get("DB_PASS", "postgres")
+
+def get_connection():
+    return psycopg2.connect(
+        host=DB_HOST,
+        dbname=DB_NAME,
+        user=DB_USER,
+        password=DB_PASS
+    )
 
 def is_in_zone_of_pain(awarded_date_str):
     """
@@ -83,7 +58,12 @@ def run_pipeline():
     # Startup delay to ensure container networking/DNS resolves correctly on cold starts
     time.sleep(5)
     print(f"[{datetime.now().strftime('%H:%M:%S')}] Initializing Lead Pipeline Database...")
-    conn = init_db()
+    
+    # Ensure schema exists by calling migrate_db (we can just import it)
+    import migrate_db
+    migrate_db.migrate()
+    
+    conn = get_connection()
     cursor = conn.cursor()
     
     from datetime import timedelta
@@ -158,7 +138,6 @@ def run_pipeline():
                     continue
                     
                 # 2. CPV Code Filter (The Ultimate Fix)
-                # CPV 72000000 is the UK Govt category for "IT services: consulting, software development, Internet and support"
                 cpv_extended = item.get("cpvCodesExtended", "")
                 if "72000000" not in cpv_extended:
                     continue
@@ -209,12 +188,14 @@ def run_pipeline():
                     cursor.execute('''
                         INSERT INTO target_leads 
                         (notice_id, project_title, buyer, si_agency, contract_value, awarded_date, days_since_award, link, crucible_match_score, partner_strategy, watchlist)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        ON CONFLICT (notice_id) DO NOTHING
                     ''', (notice_id, item.get("title", ""), buyer, agency, value, awarded_date_str, days_ago, link, crucible_match_score, partner_strategy, 0))
-                    inserted_count += 1
-                except sqlite3.IntegrityError:
-                    # Already exists in the database
-                    pass
+                    if cursor.rowcount > 0:
+                        inserted_count += 1
+                except Exception as e:
+                    print(f"Error inserting {notice_id}: {e}")
+                    conn.rollback()
             
             # Commit after every 10-day chunk to ensure progressive saving
             conn.commit()
@@ -234,7 +215,8 @@ def run_pipeline():
             json.dump({"status": "failed", "error": str(e)}, f)
         return {"success": False, "error": str(e)}
     finally:
-        conn.close()
+        if 'conn' in locals() and conn:
+            conn.close()
 
 if __name__ == "__main__":
     run_pipeline()

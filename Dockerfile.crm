@@ -6,7 +6,7 @@ WORKDIR /app
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
 # Install dependencies
-RUN pip install --no-cache-dir requests python-dateutil pandas streamlit
+RUN pip install --no-cache-dir requests python-dateutil pandas streamlit psycopg2-binary
 
 # Copy the CRM directory
 COPY crm/ /app/crm/
