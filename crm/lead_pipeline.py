@@ -193,7 +193,7 @@ def run_pipeline():
             }
             headers = {"Content-Type": "application/json"}
             
-            response = requests.post(API_URL, json=payload, headers=headers)
+            response = requests.post(API_URL, json=payload, headers=headers, timeout=30.0)
             response.raise_for_status()
             data = response.json()
             
