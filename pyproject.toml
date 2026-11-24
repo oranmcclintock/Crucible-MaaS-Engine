@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crucible-audit"
+version = "2.0.0"
+description = "Deterministic Migration Engine: Read-only schema auditor, shadow FK inference, and dbt compiler"
+authors = [{ name = "Crucible Engine Team" }]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "sqlalchemy>=2.0.0",
+    "networkx>=3.0",
+    "pyyaml>=6.0",
+    "jinja2>=3.1.0",
+]
+
+[project.optional-dependencies]
+postgres = [
+    "psycopg[binary]>=3.1.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "ruff>=0.4.0",
+]
+
+[project.scripts]
+crucible = "cli:main"
+
+[tool.setuptools]
+py-modules = [
+    "cli",
+    "profiler",
+    "flaw_catalog",
+    "codegen",
+    "reportgen",
+    "seed_dirty_gov_db",
+]
+
+[tool.setuptools.data-files]
+"share/crucible-audit" = ["rules.yaml"]
+"share/crucible-audit/templates" = [
+    "templates/readiness_dossier.html.j2",
+    "templates/dbt_staging_model.sql.j2",
+    "templates/dbt_schema.yml.j2",
+]

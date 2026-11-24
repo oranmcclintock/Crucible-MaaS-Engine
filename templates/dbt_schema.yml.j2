@@ -1,0 +1,43 @@
+version: 2
+
+sources:
+  - name: legacy_source
+    description: "Legacy database tables mirrored via CDC / Full Load"
+    tables:
+{% for table_name, table in tables.items() %}
+      - name: {{ table_name }}
+        description: "Raw legacy table: {{ table_name }}"
+{% endfor %}
+
+models:
+{% for table_name, table in tables.items() %}
+  - name: stg_{{ table_name }}
+    description: "Crucible sanitized staging model for {{ table_name }}"
+    columns:
+{% for col in table.columns %}
+      - name: "{{ col.name }}"
+        description: "Target: {{ col.recommended_target_type }}"
+{% if col.tests %}
+        tests:
+{% for t in col.tests %}
+{% if t.type == "not_null" %}
+          - not_null:
+              config:
+                store_failures: true
+                schema: crucible_quarantine
+{% elif t.type == "unique" %}
+          - unique:
+              config:
+                store_failures: true
+                schema: crucible_quarantine
+{% elif t.type == "relationships" %}
+          - relationships:
+              to: ref('stg_{{ t.parent_table }}')
+              field: "{{ t.parent_col }}"
+              config:
+                store_failures: true
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endfor %}

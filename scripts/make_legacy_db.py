@@ -9,8 +9,8 @@ Corruption injected on purpose:
             impossible dates ("02/30/2019", "00/00/0000"), NULLs in a NOT-NULL-ish column
   - order_items: FK to orders, some rows reference orders that don't exist
 """
-import sqlite3
 import os
+import sqlite3
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "legacy_source.db")
 

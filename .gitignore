@@ -1,16 +1,27 @@
-# Ignore SQLite databases (quarantine and case studies)
+# SQLite demo and local databases
 *.db
 *.sqlite
 *.sqlite3
+demo_legacy_council.db
 
-# Ignore Python caches
+# Python caches
 __pycache__/
 *.pyc
 
-# Ignore dynamically generated files and directories
+# Local scratch and runtime outputs
 generated/
 caseStudy/
 quarantine/
+audit_output/
+/profile.json
+/generated_dbt/
 
-# Ignore profiling artifacts
-profile.json
+# Virtual environments, packaging, and test caches
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# Local developer/agent tooling
+.agents/
+skills-lock.json
+.mise.toml

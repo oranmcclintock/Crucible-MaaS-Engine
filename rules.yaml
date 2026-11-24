@@ -1,40 +1,129 @@
-quarantine_failure_halt_threshold: 0.3
 profiling_sample_size: 1000
+
+packs:
+  aws_dms_cdc: true
+  uk_shadow_pii: true
+  schema_integrity: true
+  data_hygiene: true
+
+remediation_hours_weights:
+  CRITICAL: 4.0
+  HIGH: 2.0
+  MEDIUM: 1.0
+  WARN: 0.5
+
 fk_inference:
-  min_stem_length_for_abbreviation_match: 3
-  exact_match_confidence: 0.9
-  abbreviation_match_confidence: 0.7
+  min_stem_length: 3
+  id_suffixes: ["_id", "_ref", "_code", "_no", "_num", "_key", "_fk"]
+  min_overlap_ratio: 0.80
 
 rules:
-  - id: control_chars
-    pattern: "[\x00-\x08\x0b\x0c\x0e-\x1f]"
-    description: "Contains invisible control characters"
-    severity: "warn"
-  - id: text_currency
-    currency_symbols: ["$", "£", "€"]
-    currency_suffixes: ["USD", "EUR", "GBP"]
-    description: "Currency value stored as text"
-    severity: "warn"
-  - id: non_numeric_in_numeric_col
-    column_name_keywords: ["balance", "amount", "total", "price", "qty", "quantity"]
-    description: "Non-numeric data in expected numeric field"
-    severity: "warn"
-  - id: impossible_or_sentinel_date
-    column_name_keywords: ["date", "dob", "created", "updated", "time"]
-    null_date_sentinels: ["1900-01-01", "1970-01-01", "9999-12-31"]
-    accepted_formats: ["%Y-%m-%d", "%m/%d/%Y", "%d/%m/%Y", "%d-%m-%Y"]
-    description: "Impossible or sentinel date"
-    severity: "warn"
-  - id: overloaded_freetext_column
-    column_name_keywords: ["notes", "memo", "description", "details"]
-    column_name_allowlist: ["notes", "memo", "description", "details"]
-    packed_pair_pattern: "[A-Za-z_]+:[A-Za-z0-9_]+"
-    description: "Packed key-value pairs in freetext"
-    severity: "warn"
-  - id: duplicate_key_values
-    description: "Duplicate value in declared primary key"
-    severity: "block"
-  - id: negative_unsigned_field
-    column_name_keywords: ["qty", "quantity", "count", "age"]
-    description: "Negative value where unsigned is expected"
-    severity: "warn"
+  dms_replication_blockers:
+    postgres_null_byte_poison:
+      pack: "aws_dms_cdc"
+      enabled: true
+      severity: "CRITICAL"
+      description: "Contains ASCII NUL (0x00) bytes which crash PostgreSQL wire copy and AWS DMS tasks."
+    cp1252_encoding_ghosts:
+      pack: "aws_dms_cdc"
+      enabled: true
+      severity: "HIGH"
+      ghost_sequences: ["â€™", "â€“", "â€œ", "Ã©", "Ã£", "\ufffd"]
+      description: "Contains UTF-8 / CP1252 mojibake encoding corruption."
+    legacy_proprietary_datatype:
+      pack: "aws_dms_cdc"
+      enabled: true
+      severity: "HIGH"
+      proprietary_types: ["MONEY", "SMALLMONEY", "SQL_VARIANT", "IMAGE", "NTEXT", "LONG", "RAW", "BFILE"]
+      description: "Uses legacy proprietary or deprecated database engine datatypes."
+
+  referential_and_key_integrity:
+    duplicate_key_values:
+      pack: "schema_integrity"
+      enabled: true
+      severity: "CRITICAL"
+      description: "Duplicate values in declared primary key."
+    whitespace_padded_keys:
+      pack: "schema_integrity"
+      enabled: true
+      severity: "HIGH"
+      description: "Leading/trailing whitespace or CHAR padding in primary or foreign key columns."
+
+  semantic_data_rot:
+    control_chars:
+      pack: "data_hygiene"
+      enabled: true
+      severity: "WARN"
+      pattern: "[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f]"
+      description: "Contains invisible ASCII control characters (excluding NUL)."
+    text_currency:
+      pack: "data_hygiene"
+      enabled: true
+      severity: "WARN"
+      currency_symbols: ["$", "£", "€"]
+      currency_suffixes: ["USD", "EUR", "GBP"]
+      description: "Currency value formatted and stored as text."
+    non_numeric_in_numeric_col:
+      pack: "data_hygiene"
+      enabled: true
+      severity: "HIGH"
+      column_name_keywords: ["balance", "amount", "total", "price", "qty", "quantity", "cost", "fee", "rate"]
+      description: "Non-numeric strings found in expected numeric column."
+    impossible_or_sentinel_date:
+      pack: "data_hygiene"
+      enabled: true
+      severity: "WARN"
+      column_name_keywords: ["date", "dob", "created", "updated", "time", "start", "end", "expiry"]
+      null_date_sentinels: ["1900-01-01", "1970-01-01", "9999-12-31", "0000-00-00"]
+      description: "Sentinel date or calendrically impossible date value."
+    mixed_date_locales:
+      pack: "data_hygiene"
+      enabled: true
+      severity: "CRITICAL"
+      column_name_keywords: ["date", "dob", "created", "updated", "time", "start", "end"]
+      description: "Column mixes UK DD/MM/YYYY and US MM/DD/YYYY date formats."
+    negative_unsigned_field:
+      pack: "data_hygiene"
+      enabled: true
+      severity: "HIGH"
+      column_name_keywords: ["qty", "quantity", "count", "age", "tenure", "arrears", "months", "days", "weeks", "years"]
+      description: "Negative value where unsigned non-negative integer/decimal is expected."
+    overloaded_freetext_column:
+      pack: "data_hygiene"
+      enabled: true
+      severity: "WARN"
+      column_name_keywords: ["notes", "memo", "description", "details", "comments"]
+      packed_pair_pattern: "[A-Za-z_]+:[A-Za-z0-9_]+"
+      description: "Structured key:value pairs packed into unstructured free-text column."
+
+  shadow_pii_exposures:
+    shadow_uk_nino:
+      pack: "uk_shadow_pii"
+      enabled: true
+      severity: "CRITICAL"
+      pattern: "(?i)\\b(?!BG|GB|NK|KN|TN|NT|ZZ)[A-CEGHJ-PR-TW-Z][A-CEGHJ-NPR-TW-Z]\\s?\\d{2}\\s?\\d{2}\\s?\\d{2}\\s?[A-D]\\b"
+      description: "Unmasked UK National Insurance Number (NINO) exposed in free-text column."
+    shadow_nhs_number:
+      pack: "uk_shadow_pii"
+      enabled: true
+      severity: "CRITICAL"
+      description: "Valid 10-digit UK NHS Number (Modulus 11 verified) exposed in free-text column."
+    legacy_redaction_markers:
+      pack: "uk_shadow_pii"
+      enabled: true
+      severity: "WARN"
+      pattern: "(?i)\\b(REDACTED|GDPR_DELETED|DECEASED|DO NOT CONTACT|TEST TEST|XXXX+)\\b"
+      description: "Legacy manual redaction or GDPR deletion tombstone marker found in column."
+
+# Optional customer-defined regex detectors (Zero-PII count/rate-only evidence):
+# custom_rules:
+#   - rule_id: "uk_sort_code_leak"
+#     category: "custom_rules"
+#     severity: "high"
+#     pattern: "\\b\\d{2}-\\d{2}-\\d{2}\\b"
+#     pg_pattern: "\\y\\d{2}-\\d{2}-\\d{2}\\y"
+#     column_name_keywords: ["notes", "memo", "comments"]
+#     description: "Potential UK bank sort code detected in free-text column."
+#     remediation_hours: 1.5
+custom_rules: []
+

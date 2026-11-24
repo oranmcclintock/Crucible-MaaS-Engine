@@ -1,0 +1,185 @@
+version: 2
+
+sources:
+  - name: legacy_source
+    description: "Legacy database tables mirrored via CDC / Full Load"
+    tables:
+
+      - name: citizens
+        description: "Raw legacy table: citizens"
+
+      - name: rent_ledger
+        description: "Raw legacy table: rent_ledger"
+
+      - name: staff
+        description: "Raw legacy table: staff"
+
+      - name: tenancies
+        description: "Raw legacy table: tenancies"
+
+
+models:
+
+  - name: stg_citizens
+    description: "Crucible sanitized staging model for citizens"
+    columns:
+
+      - name: "citizen_id"
+        description: "Target: BIGINT"
+
+        tests:
+
+
+          - not_null:
+              config:
+                store_failures: true
+                schema: crucible_quarantine
+
+
+
+          - unique:
+              config:
+                store_failures: true
+                schema: crucible_quarantine
+
+
+
+
+      - name: "full_name"
+        description: "Target: TEXT"
+
+
+      - name: "dob_str"
+        description: "Target: DATE"
+
+
+      - name: "legacy_notes"
+        description: "Target: TEXT"
+
+
+
+  - name: stg_rent_ledger
+    description: "Crucible sanitized staging model for rent_ledger"
+    columns:
+
+      - name: "tenancy_id"
+        description: "Target: INTEGER"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_tenancies')
+              field: "tenancy_id"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "balance_amt"
+        description: "Target: NUMERIC(18,2)"
+
+
+      - name: "arrears_months"
+        description: "Target: INTEGER"
+
+
+      - name: "payment_status"
+        description: "Target: VARCHAR(255)"
+
+
+
+  - name: stg_staff
+    description: "Crucible sanitized staging model for staff"
+    columns:
+
+      - name: "staff_code"
+        description: "Target: VARCHAR(255)"
+
+        tests:
+
+
+          - not_null:
+              config:
+                store_failures: true
+                schema: crucible_quarantine
+
+
+
+          - unique:
+              config:
+                store_failures: true
+                schema: crucible_quarantine
+
+
+
+
+      - name: "full_name"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "department"
+        description: "Target: VARCHAR(255)"
+
+
+
+  - name: stg_tenancies
+    description: "Crucible sanitized staging model for tenancies"
+    columns:
+
+      - name: "tenancy_id"
+        description: "Target: BIGINT"
+
+        tests:
+
+
+          - not_null:
+              config:
+                store_failures: true
+                schema: crucible_quarantine
+
+
+
+          - unique:
+              config:
+                store_failures: true
+                schema: crucible_quarantine
+
+
+
+
+      - name: "citizen_id"
+        description: "Target: INTEGER"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_citizens')
+              field: "citizen_id"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "officer_code"
+        description: "Target: VARCHAR(255)"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_staff')
+              field: "staff_code"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "tenancy_memo"
+        description: "Target: TEXT"
+
+

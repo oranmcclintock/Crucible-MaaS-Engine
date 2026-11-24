@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crucible Audit - Migration Readiness Technical Dossier - sqlite:///demo_legacy_council.db</title>
+  <style>
+    /* Crucible GDS-Styled Air-Gapped Offline Technical Dossier */
+    :root {
+      --brand-color: #0F172A;
+    }
+    *, *:before, *:after { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #0b0c0c;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 0;
+      line-height: 1.5;
+      font-size: 15px;
+    }
+    code, pre {
+      font-family: "JetBrains Mono", "Fira Code", Monaco, Consolas, monospace;
+      font-size: 13px;
+    }
+    .govuk-header {
+      background: var(--brand-color);
+      color: #ffffff;
+      padding: 16px 32px;
+      border-bottom: 6px solid #1d70b8;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand-logo {
+      max-height: 44px;
+      max-width: 180px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    .govuk-header h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .govuk-header p {
+      margin: 4px 0 0 0;
+      font-size: 13px;
+      color: #e2e8f0;
+    }
+    .dossier-footer {
+      max-width: 1200px;
+      margin: 0 auto 32px auto;
+      padding: 16px 24px 0 24px;
+      border-top: 1px solid #b1b4b6;
+      font-size: 12px;
+      color: #505a5f;
+      text-align: center;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 24px auto;
+      padding: 0 24px;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #b1b4b6;
+      border-radius: 4px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .scorecard {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 24px;
+      border-left: 8px solid;
+    }
+    .scorecard.GREEN { border-left-color: #00703c; }
+    .scorecard.AMBER { border-left-color: #f47738; }
+    .scorecard.RED { border-left-color: #d4351c; }
+    .score-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-weight: 800;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .score-circle.GREEN { background: #00703c; }
+    .score-circle.AMBER { background: #f47738; }
+    .score-circle.RED { background: #d4351c; }
+    .score-num { font-size: 38px; line-height: 1; }
+    .score-denom { font-size: 12px; opacity: 0.85; }
+    .scorecard-details { flex: 1; min-width: 280px; }
+    .tag {
+      display: inline-block;
+      padding: 4px 8px;
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: 2px;
+    }
+    .tag.CRITICAL, .tag.RED { background: #d4351c; color: #ffffff; }
+    .tag.HIGH, .tag.AMBER { background: #f47738; color: #ffffff; }
+    .tag.WARN { background: #ffdd00; color: #0b0c0c; }
+    .tag.GREEN { background: #00703c; color: #ffffff; }
+    .tag.INFO { background: #1d70b8; color: #ffffff; }
+    .pillar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .pillar-box {
+      background: #f3f2f1;
+      border-left: 4px solid var(--brand-color);
+      padding: 12px 16px;
+    }
+    .pillar-val {
+      font-size: 26px;
+      font-weight: 800;
+      color: #0b0c0c;
+    }
+    .pillar-label {
+      font-size: 12px;
+      color: #505a5f;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    h2 {
+      font-size: 20px;
+      margin-top: 0;
+      margin-bottom: 16px;
+      color: #0b0c0c;
+      border-bottom: 2px solid var(--brand-color);
+      padding-bottom: 6px;
+    }
+    h3 {
+      font-size: 16px;
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #b1b4b6;
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f3f2f1;
+      font-weight: 700;
+    }
+    tr:nth-child(even) td { background: #fafafa; }
+    .pii-panel {
+      background: #fff8f7;
+      border: 2px solid #d4351c;
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .pii-panel h2 {
+      color: #d4351c;
+      border-bottom-color: #d4351c;
+    }
+    pre.code-block {
+      background: #24292e;
+      color: #f6f8fa;
+      padding: 14px;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin: 8px 0;
+    }
+    details {
+      border: 1px solid #b1b4b6;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      background: #ffffff;
+    }
+    details > summary {
+      padding: 12px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      background: #f3f2f1;
+      user-select: none;
+    }
+    details[open] > summary {
+      border-bottom: 1px solid #b1b4b6;
+    }
+    .details-body {
+      padding: 16px;
+    }
+    .badge-inferred {
+      background: #8f23b3;
+      color: #fff;
+      padding: 2px 6px;
+      font-size: 11px;
+      border-radius: 2px;
+      font-weight: 700;
+    }
+    @media print {
+      body { background: #ffffff; color: #000000; font-size: 12px; }
+      .container { max-width: 100%; margin: 0; padding: 0; }
+      .card, .pii-panel { box-shadow: none; border-color: #000000; break-inside: avoid; }
+      details { display: block !important; border: 1px solid #000000; margin-bottom: 16px; }
+      details > summary { display: none !important; }
+      .details-body { padding: 10px; }
+      .no-print { display: none !important; }
+      .page-break { page-break-after: always; }
+      pre.code-block { background: #f0f0f0; color: #000000; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <div class="govuk-header">
+    <div class="header-brand">
+      
+      <div>
+        <h1>Crucible Audit &mdash; Migration Readiness Technical Dossier v2.0.0</h1>
+        <p>Target System: <code>sqlite:///demo_legacy_council.db</code> &nbsp;|&nbsp; Engine Dialect: <code>sqlite</code> &nbsp;|&nbsp; Timestamp: 2026-11-24T17:48:53.098598+00:00</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    
+    <!-- Section 1: Executive Scorecard Banner -->
+    <div class="card scorecard RED">
+      <div class="score-circle RED">
+        <div class="score-num">59</div>
+        <div class="score-denom">OUT OF 100</div>
+      </div>
+      <div class="scorecard-details">
+        <span class="tag RED">RED - CRITICAL MIGRATION BLOCKERS DETECTED</span>
+        <h2 style="border: none; margin: 8px 0; font-size: 24px;">Executive Migration Readiness Assessment</h2>
+        <p style="margin: 0 0 8px 0; color: #505a5f;">
+          Evaluated <strong>4</strong> tables and <strong>15</strong> columns against 16 enterprise migration barriers.
+          Estimated human remediation effort: <strong>28.0 hours</strong>.
+        </p>
+        <div class="pillar-grid">
+          <div class="pillar-box">
+            <div class="pillar-val">3</div>
+            <div class="pillar-label">DMS Blockers</div>
+          </div>
+          <div class="pillar-box">
+            <div class="pillar-val">1</div>
+            <div class="pillar-label">Referential Failures</div>
+          </div>
+          <div class="pillar-box">
+            <div class="pillar-val">5</div>
+            <div class="pillar-label">Semantic Data Rot</div>
+          </div>
+          <div class="pillar-box">
+            <div class="pillar-val">3</div>
+            <div class="pillar-label">Shadow PII Exposures</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: AWS DMS & Cloud Replication Pre-Flight Checklist -->
+    <div class="card">
+      <h2>Section 2: AWS DMS & Cloud Replication Pre-Flight Checklist</h2>
+      <p>Continuous CDC (Change Data Capture) replication barriers that will crash initial load tasks or drop CDC change streams:</p>
+      
+      
+        
+          
+        
+          
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+
+      
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 14%;">Table</th>
+            <th style="width: 12%;">Severity</th>
+            <th style="width: 18%;">Blocker ID</th>
+            <th style="width: 14%;">Column</th>
+            <th>Impact if Unresolved (Delivery Manager Advisory)</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          <tr>
+            <td><strong>citizens</strong></td>
+            <td><span class="tag HIGH">HIGH</span></td>
+            <td><code>cp1252_encoding_ghosts</code></td>
+            <td>full_name</td>
+            <td>
+              [cp1252_encoding_ghosts] Column &#39;full_name&#39; triggered DMS replication blocker (12.0% affected sample rate).
+              
+                <br><em>Impact: Mojibake byte corruption fails UTF-8 validation in modern cloud warehouses (Snowflake, BigQuery).</em>
+              
+            </td>
+          </tr>
+          
+          <tr>
+            <td><strong>citizens</strong></td>
+            <td><span class="tag CRITICAL">CRITICAL</span></td>
+            <td><code>postgres_null_byte_poison</code></td>
+            <td>legacy_notes</td>
+            <td>
+              [postgres_null_byte_poison] Column &#39;legacy_notes&#39; triggered DMS replication blocker (4.0% affected sample rate).
+              
+                <br><em>Impact: PostgreSQL wire COPY and AWS DMS replication tasks terminate immediately when encountering 0x00 bytes.</em>
+              
+            </td>
+          </tr>
+          
+          <tr>
+            <td><strong>rent_ledger</strong></td>
+            <td><span class="tag CRITICAL">CRITICAL</span></td>
+            <td><code>missing_primary_key_for_cdc</code></td>
+            <td>N/A (Table-Level)</td>
+            <td>
+              Table has no declared Primary Key or Unique Index. AWS DMS Full Load + CDC cannot replicate incremental UPDATE or DELETE events without a Primary Key.
+              
+                <br><em>Impact: AWS DMS cannot apply UPDATE/DELETE CDC events without a Primary Key. Target replica will diverge silently.</em>
+              
+            </td>
+          </tr>
+          
+        </tbody>
+      </table>
+      
+    </div>
+
+    <!-- Section 3: Shadow PII & UK GDPR Compliance Alerts -->
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+          
+        
+          
+        
+      
+        
+          
+        
+          
+            
+          
+        
+          
+            
+          
+        
+          
+            
+          
+        
+      
+    
+      
+        
+      
+        
+          
+        
+      
+        
+          
+        
+      
+        
+      
+    
+      
+        
+      
+        
+      
+        
+      
+    
+      
+        
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <div class="pii-panel">
+      <h2>Section 3: Shadow PII & UK GDPR Compliance Alerts</h2>
+      
+      <p style="color: #d4351c; font-weight: 700;">
+        WARNING: High-risk statutory identifiers discovered in unstructured text columns. All sample evidence is masked below for air-gapped security:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 14%;">Table</th>
+            <th style="width: 14%;">Column</th>
+            <th style="width: 16%;">Identifier Type</th>
+            <th style="width: 12%;">Severity</th>
+            <th>Redacted Evidence & Compliance Guidance</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          <tr>
+            <td><strong>citizens</strong></td>
+            <td><code>legacy_notes</code></td>
+            <td><code>shadow_uk_nino</code></td>
+            <td><span class="tag CRITICAL">CRITICAL</span></td>
+            <td>
+              <strong>Evidence:</strong> [shadow_uk_nino] 1/200 (0.5%) sampled rows in column &#39;legacy_notes&#39; match UK National Insurance Number pattern<br>
+              <strong>Guidance:</strong> UK National Insurance Number detected in general text. Quarantine or tokenize under UK GDPR.
+            </td>
+          </tr>
+          
+          <tr>
+            <td><strong>citizens</strong></td>
+            <td><code>legacy_notes</code></td>
+            <td><code>shadow_nhs_number</code></td>
+            <td><span class="tag CRITICAL">CRITICAL</span></td>
+            <td>
+              <strong>Evidence:</strong> [shadow_nhs_number] 1/200 (0.5%) sampled rows in column &#39;legacy_notes&#39; match Modulus-11 verified UK NHS Number pattern<br>
+              <strong>Guidance:</strong> UK NHS Number detected in general text. Quarantine under UK Data Protection Act.
+            </td>
+          </tr>
+          
+          <tr>
+            <td><strong>citizens</strong></td>
+            <td><code>legacy_notes</code></td>
+            <td><code>legacy_redaction_markers</code></td>
+            <td><span class="tag WARN">WARN</span></td>
+            <td>
+              <strong>Evidence:</strong> [legacy_redaction_markers] 1/200 (0.5%) sampled rows in column &#39;legacy_notes&#39; contain legacy redaction or deletion tombstones<br>
+              <strong>Guidance:</strong> Clean legacy manual redaction and GDPR tombstone markers.
+            </td>
+          </tr>
+          
+        </tbody>
+      </table>
+      
+    </div>
+
+    <!-- Section 4: Schema Topology, Load Order & Orphaned Foreign Keys -->
+    <div class="card">
+      <h2>Section 4: Schema Topology, Load Order & Orphaned Foreign Keys</h2>
+      <h3>Recommended Topological Load Wave Order</h3>
+      <ol style="margin-top: 4px; padding-left: 20px;">
+        
+        <li style="margin-bottom: 4px;"><strong>staff</strong> (Foundation Parent Table)</li>
+        
+        <li style="margin-bottom: 4px;"><strong>citizens</strong> </li>
+        
+        <li style="margin-bottom: 4px;"><strong>tenancies</strong> </li>
+        
+        <li style="margin-bottom: 4px;"><strong>rent_ledger</strong> </li>
+        
+      </ol>
+
+      
+
+      <h3>Schema Dependency Graph (Mermaid / Topological Definition)</h3>
+      <pre class="code-block">graph TD;
+  rent_ledger --&gt; tenancies;
+  tenancies --&gt; citizens;
+  tenancies -.-&gt;|inferred| staff;</pre>
+
+      <h3>Foreign Key Integrity (Declared vs. Inferred Shadow Keys)</h3>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>Child Table & Column</th>
+            <th>Parent Table & Column</th>
+            <th>Relationship Type</th>
+            <th>Status</th>
+            <th>Orphan Rows</th>
+            <th>Distinct Orphan Keys</th>
+            <th>Diagnostic SQL Query</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          <tr>
+            <td><code>rent_ledger.tenancy_id</code></td>
+            <td><code>tenancies.tenancy_id</code></td>
+            <td>
+              
+              <span class="tag INFO">DECLARED FK</span>
+              
+            </td>
+            <td>
+              
+              <span class="tag GREEN">HEALTHY</span>
+              
+            </td>
+            <td>
+              
+              <span style="color: #00703c;">0</span>
+              
+            </td>
+            <td>
+              
+              <span style="color: #00703c;">0</span>
+              
+            </td>
+            <td>
+              
+              <pre style="margin: 0; font-size: 11px;">SELECT c.&#34;tenancy_id&#34;, COUNT(*) FROM &#34;rent_ledger&#34; c LEFT JOIN &#34;tenancies&#34; p ON c.&#34;tenancy_id&#34; = p.&#34;tenancy_id&#34; WHERE c.&#34;tenancy_id&#34; IS NOT NULL AND p.&#34;tenancy_id&#34; IS NULL GROUP BY 1;</pre>
+              
+            </td>
+          </tr>
+          
+          <tr>
+            <td><code>tenancies.citizen_id</code></td>
+            <td><code>citizens.citizen_id</code></td>
+            <td>
+              
+              <span class="tag INFO">DECLARED FK</span>
+              
+            </td>
+            <td>
+              
+              <span class="tag GREEN">HEALTHY</span>
+              
+            </td>
+            <td>
+              
+              <span style="color: #00703c;">0</span>
+              
+            </td>
+            <td>
+              
+              <span style="color: #00703c;">0</span>
+              
+            </td>
+            <td>
+              
+              <pre style="margin: 0; font-size: 11px;">SELECT c.&#34;citizen_id&#34;, COUNT(*) FROM &#34;tenancies&#34; c LEFT JOIN &#34;citizens&#34; p ON c.&#34;citizen_id&#34; = p.&#34;citizen_id&#34; WHERE c.&#34;citizen_id&#34; IS NOT NULL AND p.&#34;citizen_id&#34; IS NULL GROUP BY 1;</pre>
+              
+            </td>
+          </tr>
+          
+          <tr>
+            <td><code>tenancies.officer_code</code></td>
+            <td><code>staff.staff_code</code></td>
+            <td>
+              
+              <span class="badge-inferred">INFERRED SHADOW FK (86%)</span>
+              
+            </td>
+            <td>
+              
+              <span class="tag RED">ORPHANS DETECTED</span>
+              
+            </td>
+            <td>
+              
+              <strong style="color: #d4351c;">31</strong>
+              
+            </td>
+            <td>
+              
+              <strong style="color: #d4351c;">2</strong>
+              
+            </td>
+            <td>
+              
+              <pre style="margin: 0; font-size: 11px;">SELECT c.&#34;officer_code&#34;, COUNT(*) FROM &#34;tenancies&#34; c LEFT JOIN &#34;staff&#34; p ON c.&#34;officer_code&#34; = p.&#34;staff_code&#34; WHERE c.&#34;officer_code&#34; IS NOT NULL AND p.&#34;staff_code&#34; IS NULL GROUP BY 1;</pre>
+              
+            </td>
+          </tr>
+          
+        </tbody>
+      </table>
+      
+    </div>
+
+    <!-- Section 5: Table-by-Table Technical Appendix & Generated dbt Models -->
+    <div class="card">
+      <h2>Section 5: Table-by-Table Technical Appendix & Auto-Generated dbt Models</h2>
+      <p>Inspect detailed column-level corruption findings, diagnostic queries, and generated dbt staging SQL models for each table:</p>
+
+      
+      <details>
+        <summary>Table: citizens &mdash; Readiness: 0/100 (200 rows, 4 columns)</summary>
+        <div class="details-body">
+          <p>
+            <strong>Declared PK:</strong> <code>[&#39;citizen_id&#39;]</code> &nbsp;|&nbsp;
+            <strong>Sample Size:</strong> 200 &nbsp;|&nbsp;
+            <strong>Readiness Score:</strong> 0/100
+          </p>
+
+          <h3>Column Profiles & Corruption Taxonomy</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Column</th>
+                <th>Declared Type</th>
+                <th>Recommended Type</th>
+                <th>Null / Distinct</th>
+                <th>Flaws & Remediation</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+              <tr>
+                <td><code>citizen_id</code> <span class="tag INFO">PK</span></td>
+                <td><code>INTEGER</code></td>
+                <td><code>BIGINT</code></td>
+                <td>Null: 0%<br>Distinct: 100%</td>
+                <td>
+                  
+                    <span style="color: #00703c; font-size: 12px;">Clean (No flaws detected)</span>
+                  
+                </td>
+              </tr>
+              
+              <tr>
+                <td><code>full_name</code> </td>
+                <td><code>VARCHAR(100)</code></td>
+                <td><code>TEXT</code></td>
+                <td>Null: 0%<br>Distinct: 45%</td>
+                <td>
+                  
+                    
+                      <div style="margin-bottom: 6px;">
+                        <span class="tag HIGH">HIGH</span> <strong>cp1252_encoding_ghosts</strong>
+                        <div style="font-size: 12px; color: #505a5f;">[cp1252_encoding_ghosts] 23/200 (11.5%) sampled rows contain UTF-8/CP1252 mojibake artifacts</div>
+                        <div style="font-size: 12px; color: #00703c;"><em>dbt:</em> <code>REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(&#34;full_name&#34;, &#39;â€™&#39;, &#39;&#39;&#39;&#39;), &#39;â€“&#39;, &#39;-&#39;), &#39;â€œ&#39;, &#39;&#34;&#39;), &#39;Ã©&#39;, &#39;é&#39;), &#39;Ã£&#39;, &#39;ã&#39;), CHR(65533), &#39;&#39;)</code></div>
+                        
+                        <div style="font-size: 11px; color: #1d70b8; margin-top: 2px;">
+                          <em>Audit SQL:</em> <code>SELECT &#34;full_name&#34; FROM &#34;citizens&#34; WHERE &#34;full_name&#34; LIKE &#39;%â%&#39; OR &#34;full_name&#34; LIKE &#39;%�%&#39;;</code>
+                        </div>
+                        
+                      </div>
+                    
+                  
+                </td>
+              </tr>
+              
+              <tr>
+                <td><code>dob_str</code> </td>
+                <td><code>VARCHAR(50)</code></td>
+                <td><code>DATE</code></td>
+                <td>Null: 0%<br>Distinct: 3%</td>
+                <td>
+                  
+                    
+                      <div style="margin-bottom: 6px;">
+                        <span class="tag WARN">WARN</span> <strong>impossible_or_sentinel_date</strong>
+                        <div style="font-size: 12px; color: #505a5f;">[impossible_or_sentinel_date] 8/200 (4.0%) sampled rows in column &#39;dob_str&#39; contain sentinel or impossible dates</div>
+                        <div style="font-size: 12px; color: #00703c;"><em>dbt:</em> <code>CASE WHEN &#34;dob_str&#34; IN (&#39;1900-01-01&#39;, &#39;1970-01-01&#39;, &#39;9999-12-31&#39;, &#39;0000-00-00&#39;) THEN NULL ELSE CAST(&#34;dob_str&#34; AS DATE) END</code></div>
+                        
+                        <div style="font-size: 11px; color: #1d70b8; margin-top: 2px;">
+                          <em>Audit SQL:</em> <code>SELECT &#34;dob_str&#34; FROM &#34;citizens&#34; WHERE &#34;dob_str&#34; IN (&#39;1900-01-01&#39;, &#39;1970-01-01&#39;, &#39;9999-12-31&#39;, &#39;0000-00-00&#39;);</code>
+                        </div>
+                        
+                      </div>
+                    
+                      <div style="margin-bottom: 6px;">
+                        <span class="tag CRITICAL">CRITICAL</span> <strong>mixed_date_locales</strong>
+                        <div style="font-size: 12px; color: #505a5f;">[mixed_date_locales] Column &#39;dob_str&#39; mixes date locales across 36/200 (18.0%) sampled rows (16 DD/MM/YYYY, 20 MM/DD/YYYY)</div>
+                        <div style="font-size: 12px; color: #00703c;"><em>dbt:</em> <code>CASE WHEN &#34;dob_str&#34; ~ &#39;^\d{4}-\d{2}-\d{2}$&#39; THEN CAST(&#34;dob_str&#34; AS DATE) ELSE NULL END</code></div>
+                        
+                        <div style="font-size: 11px; color: #1d70b8; margin-top: 2px;">
+                          <em>Audit SQL:</em> <code>SELECT &#34;dob_str&#34; FROM &#34;citizens&#34; WHERE &#34;dob_str&#34; IS NOT NULL;</code>
+                        </div>
+                        
+                      </div>
+                    
+                  
+                </td>
+              </tr>
+              
+              <tr>
+                <td><code>legacy_notes</code> </td>
+                <td><code>TEXT</code></td>
+                <td><code>TEXT</code></td>
+                <td>Null: 0%<br>Distinct: 100%</td>
+                <td>
+                  
+                    
+                      <div style="margin-bottom: 6px;">
+                        <span class="tag CRITICAL">CRITICAL</span> <strong>postgres_null_byte_poison</strong>
+                        <div style="font-size: 12px; color: #505a5f;">[postgres_null_byte_poison] 7/200 (3.5%) sampled rows contain ASCII NUL (0x00) bytes</div>
+                        <div style="font-size: 12px; color: #00703c;"><em>dbt:</em> <code>REPLACE(&#34;legacy_notes&#34;, CHR(0), &#39;&#39;)</code></div>
+                        
+                        <div style="font-size: 11px; color: #1d70b8; margin-top: 2px;">
+                          <em>Audit SQL:</em> <code>SELECT &#34;legacy_notes&#34; FROM &#34;citizens&#34; WHERE &#34;legacy_notes&#34; LIKE &#39;%&#39; || CHR(0) || &#39;%&#39;;</code>
+                        </div>
+                        
+                      </div>
+                    
+                      <div style="margin-bottom: 6px;">
+                        <span class="tag CRITICAL">CRITICAL</span> <strong>shadow_uk_nino</strong>
+                        <div style="font-size: 12px; color: #505a5f;">[shadow_uk_nino] 1/200 (0.5%) sampled rows in column &#39;legacy_notes&#39; match UK National Insurance Number pattern</div>
+                        <div style="font-size: 12px; color: #00703c;"><em>dbt:</em> <code>REGEXP_REPLACE(&#34;legacy_notes&#34;, &#39;(?i)\y(?:QQ|(?!BG|GB|NK|KN|TN|NT|ZZ)[A-CEGHJ-PR-TW-ZQ][A-CEGHJ-NPR-TW-ZQ])\s*\d{2}\s*\d{2}\s*\d{2}\s*[A-D]\y&#39;, &#39;[REDACTED_NINO]&#39;, &#39;g&#39;)</code></div>
+                        
+                        <div style="font-size: 11px; color: #1d70b8; margin-top: 2px;">
+                          <em>Audit SQL:</em> <code>SELECT &#34;legacy_notes&#34; FROM &#34;citizens&#34; WHERE &#34;legacy_notes&#34; ~* &#39;\y[A-Z]{2}\s?[0-9]{2}\s?[0-9]{2}\s?[0-9]{2}\s?[A-D]\y&#39;;</code>
+                        </div>
+                        
+                      </div>
+                    
+                      <div style="margin-bottom: 6px;">
+                        <span class="tag CRITICAL">CRITICAL</span> <strong>shadow_nhs_number</strong>
+                        <div style="font-size: 12px; color: #505a5f;">[shadow_nhs_number] 1/200 (0.5%) sampled rows in column &#39;legacy_notes&#39; match Modulus-11 verified UK NHS Number pattern</div>
+                        <div style="font-size: 12px; color: #00703c;"><em>dbt:</em> <code>REGEXP_REPLACE(&#34;legacy_notes&#34;, &#39;\y\d{3}\s?\d{3}\s?\d{4}\y&#39;, &#39;[REDACTED_NHS]&#39;, &#39;g&#39;)</code></div>
+                        
+                        <div style="font-size: 11px; color: #1d70b8; margin-top: 2px;">
+                          <em>Audit SQL:</em> <code>SELECT &#34;legacy_notes&#34; FROM &#34;citizens&#34; WHERE &#34;legacy_notes&#34; ~ &#39;\y[0-9]{3}\s?[0-9]{3}\s?[0-9]{4}\y&#39;;</code>
+                        </div>
+                        
+                      </div>
+                    
+                      <div style="margin-bottom: 6px;">
+                        <span class="tag WARN">WARN</span> <strong>legacy_redaction_markers</strong>
+                        <div style="font-size: 12px; color: #505a5f;">[legacy_redaction_markers] 1/200 (0.5%) sampled rows in column &#39;legacy_notes&#39; contain legacy redaction or deletion tombstones</div>
+                        <div style="font-size: 12px; color: #00703c;"><em>dbt:</em> <code>REGEXP_REPLACE(&#34;legacy_notes&#34;, &#39;(?i)\y(REDACTED|GDPR_DELETED|DECEASED|DO NOT CONTACT|TEST TEST|XXXX+)\y&#39;, &#39;&#39;, &#39;g&#39;)</code></div>
+                        
+                        <div style="font-size: 11px; color: #1d70b8; margin-top: 2px;">
+                          <em>Audit SQL:</em> <code>SELECT &#34;legacy_notes&#34; FROM &#34;citizens&#34; WHERE &#34;legacy_notes&#34; ~* &#39;\y(REDACTED|GDPR_DELETED|DECEASED|DO NOT CONTACT|TEST TEST|XXXX+)\y&#39;;</code>
+                        </div>
+                        
+                      </div>
+                    
+                  
+                </td>
+              </tr>
+              
+            </tbody>
+          </table>
+
+          
+          <h3>Generated dbt Staging Model (<code>stg_citizens.sql</code>)</h3>
+          <pre class="code-block">-- Auto-generated by Crucible Migration Readiness Compiler v2.0
+-- Flaw Signature: dob_str:impossible_or_sentinel_date,dob_str:mixed_date_locales,full_name:cp1252_encoding_ghosts,legacy_notes:postgres_null_byte_poison,legacy_notes:shadow_uk_nino,legacy_notes:shadow_nhs_number,legacy_notes:legacy_redaction_markers
+WITH source AS (
+    SELECT * FROM {{ source(&#39;legacy_source&#39;, &#39;citizens&#39;) }}
+),
+sanitized AS (
+    SELECT
+    
+        &#34;citizen_id&#34; AS &#34;citizen_id&#34;, -- Direct pass-through (INTEGER)
+    
+        REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(&#34;full_name&#34;, &#39;â€™&#39;, &#39;&#39;&#39;&#39;), &#39;â€“&#39;, &#39;-&#39;), &#39;â€œ&#39;, &#39;&#34;&#39;), &#39;Ã©&#39;, &#39;é&#39;), &#39;Ã£&#39;, &#39;ã&#39;), CHR(65533), &#39;&#39;) AS &#34;full_name&#34;, -- Sanitized: cp1252_encoding_ghosts -&gt; TEXT
+    
+        CASE WHEN &#34;dob_str&#34; IN (&#39;1900-01-01&#39;, &#39;1970-01-01&#39;, &#39;9999-12-31&#39;, &#39;0000-00-00&#39;) THEN NULL WHEN &#34;dob_str&#34; ~ &#39;^\d{4}-\d{2}-\d{2}$&#39; THEN CAST(&#34;dob_str&#34; AS DATE) ELSE NULL END AS &#34;dob_str&#34;, -- Sanitized: impossible_or_sentinel_date, mixed_date_locales -&gt; DATE
+    
+        REGEXP_REPLACE(REGEXP_REPLACE(REGEXP_REPLACE(REPLACE(&#34;legacy_notes&#34;, CHR(0), &#39;&#39;), &#39;(?i)\y(REDACTED|GDPR_DELETED|DECEASED|DO NOT CONTACT|TEST TEST|XXXX+)\y&#39;, &#39;&#39;, &#39;g&#39;), &#39;(?i)\y(?:QQ|(?!BG|GB|NK|KN|TN|NT|ZZ)[A-CEGHJ-PR-TW-ZQ][A-CEGHJ-NPR-TW-ZQ])\s*\d{2}\s*\d{2}\s*\d{2}\s*[A-D]\y&#39;, &#39;[REDACTED_NINO]&#39;, &#39;g&#39;), &#39;\y\d{3}\s?\d{3}\s?\d{4}\y&#39;, &#39;[REDACTED_NHS]&#39;, &#39;g&#39;) AS &#34;legacy_notes&#34; -- Sanitized: postgres_null_byte_poison, shadow_uk_nino, shadow_nhs_number, legacy_redaction_markers -&gt; TEXT
+    
+    FROM source
+)
+SELECT * FROM sanitized</pre>
+          
+        </div>
+      </details>
+      
+      <details>
+        <summary>Table: rent_ledger &mdash; Readiness: 59/100 (150 rows, 4 columns)</summary>
+        <div class="details-body">
+          <p>
+            <strong>Declared PK:</strong> <code>NONE</code> &nbsp;|&nbsp;
+            <strong>Sample Size:</strong> 150 &nbsp;|&nbsp;
+            <strong>Readiness Score:</strong> 59/100
+          </p>
+
+          <h3>Column Profiles & Corruption Taxonomy</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Column</th>
+                <th>Declared Type</th>
+                <th>Recommended Type</th>
+                <th>Null / Distinct</th>
+                <th>Flaws & Remediation</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+              <tr>
+                <td><code>tenancy_id</code> </td>
+                <td><code>INTEGER</code></td>
+                <td><code>INTEGER</code></td>
+                <td>Null: 0%<br>Distinct: 100%</td>
+                <td>
+                  
+                    <span style="color: #00703c; font-size: 12px;">Clean (No flaws detected)</span>
+                  
+                </td>
+              </tr>
+              
+              <tr>
+                <td><code>balance_amt</code> </td>
+                <td><code>VARCHAR(50)</code></td>
+                <td><code>NUMERIC(18,2)</code></td>
+                <td>Null: 0%<br>Distinct: 87%</td>
+                <td>
+                  
+                    
+                      <div style="margin-bottom: 6px;">
+                        <span class="tag WARN">WARN</span> <strong>text_currency</strong>
+                        <div style="font-size: 12px; color: #505a5f;">[text_currency] 150/150 (100.0%) sampled rows contain formatted currency strings</div>
+                        <div style="font-size: 12px; color: #00703c;"><em>dbt:</em> <code>CAST(NULLIF(REGEXP_REPLACE(&#34;balance_amt&#34;, &#39;[^0-9.-]&#39;, &#39;&#39;, &#39;g&#39;), &#39;&#39;) AS NUMERIC(18,2))</code></div>
+                        
+                        <div style="font-size: 11px; color: #1d70b8; margin-top: 2px;">
+                          <em>Audit SQL:</em> <code>SELECT &#34;balance_amt&#34; FROM &#34;rent_ledger&#34; WHERE &#34;balance_amt&#34; ~ &#39;[$£€]&#39; OR &#34;balance_amt&#34; ~* &#39;(USD|EUR|GBP)&#39;;</code>
+                        </div>
+                        
+                      </div>
+                    
+                  
+                </td>
+              </tr>
+              
+              <tr>
+                <td><code>arrears_months</code> </td>
+                <td><code>INTEGER</code></td>
+                <td><code>INTEGER</code></td>
+                <td>Null: 0%<br>Distinct: 5%</td>
+                <td>
+                  
+                    
+                      <div style="margin-bottom: 6px;">
+                        <span class="tag HIGH">HIGH</span> <strong>negative_unsigned_field</strong>
+                        <div style="font-size: 12px; color: #505a5f;">[negative_unsigned_field] 18/150 (12.0%) sampled values in unsigned column &#39;arrears_months&#39; are negative</div>
+                        <div style="font-size: 12px; color: #00703c;"><em>dbt:</em> <code>CASE WHEN CAST(&#34;arrears_months&#34; AS NUMERIC) &lt; 0 THEN NULL ELSE CAST(&#34;arrears_months&#34; AS NUMERIC) END</code></div>
+                        
+                        <div style="font-size: 11px; color: #1d70b8; margin-top: 2px;">
+                          <em>Audit SQL:</em> <code>SELECT &#34;arrears_months&#34; FROM &#34;rent_ledger&#34; WHERE CAST(&#34;arrears_months&#34; AS NUMERIC) &lt; 0;</code>
+                        </div>
+                        
+                      </div>
+                    
+                  
+                </td>
+              </tr>
+              
+              <tr>
+                <td><code>payment_status</code> </td>
+                <td><code>VARCHAR(50)</code></td>
+                <td><code>VARCHAR(255)</code></td>
+                <td>Null: 0%<br>Distinct: 1%</td>
+                <td>
+                  
+                    <span style="color: #00703c; font-size: 12px;">Clean (No flaws detected)</span>
+                  
+                </td>
+              </tr>
+              
+            </tbody>
+          </table>
+
+          
+          <h3>Generated dbt Staging Model (<code>stg_rent_ledger.sql</code>)</h3>
+          <pre class="code-block">-- Auto-generated by Crucible Migration Readiness Compiler v2.0
+-- Flaw Signature: arrears_months:negative_unsigned_field,balance_amt:text_currency
+WITH source AS (
+    SELECT * FROM {{ source(&#39;legacy_source&#39;, &#39;rent_ledger&#39;) }}
+),
+sanitized AS (
+    SELECT
+    
+        &#34;tenancy_id&#34; AS &#34;tenancy_id&#34;, -- Direct pass-through (INTEGER)
+    
+        CAST(NULLIF(REGEXP_REPLACE(&#34;balance_amt&#34;, &#39;[^0-9.-]&#39;, &#39;&#39;, &#39;g&#39;), &#39;&#39;) AS NUMERIC(18,2)) AS &#34;balance_amt&#34;, -- Sanitized: text_currency -&gt; NUMERIC(18,2)
+    
+        CASE WHEN &#34;arrears_months&#34; &lt; 0 THEN NULL ELSE &#34;arrears_months&#34; END AS &#34;arrears_months&#34;, -- Sanitized: negative_unsigned_field -&gt; INTEGER
+    
+        &#34;payment_status&#34; AS &#34;payment_status&#34; -- Direct pass-through (VARCHAR(50))
+    
+    FROM source
+)
+SELECT * FROM sanitized</pre>
+          
+        </div>
+      </details>
+      
+      <details>
+        <summary>Table: staff &mdash; Readiness: 100/100 (20 rows, 3 columns)</summary>
+        <div class="details-body">
+          <p>
+            <strong>Declared PK:</strong> <code>[&#39;staff_code&#39;]</code> &nbsp;|&nbsp;
+            <strong>Sample Size:</strong> 20 &nbsp;|&nbsp;
+            <strong>Readiness Score:</strong> 100/100
+          </p>
+
+          <h3>Column Profiles & Corruption Taxonomy</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Column</th>
+                <th>Declared Type</th>
+                <th>Recommended Type</th>
+                <th>Null / Distinct</th>
+                <th>Flaws & Remediation</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+              <tr>
+                <td><code>staff_code</code> <span class="tag INFO">PK</span></td>
+                <td><code>VARCHAR(20)</code></td>
+                <td><code>VARCHAR(255)</code></td>
+                <td>Null: 0%<br>Distinct: 100%</td>
+                <td>
+                  
+                    <span style="color: #00703c; font-size: 12px;">Clean (No flaws detected)</span>
+                  
+                </td>
+              </tr>
+              
+              <tr>
+                <td><code>full_name</code> </td>
+                <td><code>VARCHAR(100)</code></td>
+                <td><code>VARCHAR(255)</code></td>
+                <td>Null: 0%<br>Distinct: 100%</td>
+                <td>
+                  
+                    <span style="color: #00703c; font-size: 12px;">Clean (No flaws detected)</span>
+                  
+                </td>
+              </tr>
+              
+              <tr>
+                <td><code>department</code> </td>
+                <td><code>VARCHAR(50)</code></td>
+                <td><code>VARCHAR(255)</code></td>
+                <td>Null: 0%<br>Distinct: 5%</td>
+                <td>
+                  
+                    <span style="color: #00703c; font-size: 12px;">Clean (No flaws detected)</span>
+                  
+                </td>
+              </tr>
+              
+            </tbody>
+          </table>
+
+          
+          <h3>Generated dbt Staging Model (<code>stg_staff.sql</code>)</h3>
+          <pre class="code-block">-- Auto-generated by Crucible Migration Readiness Compiler v2.0
+-- Flaw Signature: clean
+WITH source AS (
+    SELECT * FROM {{ source(&#39;legacy_source&#39;, &#39;staff&#39;) }}
+),
+sanitized AS (
+    SELECT
+    
+        &#34;staff_code&#34; AS &#34;staff_code&#34;, -- Direct pass-through (VARCHAR(20))
+    
+        &#34;full_name&#34; AS &#34;full_name&#34;, -- Direct pass-through (VARCHAR(100))
+    
+        &#34;department&#34; AS &#34;department&#34; -- Direct pass-through (VARCHAR(50))
+    
+    FROM source
+)
+SELECT * FROM sanitized</pre>
+          
+        </div>
+      </details>
+      
+      <details>
+        <summary>Table: tenancies &mdash; Readiness: 76/100 (150 rows, 4 columns)</summary>
+        <div class="details-body">
+          <p>
+            <strong>Declared PK:</strong> <code>[&#39;tenancy_id&#39;]</code> &nbsp;|&nbsp;
+            <strong>Sample Size:</strong> 150 &nbsp;|&nbsp;
+            <strong>Readiness Score:</strong> 76/100
+          </p>
+
+          <h3>Column Profiles & Corruption Taxonomy</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Column</th>
+                <th>Declared Type</th>
+                <th>Recommended Type</th>
+                <th>Null / Distinct</th>
+                <th>Flaws & Remediation</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+              <tr>
+                <td><code>tenancy_id</code> <span class="tag INFO">PK</span></td>
+                <td><code>INTEGER</code></td>
+                <td><code>BIGINT</code></td>
+                <td>Null: 0%<br>Distinct: 100%</td>
+                <td>
+                  
+                    <span style="color: #00703c; font-size: 12px;">Clean (No flaws detected)</span>
+                  
+                </td>
+              </tr>
+              
+              <tr>
+                <td><code>citizen_id</code> </td>
+                <td><code>INTEGER</code></td>
+                <td><code>INTEGER</code></td>
+                <td>Null: 0%<br>Distinct: 100%</td>
+                <td>
+                  
+                    <span style="color: #00703c; font-size: 12px;">Clean (No flaws detected)</span>
+                  
+                </td>
+              </tr>
+              
+              <tr>
+                <td><code>officer_code</code> </td>
+                <td><code>VARCHAR(20)</code></td>
+                <td><code>VARCHAR(255)</code></td>
+                <td>Null: 0%<br>Distinct: 15%</td>
+                <td>
+                  
+                    <span style="color: #00703c; font-size: 12px;">Clean (No flaws detected)</span>
+                  
+                </td>
+              </tr>
+              
+              <tr>
+                <td><code>tenancy_memo</code> </td>
+                <td><code>TEXT</code></td>
+                <td><code>TEXT</code></td>
+                <td>Null: 0%<br>Distinct: 100%</td>
+                <td>
+                  
+                    
+                      <div style="margin-bottom: 6px;">
+                        <span class="tag WARN">WARN</span> <strong>overloaded_freetext_column</strong>
+                        <div style="font-size: 12px; color: #505a5f;">[overloaded_freetext_column] 150/150 (100.0%) sampled rows in column &#39;tenancy_memo&#39; contain packed key:value pairs</div>
+                        <div style="font-size: 12px; color: #00703c;"><em>dbt:</em> <code>&#34;tenancy_memo&#34;</code></div>
+                        
+                        <div style="font-size: 11px; color: #1d70b8; margin-top: 2px;">
+                          <em>Audit SQL:</em> <code>SELECT &#34;tenancy_memo&#34; FROM &#34;tenancies&#34; WHERE &#34;tenancy_memo&#34; ~ &#39;[A-Za-z_]+:[A-Za-z0-9_]+&#39;;</code>
+                        </div>
+                        
+                      </div>
+                    
+                  
+                </td>
+              </tr>
+              
+            </tbody>
+          </table>
+
+          
+          <h3>Generated dbt Staging Model (<code>stg_tenancies.sql</code>)</h3>
+          <pre class="code-block">-- Auto-generated by Crucible Migration Readiness Compiler v2.0
+-- Flaw Signature: tenancy_memo:overloaded_freetext_column
+WITH source AS (
+    SELECT * FROM {{ source(&#39;legacy_source&#39;, &#39;tenancies&#39;) }}
+),
+sanitized AS (
+    SELECT
+    
+        &#34;tenancy_id&#34; AS &#34;tenancy_id&#34;, -- Direct pass-through (INTEGER)
+    
+        &#34;citizen_id&#34; AS &#34;citizen_id&#34;, -- Direct pass-through (INTEGER)
+    
+        &#34;officer_code&#34; AS &#34;officer_code&#34;, -- Direct pass-through (VARCHAR(20))
+    
+        &#34;tenancy_memo&#34; AS &#34;tenancy_memo&#34; -- Sanitized: overloaded_freetext_column -&gt; TEXT
+    
+    FROM source
+)
+SELECT * FROM sanitized</pre>
+          
+        </div>
+      </details>
+      
+    </div>
+  </div>
+
+  <footer class="dossier-footer">
+    <p>Generated by Crucible Audit — Read-Only Air-Gapped Pre-Migration Profiler</p>
+  </footer>
+</body>
+</html>

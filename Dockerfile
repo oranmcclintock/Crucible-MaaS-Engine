@@ -1,19 +1,16 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
-# Create a non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+RUN groupadd -g 1000 appuser && useradd -m -u 1000 -g appuser appuser
 
 WORKDIR /app
 
-# Install dependencies
-RUN pip install --no-cache-dir sqlalchemy pydantic jinja2 psycopg2-binary pyyaml networkx
+COPY pyproject.toml README.md rules.yaml cli.py profiler.py flaw_catalog.py codegen.py reportgen.py seed_dirty_gov_db.py ./
+COPY templates ./templates
 
-# Copy source files
-COPY . /app/
+RUN pip install --no-cache-dir ".[postgres]" \
+    && chown -R appuser:appuser /app
 
-# Set ownership and switch to non-root user
-RUN chown -R appuser:appuser /app
 USER appuser
 
-# Placeholder entrypoint
-CMD ["python", "run_pipeline.py"]
+ENTRYPOINT ["crucible"]
+CMD ["--help"]

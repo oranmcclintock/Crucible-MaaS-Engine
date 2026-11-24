@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ branding.brand_name }} - Migration Readiness Technical Dossier - {{ metadata.source_redacted_url }}</title>
+  <style>
+    /* Crucible GDS-Styled Air-Gapped Offline Technical Dossier */
+    :root {
+      --brand-color: {{ branding.brand_color }};
+    }
+    *, *:before, *:after { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #0b0c0c;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 0;
+      line-height: 1.5;
+      font-size: 15px;
+    }
+    code, pre {
+      font-family: "JetBrains Mono", "Fira Code", Monaco, Consolas, monospace;
+      font-size: 13px;
+    }
+    .govuk-header {
+      background: var(--brand-color);
+      color: #ffffff;
+      padding: 16px 32px;
+      border-bottom: 6px solid #1d70b8;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand-logo {
+      max-height: 44px;
+      max-width: 180px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    .govuk-header h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .govuk-header p {
+      margin: 4px 0 0 0;
+      font-size: 13px;
+      color: #e2e8f0;
+    }
+    .dossier-footer {
+      max-width: 1200px;
+      margin: 0 auto 32px auto;
+      padding: 16px 24px 0 24px;
+      border-top: 1px solid #b1b4b6;
+      font-size: 12px;
+      color: #505a5f;
+      text-align: center;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 24px auto;
+      padding: 0 24px;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #b1b4b6;
+      border-radius: 4px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .scorecard {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 24px;
+      border-left: 8px solid;
+    }
+    .scorecard.GREEN { border-left-color: #00703c; }
+    .scorecard.AMBER { border-left-color: #f47738; }
+    .scorecard.RED { border-left-color: #d4351c; }
+    .score-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-weight: 800;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .score-circle.GREEN { background: #00703c; }
+    .score-circle.AMBER { background: #f47738; }
+    .score-circle.RED { background: #d4351c; }
+    .score-num { font-size: 38px; line-height: 1; }
+    .score-denom { font-size: 12px; opacity: 0.85; }
+    .scorecard-details { flex: 1; min-width: 280px; }
+    .tag {
+      display: inline-block;
+      padding: 4px 8px;
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: 2px;
+    }
+    .tag.CRITICAL, .tag.RED { background: #d4351c; color: #ffffff; }
+    .tag.HIGH, .tag.AMBER { background: #f47738; color: #ffffff; }
+    .tag.WARN { background: #ffdd00; color: #0b0c0c; }
+    .tag.GREEN { background: #00703c; color: #ffffff; }
+    .tag.INFO { background: #1d70b8; color: #ffffff; }
+    .pillar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .pillar-box {
+      background: #f3f2f1;
+      border-left: 4px solid var(--brand-color);
+      padding: 12px 16px;
+    }
+    .pillar-val {
+      font-size: 26px;
+      font-weight: 800;
+      color: #0b0c0c;
+    }
+    .pillar-label {
+      font-size: 12px;
+      color: #505a5f;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    h2 {
+      font-size: 20px;
+      margin-top: 0;
+      margin-bottom: 16px;
+      color: #0b0c0c;
+      border-bottom: 2px solid var(--brand-color);
+      padding-bottom: 6px;
+    }
+    h3 {
+      font-size: 16px;
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #b1b4b6;
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f3f2f1;
+      font-weight: 700;
+    }
+    tr:nth-child(even) td { background: #fafafa; }
+    .pii-panel {
+      background: #fff8f7;
+      border: 2px solid #d4351c;
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .pii-panel h2 {
+      color: #d4351c;
+      border-bottom-color: #d4351c;
+    }
+    pre.code-block {
+      background: #24292e;
+      color: #f6f8fa;
+      padding: 14px;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin: 8px 0;
+    }
+    details {
+      border: 1px solid #b1b4b6;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      background: #ffffff;
+    }
+    details > summary {
+      padding: 12px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      background: #f3f2f1;
+      user-select: none;
+    }
+    details[open] > summary {
+      border-bottom: 1px solid #b1b4b6;
+    }
+    .details-body {
+      padding: 16px;
+    }
+    .badge-inferred {
+      background: #8f23b3;
+      color: #fff;
+      padding: 2px 6px;
+      font-size: 11px;
+      border-radius: 2px;
+      font-weight: 700;
+    }
+    @media print {
+      body { background: #ffffff; color: #000000; font-size: 12px; }
+      .container { max-width: 100%; margin: 0; padding: 0; }
+      .card, .pii-panel { box-shadow: none; border-color: #000000; break-inside: avoid; }
+      details { display: block !important; border: 1px solid #000000; margin-bottom: 16px; }
+      details > summary { display: none !important; }
+      .details-body { padding: 10px; }
+      .no-print { display: none !important; }
+      .page-break { page-break-after: always; }
+      pre.code-block { background: #f0f0f0; color: #000000; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <div class="govuk-header">
+    <div class="header-brand">
+      {% if branding.brand_logo %}
+      <img src="{{ branding.brand_logo }}" alt="{{ branding.brand_name }} logo" class="brand-logo">
+      {% endif %}
+      <div>
+        <h1>{{ branding.brand_name }} &mdash; Migration Readiness Technical Dossier v{{ metadata.crucible_version }}</h1>
+        <p>Target System: <code>{{ metadata.source_redacted_url }}</code> &nbsp;|&nbsp; Engine Dialect: <code>{{ metadata.dialect }}</code> &nbsp;|&nbsp; Timestamp: {{ metadata.generated_at }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    {% set grade_color = executive_summary.readiness_grade.split()[0] %}
+    <!-- Section 1: Executive Scorecard Banner -->
+    <div class="card scorecard {{ grade_color }}">
+      <div class="score-circle {{ grade_color }}">
+        <div class="score-num">{{ executive_summary.overall_readiness_score }}</div>
+        <div class="score-denom">OUT OF 100</div>
+      </div>
+      <div class="scorecard-details">
+        <span class="tag {{ grade_color }}">{{ executive_summary.readiness_grade }}</span>
+        <h2 style="border: none; margin: 8px 0; font-size: 24px;">Executive Migration Readiness Assessment</h2>
+        <p style="margin: 0 0 8px 0; color: #505a5f;">
+          Evaluated <strong>{{ executive_summary.total_tables }}</strong> tables and <strong>{{ executive_summary.total_columns }}</strong> columns against 16 enterprise migration barriers.
+          Estimated human remediation effort: <strong>{{ executive_summary.estimated_remediation_hours }} hours</strong>.
+        </p>
+        <div class="pillar-grid">
+          <div class="pillar-box">
+            <div class="pillar-val">{{ executive_summary.blocker_counts.dms_replication_blockers }}</div>
+            <div class="pillar-label">DMS Blockers</div>
+          </div>
+          <div class="pillar-box">
+            <div class="pillar-val">{{ executive_summary.blocker_counts.referential_integrity_failures }}</div>
+            <div class="pillar-label">Referential Failures</div>
+          </div>
+          <div class="pillar-box">
+            <div class="pillar-val">{{ executive_summary.blocker_counts.semantic_data_rot }}</div>
+            <div class="pillar-label">Semantic Data Rot</div>
+          </div>
+          <div class="pillar-box">
+            <div class="pillar-val">{{ executive_summary.blocker_counts.shadow_pii_exposures }}</div>
+            <div class="pillar-label">Shadow PII Exposures</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: AWS DMS & Cloud Replication Pre-Flight Checklist -->
+    <div class="card">
+      <h2>Section 2: AWS DMS & Cloud Replication Pre-Flight Checklist</h2>
+      <p>Continuous CDC (Change Data Capture) replication barriers that will crash initial load tasks or drop CDC change streams:</p>
+      {% set all_dms_blockers = [] %}
+      {% for tname, tmeta in tables.items() %}
+        {% for b in tmeta.dms_blockers %}
+          {% set _ = all_dms_blockers.append({'table': tname, 'blocker': b}) %}
+        {% endfor %}
+      {% endfor %}
+
+      {% if all_dms_blockers %}
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 14%;">Table</th>
+            <th style="width: 12%;">Severity</th>
+            <th style="width: 18%;">Blocker ID</th>
+            <th style="width: 14%;">Column</th>
+            <th>Impact if Unresolved (Delivery Manager Advisory)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in all_dms_blockers %}
+          <tr>
+            <td><strong>{{ item.table }}</strong></td>
+            <td><span class="tag {{ item.blocker.severity }}">{{ item.blocker.severity }}</span></td>
+            <td><code>{{ item.blocker.blocker_id }}</code></td>
+            <td>{{ item.blocker.column or "N/A (Table-Level)" }}</td>
+            <td>
+              {{ item.blocker.description }}
+              {% if item.blocker.blocker_id == "missing_primary_key_for_cdc" %}
+                <br><em>Impact: AWS DMS cannot apply UPDATE/DELETE CDC events without a Primary Key. Target replica will diverge silently.</em>
+              {% elif item.blocker.blocker_id == "postgres_null_byte_poison" %}
+                <br><em>Impact: PostgreSQL wire COPY and AWS DMS replication tasks terminate immediately when encountering 0x00 bytes.</em>
+              {% elif item.blocker.blocker_id == "cp1252_encoding_ghosts" %}
+                <br><em>Impact: Mojibake byte corruption fails UTF-8 validation in modern cloud warehouses (Snowflake, BigQuery).</em>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p style="color: #00703c; font-weight: 600;">No critical DMS replication blockers identified across reflected tables.</p>
+      {% endif %}
+    </div>
+
+    <!-- Section 3: Shadow PII & UK GDPR Compliance Alerts -->
+    {% set pii_findings = [] %}
+    {% for tname, tmeta in tables.items() %}
+      {% for cname, cmeta in tmeta.columns.items() %}
+        {% for f in cmeta.flaws %}
+          {% if f.category == "shadow_pii_exposures" %}
+            {% set _ = pii_findings.append({'table': tname, 'column': cname, 'flaw': f}) %}
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+    {% endfor %}
+
+    <div class="pii-panel">
+      <h2>Section 3: Shadow PII & UK GDPR Compliance Alerts</h2>
+      {% if pii_findings %}
+      <p style="color: #d4351c; font-weight: 700;">
+        WARNING: High-risk statutory identifiers discovered in unstructured text columns. All sample evidence is masked below for air-gapped security:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 14%;">Table</th>
+            <th style="width: 14%;">Column</th>
+            <th style="width: 16%;">Identifier Type</th>
+            <th style="width: 12%;">Severity</th>
+            <th>Redacted Evidence & Compliance Guidance</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in pii_findings %}
+          <tr>
+            <td><strong>{{ p.table }}</strong></td>
+            <td><code>{{ p.column }}</code></td>
+            <td><code>{{ p.flaw.flaw_id }}</code></td>
+            <td><span class="tag {{ p.flaw.severity }}">{{ p.flaw.severity }}</span></td>
+            <td>
+              <strong>Evidence:</strong> {{ p.flaw.evidence }}<br>
+              <strong>Guidance:</strong> {{ p.flaw.remediation_advice }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p style="color: #00703c; font-weight: 600;">No unmasked UK NINOs, NHS numbers, or GDPR deletion tombstones detected in sampled free-text columns.</p>
+      {% endif %}
+    </div>
+
+    <!-- Section 4: Schema Topology, Load Order & Orphaned Foreign Keys -->
+    <div class="card">
+      <h2>Section 4: Schema Topology, Load Order & Orphaned Foreign Keys</h2>
+      <h3>Recommended Topological Load Wave Order</h3>
+      <ol style="margin-top: 4px; padding-left: 20px;">
+        {% for tbl in topology.load_order %}
+        <li style="margin-bottom: 4px;"><strong>{{ tbl }}</strong> {% if loop.first %}(Foundation Parent Table){% endif %}</li>
+        {% endfor %}
+      </ol>
+
+      {% if topology.fk_cycle_warning %}
+      <div style="background: #fff8f7; border-left: 4px solid #d4351c; padding: 12px; margin: 12px 0;">
+        <strong style="color: #d4351c;">Circular Foreign Key Warning:</strong>
+        Cycles detected in schema graph: <code>{{ topology.fk_cycle_warning }}</code>. Staged deferred-constraint loading required.
+      </div>
+      {% endif %}
+
+      <h3>Schema Dependency Graph (Mermaid / Topological Definition)</h3>
+      <pre class="code-block">{{ topology.mermaid_dag }}</pre>
+
+      <h3>Foreign Key Integrity (Declared vs. Inferred Shadow Keys)</h3>
+      {% if topology.edges %}
+      <table>
+        <thead>
+          <tr>
+            <th>Child Table & Column</th>
+            <th>Parent Table & Column</th>
+            <th>Relationship Type</th>
+            <th>Status</th>
+            <th>Orphan Rows</th>
+            <th>Distinct Orphan Keys</th>
+            <th>Diagnostic SQL Query</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for edge in topology.edges %}
+          <tr>
+            <td><code>{{ edge.child_table }}.{{ edge.child_col }}</code></td>
+            <td><code>{{ edge.parent_table }}.{{ edge.parent_col }}</code></td>
+            <td>
+              {% if edge.relationship_type == "INFERRED_SHADOW_FK" %}
+              <span class="badge-inferred">INFERRED SHADOW FK ({{ (edge.confidence * 100)|int }}%)</span>
+              {% else %}
+              <span class="tag INFO">DECLARED FK</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if edge.status == "HEALTHY" %}
+              <span class="tag GREEN">HEALTHY</span>
+              {% else %}
+              <span class="tag RED">ORPHANS DETECTED</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if edge.orphan_row_count > 0 %}
+              <strong style="color: #d4351c;">{{ edge.orphan_row_count }}</strong>
+              {% else %}
+              <span style="color: #00703c;">0</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if edge.distinct_orphan_keys is defined and edge.distinct_orphan_keys > 0 %}
+              <strong style="color: #d4351c;">{{ edge.distinct_orphan_keys }}</strong>
+              {% else %}
+              <span style="color: #00703c;">0</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if edge.diagnostic_sql %}
+              <pre style="margin: 0; font-size: 11px;">{{ edge.diagnostic_sql }}</pre>
+              {% else %}
+              <span style="color: #505a5f;">N/A</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p style="color: #00703c; font-weight: 600;">Zero foreign key relationships discovered across all declared and inferred constraints.</p>
+      {% endif %}
+    </div>
+
+    <!-- Section 5: Table-by-Table Technical Appendix & Generated dbt Models -->
+    <div class="card">
+      <h2>Section 5: Table-by-Table Technical Appendix & Auto-Generated dbt Models</h2>
+      <p>Inspect detailed column-level corruption findings, diagnostic queries, and generated dbt staging SQL models for each table:</p>
+
+      {% for tname, tmeta in tables.items() %}
+      <details>
+        <summary>Table: {{ tname }} &mdash; Readiness: {{ tmeta.table_readiness_score }}/100 ({{ tmeta.row_count_estimate }} rows, {{ tmeta.columns|length }} columns)</summary>
+        <div class="details-body">
+          <p>
+            <strong>Declared PK:</strong> <code>{{ tmeta.declared_pk or "NONE" }}</code> &nbsp;|&nbsp;
+            <strong>Sample Size:</strong> {{ tmeta.row_sample_size }} &nbsp;|&nbsp;
+            <strong>Readiness Score:</strong> {{ tmeta.table_readiness_score }}/100
+          </p>
+
+          <h3>Column Profiles & Corruption Taxonomy</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Column</th>
+                <th>Declared Type</th>
+                <th>Recommended Type</th>
+                <th>Null / Distinct</th>
+                <th>Flaws & Remediation</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for cname, cmeta in tmeta.columns.items() %}
+              <tr>
+                <td><code>{{ cname }}</code> {% if cmeta.is_declared_pk %}<span class="tag INFO">PK</span>{% endif %}</td>
+                <td><code>{{ cmeta.declared_type }}</code></td>
+                <td><code>{{ cmeta.recommended_target_type }}</code></td>
+                <td>Null: {{ (cmeta.null_rate * 100)|int }}%<br>Distinct: {{ (cmeta.distinct_rate * 100)|int }}%</td>
+                <td>
+                  {% if cmeta.flaws %}
+                    {% for f in cmeta.flaws %}
+                      <div style="margin-bottom: 6px;">
+                        <span class="tag {{ f.severity }}">{{ f.severity }}</span> <strong>{{ f.flaw_id }}</strong>
+                        <div style="font-size: 12px; color: #505a5f;">{{ f.evidence }}</div>
+                        <div style="font-size: 12px; color: #00703c;"><em>dbt:</em> <code>{{ f.dbt_sql_expr }}</code></div>
+                        {% if f.diagnostic_sql %}
+                        <div style="font-size: 11px; color: #1d70b8; margin-top: 2px;">
+                          <em>Audit SQL:</em> <code>{{ f.diagnostic_sql }}</code>
+                        </div>
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                  {% else %}
+                    <span style="color: #00703c; font-size: 12px;">Clean (No flaws detected)</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          {% if dbt_models and dbt_models[tname] %}
+          <h3>Generated dbt Staging Model (<code>stg_{{ tname }}.sql</code>)</h3>
+          <pre class="code-block">{{ dbt_models[tname] }}</pre>
+          {% endif %}
+        </div>
+      </details>
+      {% endfor %}
+    </div>
+  </div>
+
+  <footer class="dossier-footer">
+    <p>{{ branding.brand_footer }}</p>
+  </footer>
+</body>
+</html>

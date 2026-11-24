@@ -1,143 +1,307 @@
 """
 codegen.py
 ==========
-Phase 2 of the pipeline. Deterministic and offline: reads profile.json,
-looks up each detected flaw in the fixed catalog from flaw_catalog.py, and
-mechanically assembles one Python module per table by string-substituting
-`{col}` into pre-written, pre-reviewed templates.
-
-There is NO LLM call in this file, at generation time or otherwise. The
-mapping from "flaw signature" to "code fragment" is a lookup table, not a
-model inference. This means:
-  - the same profile.json always produces byte-identical generated code
-  - every code path that can possibly be emitted is enumerable and testable
-    ahead of time by reviewing flaw_catalog.py once
-  - a human (or CI) can diff the generated module against the previous run
-    before it is ever pointed at real data
-  - there is nothing here for a prompt-injection attack (via malicious row
-    content) to influence, because no row content is ever sent to a model
-
-Generated modules are written to generated/<table>_transform.py and are
-inert until explicitly imported by executor.py -- generation and execution
-are separate, auditable steps with a human gate in between.
+Deterministic dbt & Diagnostic SQL Compiler (v2.0).
+Reads profile.json and compiles:
+  1. Sanitized dbt staging models with multi-flaw nested expression chaining:
+     generated_dbt/models/staging/stg_{table}.sql
+  2. dbt schema and quarantine test assertions (unique, not_null, relationships):
+     generated_dbt/models/staging/src_legacy.yml
+  3. Diagnostic SQL queries for DBA triage and row quarantine:
+     generated_dbt/diagnostics/{table}_audit.sql
 """
+from __future__ import annotations
+
 import json
 import os
+import sys
+from typing import Any
 
 from jinja2 import Environment, FileSystemLoader
 
-import flaw_catalog as fc
+
+def resolve_templates_dir() -> str:
+    """Resolves templates/ via package dir -> sys.prefix share -> CWD."""
+    candidates = [
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates"),
+        os.path.join(sys.prefix, "share", "crucible-audit", "templates"),
+        os.path.join(os.getcwd(), "templates"),
+    ]
+    for candidate in candidates:
+        if os.path.isdir(candidate):
+            return candidate
+    return candidates[0]
 
 
-def flaw_signature(table_profile: dict) -> str:
-    """Stable signature of which flaws fired for this table, for header provenance."""
+def flaw_signature(table_profile: dict[str, Any]) -> str:
+    """Stable signature of flaws detected in this table for provenance auditing."""
     ids = []
-    for col, meta in sorted(table_profile["columns"].items()):
-        for f in meta["flaws"]:
+    for col, meta in sorted(table_profile.get("columns", {}).items()):
+        for f in meta.get("flaws", []):
             ids.append(f"{col}:{f['flaw_id']}")
-    return ",".join(ids) if ids else "none"
+    return ",".join(ids) if ids else "clean"
 
 
-def python_type_for(declared_type: str, flaws: list) -> str:
+def compile_column_sql(col_name: str, col_meta: dict) -> tuple[str, str, str]:
+    """
+    Returns (sql_expression, target_sql_type, inline_comment).
+    Guarantees type safety:
+      Stage 1: TEXT -> TEXT normalizers (nested inner-to-outer)
+      Stage 2: At most ONE TEXT -> DATE or TEXT -> NUMERIC coercion
+      Stage 3: Domain range guards on typed values (e.g., negative_unsigned_field)
+    """
+    quoted_col = f'"{col_name}"'
+    flaws = col_meta.get("flaws", [])
+    declared_type = col_meta.get("declared_type", "TEXT")
+    recommended_type = col_meta.get("recommended_target_type", declared_type)
+
+    if not flaws:
+        return quoted_col, recommended_type, f"Direct pass-through ({declared_type})"
+
     flaw_ids = {f["flaw_id"] for f in flaws}
-    if "text_currency" in flaw_ids or "non_numeric_in_numeric_col" in flaw_ids or "negative_unsigned_field" in flaw_ids:
-        return "Optional[Decimal]"
-    if "impossible_or_sentinel_date" in flaw_ids:
-        return "Optional[Any]"  # date or None (sentinel) -- left as Any so Pydantic doesn't reject None dates
-    dt = declared_type.upper()
-    if "INT" in dt:
-        return "Optional[int]"
-    if "REAL" in dt or "FLOAT" in dt or "DOUBLE" in dt or "NUMERIC" in dt:
-        return "Optional[float]"
-    if "CHAR" in dt or "TEXT" in dt or "CLOB" in dt:
-        return "Optional[str]"
-    return "Optional[str]"
+    ordered_flaw_names = [f["flaw_id"] for f in flaws]
+    expr = quoted_col
+
+    # ------------------------------------------------------------------
+    # STAGE 1: TEXT -> TEXT Sanitizers (Always returns TEXT)
+    # ------------------------------------------------------------------
+    if "postgres_null_byte_poison" in flaw_ids:
+        expr = f"REPLACE({expr}, CHR(0), '')"
+
+    if "control_chars" in flaw_ids:
+        expr = f"REGEXP_REPLACE({expr}, '[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f]', '', 'g')"
+
+    if "cp1252_encoding_ghosts" in flaw_ids:
+        expr = (
+            f"REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE({expr}, "
+            f"'â€™', ''''), 'â€“', '-'), 'â€œ', '\"'), 'Ã©', 'é'), 'Ã£', 'ã'), CHR(65533), '')"
+        )
+
+    if "whitespace_padded_keys" in flaw_ids:
+        expr = f"TRIM({expr})"
+
+    if "legacy_redaction_markers" in flaw_ids:
+        expr = f"REGEXP_REPLACE({expr}, '(?i)\\y(REDACTED|GDPR_DELETED|DECEASED|DO NOT CONTACT|TEST TEST|XXXX+)\\y', '', 'g')"
+
+    if "shadow_uk_nino" in flaw_ids:
+        expr = (
+            f"REGEXP_REPLACE({expr}, "
+            f"'(?i)\\y(?:QQ|(?!BG|GB|NK|KN|TN|NT|ZZ)[A-CEGHJ-PR-TW-ZQ][A-CEGHJ-NPR-TW-ZQ])\\s*\\d{{2}}\\s*\\d{{2}}\\s*\\d{{2}}\\s*[A-D]\\y', "
+            f"'[REDACTED_NINO]', 'g')"
+        )
+
+    if "shadow_nhs_number" in flaw_ids:
+        expr = f"REGEXP_REPLACE({expr}, '\\y\\d{{3}}\\s?\\d{{3}}\\s?\\d{{4}}\\y', '[REDACTED_NHS]', 'g')"
+
+    # ------------------------------------------------------------------
+    # STAGE 2: Terminal Type Coercion (TEXT -> DATE or TEXT -> NUMERIC)
+    # ------------------------------------------------------------------
+    # 2A: Date Coercion (Merged if both sentinel and mixed locales fire)
+    if "mixed_date_locales" in flaw_ids and "impossible_or_sentinel_date" in flaw_ids:
+        expr = (
+            f"CASE "
+            f"WHEN {expr} IN ('1900-01-01', '1970-01-01', '9999-12-31', '0000-00-00') THEN NULL "
+            f"WHEN {expr} ~ '^\\d{{4}}-\\d{{2}}-\\d{{2}}$' THEN CAST({expr} AS DATE) "
+            f"ELSE NULL END"
+        )
+        recommended_type = "DATE"
+    elif "mixed_date_locales" in flaw_ids:
+        expr = f"CASE WHEN {expr} ~ '^\\d{{4}}-\\d{{2}}-\\d{{2}}$' THEN CAST({expr} AS DATE) ELSE NULL END"
+        recommended_type = "DATE"
+    elif "impossible_or_sentinel_date" in flaw_ids:
+        expr = (
+            f"CASE WHEN {expr} IN ('1900-01-01', '1970-01-01', '9999-12-31', '0000-00-00') "
+            f"THEN NULL ELSE CAST({expr} AS DATE) END"
+        )
+        recommended_type = "DATE"
+
+    # 2B: Numeric / Currency Coercion (Single unified cast even if both fire)
+    elif "text_currency" in flaw_ids or "non_numeric_in_numeric_col" in flaw_ids:
+        expr = f"CAST(NULLIF(REGEXP_REPLACE({expr}, '[^0-9.-]', '', 'g'), '') AS NUMERIC(18,2))"
+        recommended_type = "NUMERIC(18,2)"
+
+    elif "legacy_proprietary_datatype" in flaw_ids:
+        expr = f"CAST({expr} AS NUMERIC(18,4))"
+        recommended_type = "NUMERIC(18,4)"
+
+    # ------------------------------------------------------------------
+    # STAGE 3: Post-Coercion Domain Range Guards
+    # ------------------------------------------------------------------
+    if "negative_unsigned_field" in flaw_ids:
+        expr = f"CASE WHEN {expr} < 0 THEN NULL ELSE {expr} END"
+
+    comment = f"Sanitized: {', '.join(ordered_flaw_names)} -> {recommended_type}"
+    return expr, recommended_type, comment
 
 
-def generate_table_module(table: str, table_profile: dict) -> str:
-    env = Environment(loader=FileSystemLoader("templates"))
-    template = env.get_template("module.py.j2")
-
+def generate_dbt_staging_sql(table_name: str, table_profile: dict[str, Any], env: Environment) -> str:
+    """Renders the dbt staging model stg_{table}.sql with chained sanitized expressions."""
+    template = env.get_template("dbt_staging_model.sql.j2")
     sig = flaw_signature(table_profile)
 
-    cleaner_funcs = []       # generated helper function bodies (from templates)
-    body_lines = []          # lines inside clean_row()
-    model_fields = []
-    seen_key_sets = []       # for duplicate-key template's `seen_set` closure
+    columns = []
+    for col_name, col_meta in table_profile.get("columns", {}).items():
+        sql_expr, _recommended_type, comment = compile_column_sql(col_name, col_meta)
 
-    for col, meta in table_profile["columns"].items():
-        flaws = meta["flaws"]
-        if not flaws:
-            model_fields.append(f"    {col}: {python_type_for(meta['declared_type'], flaws)} = None")
-            continue
+        columns.append({
+            "name": col_name,
+            "sql_expression": sql_expr,
+            "comment": comment,
+        })
 
-        # highest-confidence flaw for this column drives the primary cleaner;
-        # additional flaws on the same column are appended as extra checks.
-        flaws_sorted = sorted(flaws, key=lambda f: -f["confidence"])
-        for f in flaws_sorted:
-            flaw_id = f["flaw_id"]
-            if flaw_id not in fc.TEMPLATES:
-                continue
-            tmpl = fc.TEMPLATES[flaw_id].format(col=col)
-            cleaner_funcs.append(tmpl)
-
-        # wire the primary (highest-confidence) cleaner into clean_row()
-        primary = flaws_sorted[0]["flaw_id"]
-        if primary == "control_chars":
-            body_lines.append(f'    out["{col}"] = _clean_control_chars_{col}(out.get("{col}"))')
-        elif primary == "text_currency":
-            body_lines.append(f'    out["{col}"] = _clean_currency_{col}(out.get("{col}"))')
-        elif primary == "non_numeric_in_numeric_col":
-            body_lines.append(f'    out["{col}"] = _clean_numeric_{col}(out.get("{col}"))')
-        elif primary == "impossible_or_sentinel_date":
-            body_lines.append(f'    out["{col}"] = _clean_date_{col}(out.get("{col}"))')
-        elif primary == "overloaded_freetext_column":
-            body_lines.append(
-                f'    _pairs_{col}, _raw_{col} = _unpack_freetext_{col}(out.get("{col}"))\n'
-                f'    out["{col}"] = _raw_{col}\n'
-                f'    out["{col}_parsed_fields"] = _pairs_{col}  # promoted for optional downstream mapping, never dropped'
-            )
-            # extra="forbid" on the model means every field we add to `out` must
-            # be declared -- otherwise every single row fails validation.
-            model_fields.append(f"    {col}_parsed_fields: dict = {{}}")
-        elif primary == "duplicate_key_values":
-            seen_key_sets.append(col)
-            body_lines.append(f'    out["{col}"] = _flag_duplicate_key_{col}(out.get("{col}"), _seen_{col})')
-        elif primary == "negative_unsigned_field":
-            body_lines.append(f'    out["{col}"] = _check_unsigned_{col}(out.get("{col}"))')
-
-        model_fields.append(f"    {col}: {python_type_for(meta['declared_type'], flaws)} = None")
-
-    model_name = "".join(p.capitalize() for p in table.split("_")) + "Clean"
-    
     return template.render(
-        table=table,
+        table=table_name,
         sig=sig,
-        cleaner_funcs=cleaner_funcs,
-        seen_key_sets=seen_key_sets,
-        model_name=model_name,
-        model_fields=model_fields,
-        body_lines=body_lines
+        columns=columns,
     )
 
 
-def generate_all(profile_path="profile.json", out_dir="generated"):
-    with open(profile_path) as f:
+def generate_dbt_schema_yml(profile: dict[str, Any], env: Environment) -> str:
+    """Renders src_legacy.yml with quarantine tests and relationship assertions."""
+    template = env.get_template("dbt_schema.yml.j2")
+    tables_data = {}
+
+    for table_name, tprofile in profile.get("tables", {}).items():
+        declared_pk = set(tprofile.get("declared_pk") or [])
+        col_list = []
+
+        # Build relationships tests map {(col): [(parent_table, parent_col)]}
+        rel_map: dict[str, list[tuple[str, str]]] = {}
+        for fk in tprofile.get("declared_fks", []):
+            ccols = fk.get("constrained_columns") or []
+            rtable = fk.get("referred_table")
+            rcols = fk.get("referred_columns") or []
+            if ccols and rtable and rcols:
+                rel_map.setdefault(ccols[0], []).append((rtable, rcols[0]))
+
+        for inf in tprofile.get("inferred_fks", []):
+            ccol = inf.get("child_col")
+            ptable = inf.get("parent_table")
+            pcol = inf.get("parent_col")
+            if ccol and ptable and pcol:
+                rel_map.setdefault(ccol, []).append((ptable, pcol))
+
+        for col_name, col_meta in tprofile.get("columns", {}).items():
+            tests = []
+            if col_name in declared_pk:
+                tests.append({"type": "not_null"})
+                tests.append({"type": "unique"})
+
+            if col_name in rel_map:
+                for ptable, pcol in rel_map[col_name]:
+                    tests.append({
+                        "type": "relationships",
+                        "parent_table": ptable,
+                        "parent_col": pcol,
+                    })
+
+            col_list.append({
+                "name": col_name,
+                "recommended_target_type": col_meta.get("recommended_target_type", "TEXT"),
+                "tests": tests,
+            })
+
+        tables_data[table_name] = {
+            "columns": col_list,
+        }
+
+    return template.render(tables=tables_data)
+
+
+def generate_diagnostic_sql_pack(table_name: str, table_profile: dict[str, Any]) -> str:
+    """Emits DBA diagnostic queries for isolating corrupt or orphaned rows."""
+    lines = [
+        "-- ============================================================================",
+        f"-- Crucible Diagnostic SQL Pack: {table_name}",
+        "-- Target Database: Source Legacy Replica",
+        "-- Read-Only DBA Triage Queries",
+        "-- ============================================================================",
+        "",
+    ]
+
+    # Column Flaw queries
+    flaw_found = False
+    for col_name, col_meta in table_profile.get("columns", {}).items():
+        for f in col_meta.get("flaws", []):
+            flaw_found = True
+            lines.append(f"-- Flaw: {f['flaw_id']} [{f['severity']}] on column \"{col_name}\"")
+            lines.append(f"-- Evidence: {f.get('evidence', '')}")
+            lines.append(f"-- Advice: {f.get('remediation_advice', '')}")
+            diag_sql = f.get("diagnostic_sql")
+            if not diag_sql and f.get("pg_pattern"):
+                pg_pat = str(f["pg_pattern"]).replace(r"\b", r"\y").replace("'", "''")
+                diag_sql = f'SELECT "{col_name}" FROM "{table_name}" WHERE "{col_name}" ~* \'{pg_pat}\';'
+            if not diag_sql:
+                diag_sql = f'SELECT "{col_name}" FROM "{table_name}" WHERE "{col_name}" IS NOT NULL;'
+            lines.append(diag_sql.replace(r"\b", r"\y"))
+            lines.append("")
+
+    # Referential Integrity queries
+    dangling = table_profile.get("dangling_fk_findings", [])
+    if dangling:
+        lines.append("-- ----------------------------------------------------------------------------")
+        lines.append("-- Referential Integrity & Orphan Key Findings")
+        lines.append("-- ----------------------------------------------------------------------------")
+        for dang in dangling:
+            lines.append(
+                f"-- Orphan Rows: {dang.get('orphan_row_count', 0)} | "
+                f"Distinct Orphan Keys: {dang.get('distinct_orphan_keys', 0)} "
+                f"(Inferred: {dang.get('is_inferred')})"
+            )
+            lines.append(f"-- Foreign Key: {dang.get('child_col')} -> {dang.get('parent_table')}.{dang.get('parent_col')}")
+            lines.append(dang.get("diagnostic_sql", ""))
+            lines.append("")
+
+    if not flaw_found and not dangling:
+        lines.append(f"-- Table \"{table_name}\" has zero detected column flaws or referential integrity failures.")
+        lines.append(f'SELECT COUNT(*) FROM "{table_name}";')
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+def compile_dbt_package(profile_path: str = "profile.json", out_dir: str = "generated_dbt") -> list[str]:
+    """Compiles profile.json into a production-ready dbt staging project and diagnostic packs."""
+    with open(profile_path, "r", encoding="utf-8") as f:
         profile = json.load(f)
 
-    os.makedirs(out_dir, exist_ok=True)
+    templates_dir = resolve_templates_dir()
+    env = Environment(loader=FileSystemLoader(templates_dir))
+
+    models_dir = os.path.join(out_dir, "models", "staging")
+    diagnostics_dir = os.path.join(out_dir, "diagnostics")
+    os.makedirs(models_dir, exist_ok=True)
+    os.makedirs(diagnostics_dir, exist_ok=True)
+
     generated_files = []
-    for table, table_profile in profile["tables"].items():
-        code = generate_table_module(table, table_profile)
-        path = os.path.join(out_dir, f"{table}_transform.py")
-        with open(path, "w") as f:
-            f.write(code)
-        generated_files.append(path)
+
+    # 1. Staging models
+    for table_name, tprofile in profile.get("tables", {}).items():
+        staging_sql = generate_dbt_staging_sql(table_name, tprofile, env)
+        model_path = os.path.join(models_dir, f"stg_{table_name}.sql")
+        with open(model_path, "w", encoding="utf-8") as f:
+            f.write(staging_sql)
+        generated_files.append(model_path)
+
+        # Diagnostics SQL pack
+        diag_sql = generate_diagnostic_sql_pack(table_name, tprofile)
+        diag_path = os.path.join(diagnostics_dir, f"{table_name}_audit.sql")
+        with open(diag_path, "w", encoding="utf-8") as f:
+            f.write(diag_sql)
+        generated_files.append(diag_path)
+
+    # 2. Schema YAML
+    schema_yml = generate_dbt_schema_yml(profile, env)
+    schema_path = os.path.join(models_dir, "src_legacy.yml")
+    with open(schema_path, "w", encoding="utf-8") as f:
+        f.write(schema_yml)
+    generated_files.append(schema_path)
+
     return generated_files
 
 
 if __name__ == "__main__":
-    files = generate_all()
-    print("Generated (review before executing):")
-    for f in files:
-        print(f"  {f}")
+    prof = sys.argv[1] if len(sys.argv) > 1 else "profile.json"
+    dest = sys.argv[2] if len(sys.argv) > 2 else "generated_dbt"
+    files = compile_dbt_package(prof, dest)
+    print(f"Compiled {len(files)} dbt and diagnostic assets to {dest}/")
