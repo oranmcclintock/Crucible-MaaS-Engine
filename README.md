@@ -1,8 +1,8 @@
-# crucible-audit
+# SchemaFirst (`schemafirst`)
 
-`crucible-audit` (v2.0.0) is a free, open-source, read-only pre-migration profiler and dbt compiler for SQLite and PostgreSQL databases. It scans legacy schemas before a migration starts, scores readiness across four defect categories, and writes a static HTML dossier, a JSON evidence file, dbt staging models, and diagnostic SQL queries.
+`schemafirst` (v2.0.0) is a free, open-source, read-only pre-migration profiler and dbt compiler for SQLite and PostgreSQL databases. It scans legacy schemas before a migration starts, scores readiness across four defect categories, and writes a static HTML dossier, a JSON evidence file, dbt staging models, and diagnostic SQL queries.
 
-**Live Demo Dossier:** [https://crucible.parkanore.com](https://crucible.parkanore.com) | **Compiled dbt & Diagnostic SQL:** [`demo_dossier/generated_dbt/`](demo_dossier/generated_dbt/)
+**Live Demo Dossier:** [https://schemafirst.parkanore.com](https://schemafirst.parkanore.com) | **Compiled dbt & Diagnostic SQL:** [`demo_dossier/generated_dbt/`](demo_dossier/generated_dbt/)
 
 ## Core invariants
 
@@ -31,8 +31,8 @@ pip install ".[postgres]"
 Generate a synthetic SQLite database containing common legacy schema defects, then run an audit against it:
 
 ```bash
-crucible seed-demo
-crucible audit --db sqlite:///demo_legacy_council.db --out-dir ./demo_dossier
+schemafirst seed-demo
+schemafirst audit --db sqlite:///demo_legacy_council.db --out-dir ./demo_dossier
 ```
 
 The command writes the following files inside `./demo_dossier`:
@@ -47,7 +47,7 @@ The command writes the following files inside `./demo_dossier`:
 Point `--db` at a PostgreSQL connection URL using the `postgresql+psycopg://` dialect:
 
 ```bash
-crucible audit \
+schemafirst audit \
   --db "postgresql+psycopg://readonly_user:password@db.internal:5432/legacy_db" \
   --out-dir ./audit_out
 ```
@@ -56,83 +56,81 @@ Generated PostgreSQL diagnostic queries use POSIX word boundaries (`\y`) for reg
 
 ## Branding and custom rules
 
-Consultancies and internal platform teams can white-label the HTML dossier and customize detection rules without modifying Python code.
+Teams can white-label the HTML dossier and customize detection rules without modifying Python code.
 
 ### White-label dossier branding
 
-Override report branding via CLI flags:
+Pass branding flags directly to `schemafirst audit`:
 
 ```bash
-crucible audit \
+schemafirst audit \
   --db sqlite:///demo_legacy_council.db \
-  --out-dir ./client_dossier \
-  --brand-name "Northgate Data Advisory" \
-  --brand-color "#1D4ED8" \
-  --brand-logo "https://example.com/logo.png" \
-  --brand-footer "Prepared for Migration Readiness Review"
+  --out-dir ./audit_out \
+  --brand-name "Northwind Data Advisory" \
+  --brand-color "#1E40AF" \
+  --brand-footer "Prepared for Client Discovery"
 ```
 
-You can also pass a YAML or JSON file with `--brand-config`:
+Or load defaults from a YAML or JSON config file via `--brand-config`:
 
 ```bash
-crucible audit \
+schemafirst audit \
   --db sqlite:///demo_legacy_council.db \
-  --out-dir ./client_dossier \
-  --brand-config ./brand.yaml
+  --out-dir ./audit_out \
+  --brand-config ./branding.yaml
 ```
 
-Brand colors must be valid 3-digit or 6-digit hex values (`#RGB` or `#RRGGBB`), and logo URLs must use `https://`, `http://`, or `data:image/`.
+CLI flags override values from `--brand-config`. Brand colors accept 3-digit or 6-digit hex values (`#RGB` or `#RRGGBB`), and logo URLs accept `https://`, `http://`, or `data:image/...;base64,` URIs.
 
-### External rules configuration
+### External `rules.yaml`
 
-Pass a custom rules file with `--rules` to toggle built-in rule packs (`aws_dms_cdc`, `uk_shadow_pii`, `schema_integrity`, `data_hygiene`), enable or disable individual rules, adjust `fk_inference.min_overlap_ratio`, or add custom regex checks under `custom_rules`:
+Override the built-in ruleset with `--rules <path>` to toggle rule packs (`aws_dms_cdc`, `uk_shadow_pii`, `schema_integrity`, `data_hygiene`), disable individual rules, tune `fk_inference.min_overlap_ratio`, or add `custom_rules` regex detectors:
 
 ```bash
-crucible audit \
+schemafirst audit \
   --db sqlite:///demo_legacy_council.db \
   --out-dir ./audit_out \
   --rules ./custom_rules.yaml
 ```
 
-See the bundled `rules.yaml` for the full schema and default thresholds.
+See [rules.yaml](rules.yaml) for the default configuration format.
 
-## Docker usage
+## Docker
 
-Build the container image (includes the PostgreSQL driver and runs as a non-root user):
+Build the container image with PostgreSQL support included:
 
 ```bash
-docker build -t crucible-audit:2.0.0 .
+docker build -t schemafirst:2.0.0 .
 ```
 
-Run an audit against a local SQLite database by mounting a working directory:
+Run an audit against a local SQLite file:
 
 ```bash
-docker run --rm -v "$(pwd):/work" -w /work crucible-audit:2.0.0 \
-  audit --db sqlite:///demo_legacy_council.db --out-dir ./demo_dossier
+docker run --rm -v "$(pwd):/work" -w /work schemafirst:2.0.0 \
+  audit --db sqlite:///demo_legacy_council.db --out-dir /work/audit_out
 ```
 
-Run against a reachable PostgreSQL host:
+Run an audit against a PostgreSQL server:
 
 ```bash
-docker run --rm -v "$(pwd)/audit_out:/out" crucible-audit:2.0.0 \
-  audit --db "postgresql+psycopg://readonly_user:password@host.docker.internal:5432/legacy_db" \
-  --out-dir /out
+docker run --rm -v "$(pwd)/audit_out:/out" schemafirst:2.0.0 \
+  audit --db "postgresql+psycopg://readonly_user:password@host.docker.internal:5432/legacy_db" --out-dir /out
 ```
 
-## What the audit checks
+## Detection categories
 
-`crucible audit` groups findings into four categories:
+`schemafirst audit` groups findings into four categories:
 
-1. AWS DMS and CDC blockers: ASCII NUL (`0x00`) bytes, CP1252/UTF-8 mojibake sequences, and proprietary legacy column types.
-2. Referential and key integrity: duplicate primary keys, whitespace-padded keys, inferred shadow foreign keys, and dangling references (reported as `distinct_orphan_keys` and `orphan_row_count`).
-3. Semantic data rot: ASCII control characters, text-formatted currency, non-numeric strings in numeric columns, sentinel or impossible dates, mixed UK/US date formats, negative values in unsigned fields, and key-value pairs packed into free-text columns.
-4. Shadow PII exposures: unmasked UK National Insurance numbers, Modulus-11 verified UK NHS numbers, and legacy redaction markers.
+- DMS CDC blockers: missing primary keys, wide LOB columns, NUL bytes (`0x00`), CP1252 mojibake sequences, and legacy proprietary types
+- Referential integrity: declared foreign keys, inferred shadow foreign keys, circular dependency detection, and separate counts for orphaned rows vs. distinct orphan keys
+- Data hygiene: currency strings in numeric columns, non-numeric text in numeric fields, impossible or sentinel dates, mixed date locales, negative values in unsigned fields, overloaded free-text columns, and control characters
+- Shadow PII: UK National Insurance numbers, Modulus-11 validated NHS numbers, and legacy redaction markers
 
-## Development and testing
+## Development
 
-Install development dependencies and run the test suite:
+Run the test suite and linter:
 
 ```bash
-pip install -e ".[dev,postgres]"
 pytest
+ruff check .
 ```

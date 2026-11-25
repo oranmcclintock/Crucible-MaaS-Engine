@@ -1,5 +1,5 @@
 -- ============================================================================
--- Crucible Diagnostic SQL Pack: citizens
+-- SchemaFirst Diagnostic SQL Pack: citizens
 -- Target Database: Source Legacy Replica
 -- Read-Only DBA Triage Queries
 -- ============================================================================

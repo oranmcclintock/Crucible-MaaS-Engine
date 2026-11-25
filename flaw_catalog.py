@@ -65,7 +65,7 @@ def resolve_rules_path(rules_path: str | None = None) -> str | None:
         return rules_path
     candidates = [
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "rules.yaml"),
-        os.path.join(sys.prefix, "share", "crucible-audit", "rules.yaml"),
+        os.path.join(sys.prefix, "share", "schemafirst", "rules.yaml"),
         os.path.join(os.getcwd(), "rules.yaml"),
     ]
     for candidate in candidates:
@@ -658,7 +658,7 @@ REMEDIATION_CATALOG = {
         "recommended_target_type": "BIGINT",
         "dbt_sql_expr": "\"{col}\"",
         "diagnostic_sql": "SELECT \"{col}\", COUNT(*) FROM \"{table}\" WHERE \"{col}\" IS NOT NULL GROUP BY \"{col}\" HAVING COUNT(*) > 1;",
-        "remediation_advice": "Deduplicate declared primary key values or route collision rows to crucible_quarantine for manual reconciliation.",
+        "remediation_advice": "Deduplicate declared primary key values or route collision rows to schemafirst_quarantine for manual reconciliation.",
     },
     "whitespace_padded_keys": {
         "category": "referential_and_key_integrity",

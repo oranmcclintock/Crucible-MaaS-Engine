@@ -18,7 +18,7 @@
   <script>
     (function () {
       try {
-        var saved = localStorage.getItem("crucible-theme");
+        var saved = localStorage.getItem("schemafirst-theme");
         var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
         if (saved === "dark" || (!saved && prefersDark)) {
           document.documentElement.classList.add("dark");
@@ -685,7 +685,7 @@
         <div class="meta-line">
           <span>target: <strong>{{ metadata.source_redacted_url }}</strong></span>
           <span>dialect: <strong>{{ metadata.dialect }}</strong></span>
-          <span>version: <strong>{{ metadata.crucible_version }}</strong></span>
+          <span>version: <strong>{{ metadata.schemafirst_version or metadata.crucible_version }}</strong></span>
           <span>generated: <strong>{{ metadata.generated_at }}</strong></span>
         </div>
       </section>
@@ -1051,7 +1051,7 @@
         toggleBtn.addEventListener("click", function () {
           var isDark = root.classList.toggle("dark");
           try {
-            localStorage.setItem("crucible-theme", isDark ? "dark" : "light");
+            localStorage.setItem("schemafirst-theme", isDark ? "dark" : "light");
           } catch (e) {}
           syncThemeButton();
         });

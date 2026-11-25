@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://crucible.parkanore.com/sitemap.xml
+Sitemap: https://schemafirst.parkanore.com/sitemap.xml

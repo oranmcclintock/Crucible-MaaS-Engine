@@ -12,5 +12,5 @@ RUN pip install --no-cache-dir ".[postgres]" \
 
 USER appuser
 
-ENTRYPOINT ["crucible"]
+ENTRYPOINT ["schemafirst"]
 CMD ["--help"]

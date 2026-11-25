@@ -1,5 +1,5 @@
 -- ============================================================================
--- Crucible Diagnostic SQL Pack: staff
+-- SchemaFirst Diagnostic SQL Pack: staff
 -- Target Database: Source Legacy Replica
 -- Read-Only DBA Triage Queries
 -- ============================================================================

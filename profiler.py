@@ -781,7 +781,7 @@ def run_profile(db_url: str, out_path: str = "profile.json", rules_path: str | N
 
         profile_data = {
             "metadata": {
-                "crucible_version": "2.0.0",
+                "schemafirst_version": "2.0.0",
                 "generated_at": datetime.now(timezone.utc).isoformat(),
                 "source_redacted_url": redacted_url,
                 "dialect": dialect_name,

@@ -21,7 +21,7 @@ sources:
 models:
 
   - name: stg_citizens
-    description: "Crucible sanitized staging model for citizens"
+    description: "SchemaFirst sanitized staging model for citizens"
     columns:
 
       - name: "citizen_id"
@@ -33,14 +33,14 @@ models:
           - not_null:
               config:
                 store_failures: true
-                schema: crucible_quarantine
+                schema: schemafirst_quarantine
 
 
 
           - unique:
               config:
                 store_failures: true
-                schema: crucible_quarantine
+                schema: schemafirst_quarantine
 
 
 
@@ -59,7 +59,7 @@ models:
 
 
   - name: stg_rent_ledger
-    description: "Crucible sanitized staging model for rent_ledger"
+    description: "SchemaFirst sanitized staging model for rent_ledger"
     columns:
 
       - name: "tenancy_id"
@@ -91,7 +91,7 @@ models:
 
 
   - name: stg_staff
-    description: "Crucible sanitized staging model for staff"
+    description: "SchemaFirst sanitized staging model for staff"
     columns:
 
       - name: "staff_code"
@@ -103,14 +103,14 @@ models:
           - not_null:
               config:
                 store_failures: true
-                schema: crucible_quarantine
+                schema: schemafirst_quarantine
 
 
 
           - unique:
               config:
                 store_failures: true
-                schema: crucible_quarantine
+                schema: schemafirst_quarantine
 
 
 
@@ -125,7 +125,7 @@ models:
 
 
   - name: stg_tenancies
-    description: "Crucible sanitized staging model for tenancies"
+    description: "SchemaFirst sanitized staging model for tenancies"
     columns:
 
       - name: "tenancy_id"
@@ -137,14 +137,14 @@ models:
           - not_null:
               config:
                 store_failures: true
-                schema: crucible_quarantine
+                schema: schemafirst_quarantine
 
 
 
           - unique:
               config:
                 store_failures: true
-                schema: crucible_quarantine
+                schema: schemafirst_quarantine
 
 
 

@@ -1,11 +1,11 @@
 """
 cli.py
 ======
-Unified Command Line Interface for the Crucible Migration Readiness Engine.
+Unified Command Line Interface for SchemaFirst.
 
 Commands:
-  crucible seed-demo [--out demo_legacy_council.db]
-  crucible audit --db <db_url> [--out-dir ./audit_output] [--rules rules.yaml]
+  schemafirst seed-demo [--out demo_legacy_council.db]
+  schemafirst audit --db <db_url> [--out-dir ./audit_output] [--rules rules.yaml]
 """
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ def print_cli_summary(profile: dict, html_report_path: str, dbt_dir: str):
     b_counts = exec_sum.get("blocker_counts", {})
 
     print("\n" + "=" * 76)
-    print(" CRUCIBLE MIGRATION READINESS AUDIT COMPLETE (v2.0)")
+    print(" SCHEMAFIRST MIGRATION READINESS AUDIT COMPLETE (v2.0)")
     print("=" * 76)
     print(f" Source Target:        {meta.get('source_redacted_url')}")
     print(f" Overall Readiness:    {exec_sum.get('overall_readiness_score')}/100")
@@ -89,8 +89,8 @@ def cmd_audit(args):
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="crucible",
-        description="Crucible: Deterministic Migration Readiness Engine & dbt Compiler",
+        prog="schemafirst",
+        description="SchemaFirst: Read-Only Pre-Migration Schema Profiler & dbt Compiler",
     )
     parser.add_argument(
         "--version",

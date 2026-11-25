@@ -1,5 +1,5 @@
 -- ============================================================================
--- Crucible Diagnostic SQL Pack: tenancies
+-- SchemaFirst Diagnostic SQL Pack: tenancies
 -- Target Database: Source Legacy Replica
 -- Read-Only DBA Triage Queries
 -- ============================================================================

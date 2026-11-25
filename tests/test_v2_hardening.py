@@ -30,7 +30,7 @@ import seed_dirty_gov_db
 
 def _run_cli_audit(monkeypatch: pytest.MonkeyPatch, args: list[str]) -> None:
     """Invoke cli.main() in-process with controlled sys.argv."""
-    monkeypatch.setattr(sys, "argv", ["crucible", *args])
+    monkeypatch.setattr(sys, "argv", ["schemafirst", *args])
     cli.main()
 
 
@@ -62,7 +62,7 @@ def _assert_key_absent_recursive(obj: Any, forbidden_key: str, path: str = "$") 
 
 def test_zero_pii_output_contract_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     """
-    Runs full `crucible audit` on a dirty DB containing raw citizen names, UK NINOs,
+    Runs full `schemafirst audit` on a dirty DB containing raw citizen names, UK NINOs,
     NHS numbers, mixed DOBs, packed free-text notes, and orphan FK keys.
     Proves all detectors fire while ZERO raw values or partial PII masks appear in ANY artifact.
     """
@@ -164,7 +164,7 @@ def test_zero_pii_output_contract_end_to_end(tmp_path: Path, monkeypatch: pytest
 
 def test_stored_xss_escaping_and_unescaped_sql_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     """
-    Creates a SQLite DB with XSS payloads in table and column names and runs full `crucible audit`
+    Creates a SQLite DB with XSS payloads in table and column names and runs full `schemafirst audit`
     with XSS payloads in --brand-name and --brand-footer.
     Verifies HTML autoescaping while keeping generated dbt SQL unescaped.
     """
@@ -229,7 +229,7 @@ def test_stored_xss_escaping_in_reportgen_table_name_and_evidence(tmp_path: Path
     xss = "<script>alert(1)</script>"
     profile = {
         "metadata": {
-            "crucible_version": "2.0.0",
+            "schemafirst_version": "2.0.0",
             "generated_at": "2026-01-01T00:00:00+00:00",
             "source_redacted_url": f"sqlite:///{xss}.db",
             "dialect": "sqlite",
@@ -545,7 +545,7 @@ def test_white_label_branding_cli_overrides_config_end_to_end(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):
     """
-    Runs `crucible audit` with both --brand-config (YAML) and CLI branding override flags.
+    Runs `schemafirst audit` with both --brand-config (YAML) and CLI branding override flags.
     Proves CLI flags override config values while non-overridden fields (brand_logo) are inherited.
     """
     db_file = tmp_path / "brand_test.db"
@@ -602,7 +602,7 @@ def test_external_rules_yaml_pack_toggles_and_custom_rules_end_to_end(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):
     """
-    Runs `crucible audit --rules <custom_rules.yaml>` with packs.uk_shadow_pii: false
+    Runs `schemafirst audit --rules <custom_rules.yaml>` with packs.uk_shadow_pii: false
     and a custom_rules entry matching ACCT-99999.
     Asserts UK Shadow PII rules are suppressed while the custom rule fires with Zero-PII
     count/rate evidence and valid PostgreSQL \\y diagnostic SQL.

@@ -24,7 +24,7 @@ def resolve_templates_dir() -> str:
     """Resolves templates/ via package dir -> sys.prefix share -> CWD."""
     candidates = [
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates"),
-        os.path.join(sys.prefix, "share", "crucible-audit", "templates"),
+        os.path.join(sys.prefix, "share", "schemafirst", "templates"),
         os.path.join(os.getcwd(), "templates"),
     ]
     for candidate in candidates:
@@ -212,7 +212,7 @@ def generate_diagnostic_sql_pack(table_name: str, table_profile: dict[str, Any])
     """Emits DBA diagnostic queries for isolating corrupt or orphaned rows."""
     lines = [
         "-- ============================================================================",
-        f"-- Crucible Diagnostic SQL Pack: {table_name}",
+        f"-- SchemaFirst Diagnostic SQL Pack: {table_name}",
         "-- Target Database: Source Legacy Replica",
         "-- Read-Only DBA Triage Queries",
         "-- ============================================================================",

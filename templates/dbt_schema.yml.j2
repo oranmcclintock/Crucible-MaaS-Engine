@@ -12,7 +12,7 @@ sources:
 models:
 {% for table_name, table in tables.items() %}
   - name: stg_{{ table_name }}
-    description: "Crucible sanitized staging model for {{ table_name }}"
+    description: "SchemaFirst sanitized staging model for {{ table_name }}"
     columns:
 {% for col in table.columns %}
       - name: "{{ col.name }}"
@@ -24,12 +24,12 @@ models:
           - not_null:
               config:
                 store_failures: true
-                schema: crucible_quarantine
+                schema: schemafirst_quarantine
 {% elif t.type == "unique" %}
           - unique:
               config:
                 store_failures: true
-                schema: crucible_quarantine
+                schema: schemafirst_quarantine
 {% elif t.type == "relationships" %}
           - relationships:
               to: ref('stg_{{ t.parent_table }}')

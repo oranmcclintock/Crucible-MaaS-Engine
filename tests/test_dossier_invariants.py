@@ -32,7 +32,7 @@ def _minimal_profile(
     """Build a minimal, deterministic profile dictionary for dossier rendering."""
     return {
         "metadata": {
-            "crucible_version": "2.0.0",
+            "schemafirst_version": "2.0.0",
             "generated_at": "2026-11-25T16:00:00+00:00",
             "source_redacted_url": "sqlite:///demo_council.db",
             "dialect": "sqlite",

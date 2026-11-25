@@ -1,5 +1,5 @@
 -- ============================================================================
--- Crucible Diagnostic SQL Pack: rent_ledger
+-- SchemaFirst Diagnostic SQL Pack: rent_ledger
 -- Target Database: Source Legacy Replica
 -- Read-Only DBA Triage Queries
 -- ============================================================================
