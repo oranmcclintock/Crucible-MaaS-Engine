@@ -1,14 +1,14 @@
 {
   "metadata": {
     "schemafirst_version": "2.0.0",
-    "generated_at": "2026-11-25T20:07:48.481603+00:00",
+    "generated_at": "2026-11-25T20:41:52.149008+00:00",
     "source_redacted_url": "sqlite:////tmp/schemafirst_demo_council.db",
     "dialect": "sqlite",
     "sample_size_per_table": 1000
   },
   "executive_summary": {
     "overall_readiness_score": 59,
-    "readiness_grade": "RED - CRITICAL MIGRATION BLOCKERS DETECTED",
+    "readiness_grade": "High Risk",
     "total_tables": 4,
     "total_columns": 15,
     "estimated_remediation_hours": 28.0,

@@ -604,11 +604,11 @@ def calculate_readiness_scores(
 
     # Determine grade
     if overall_score >= 85:
-        grade = "GREEN - CLOUD READY"
+        grade = "Low Risk"
     elif overall_score >= 60:
-        grade = "AMBER - MODERATE REMEDIATION REQUIRED"
+        grade = "Moderate Risk"
     else:
-        grade = "RED - CRITICAL MIGRATION BLOCKERS DETECTED"
+        grade = "High Risk"
 
     return overall_score, grade, round(total_remediation_hours, 1), blocker_counts
 

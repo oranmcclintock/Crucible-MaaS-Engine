@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SchemaFirst — Schema Audit (sqlite:////tmp/schemafirst_demo_council.db)</title>
-  <meta name="description" content="SchemaFirst migration readiness dossier for sqlite:////tmp/schemafirst_demo_council.db: score 59/100 (RED - CRITICAL MIGRATION BLOCKERS DETECTED) across 4 tables and 15 columns.">
+  <title>SchemaFirst: Schema Audit (sqlite:////tmp/schemafirst_demo_council.db)</title>
+  <meta name="description" content="SchemaFirst migration readiness dossier for sqlite:////tmp/schemafirst_demo_council.db: score 59/100 (High Risk) across 4 tables and 15 columns.">
   
   <meta property="og:type" content="article">
-  <meta property="og:title" content="SchemaFirst — Schema Audit (sqlite:////tmp/schemafirst_demo_council.db)">
-  <meta property="og:description" content="SchemaFirst migration readiness dossier for sqlite:////tmp/schemafirst_demo_council.db: score 59/100 (RED - CRITICAL MIGRATION BLOCKERS DETECTED) across 4 tables and 15 columns.">
+  <meta property="og:title" content="SchemaFirst: Schema Audit (sqlite:////tmp/schemafirst_demo_council.db)">
+  <meta property="og:description" content="SchemaFirst migration readiness dossier for sqlite:////tmp/schemafirst_demo_council.db: score 59/100 (High Risk) across 4 tables and 15 columns.">
   
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Report", "name": "SchemaFirst — Schema Audit (sqlite:////tmp/schemafirst_demo_council.db)", "description": "SchemaFirst migration readiness dossier for sqlite:////tmp/schemafirst_demo_council.db: score 59/100 (RED - CRITICAL MIGRATION BLOCKERS DETECTED) across 4 tables and 15 columns.", "datePublished": "2026-11-25T20:07:48.481603+00:00", "softwareVersion": "2.0.0", "author": {"@type": "Organization", "name": "SchemaFirst"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Report", "name": "SchemaFirst: Schema Audit (sqlite:////tmp/schemafirst_demo_council.db)", "description": "SchemaFirst migration readiness dossier for sqlite:////tmp/schemafirst_demo_council.db: score 59/100 (High Risk) across 4 tables and 15 columns.", "datePublished": "2026-11-25T20:41:52.149008+00:00", "softwareVersion": "2.0.0", "author": {"@type": "Organization", "name": "SchemaFirst"}}</script>
   <script>
     (function () {
       try {
@@ -651,6 +651,7 @@
   <a href="#main-content" class="skip-link">Skip to main content</a>
   <div class="wrap">
     
+    
     <header class="site-header">
       <div class="brand-group">
         
@@ -661,8 +662,8 @@
 
     <nav class="toc-nav" aria-label="Dossier sections">
       <span class="toc-label">Sections</span>
-      <a href="#sec-dms">1. DMS &amp; CDC</a>
-      <a href="#sec-pii">2. Shadow PII</a>
+      <a href="#sec-dms">1. Replication</a>
+      <a href="#sec-pii">2. Personal Data</a>
       <a href="#sec-topology">3. Topology &amp; FKs</a>
       <a href="#sec-tables">4. Table Profiles &amp; dbt</a>
     </nav>
@@ -670,33 +671,33 @@
     <main id="main-content">
       <section class="dossier-hero">
         <div class="title-row">
-          <h1>SchemaFirst &mdash; Schema Audit</h1>
+          <h1>SchemaFirst: Schema Audit</h1>
           <span class="status-badge">
             <span class="status-dot dot-RED" aria-hidden="true"></span>
-            RED - CRITICAL MIGRATION BLOCKERS DETECTED
+            High Risk
           </span>
         </div>
         <div class="meta-line">
           <span>target: <strong>sqlite:////tmp/schemafirst_demo_council.db</strong></span>
           <span>dialect: <strong>sqlite</strong></span>
           <span>version: <strong>2.0.0</strong></span>
-          <span>generated: <strong>2026-11-25T20:07:48.481603+00:00</strong></span>
+          <span>generated: <strong>2026-11-25T20:41:52.149008+00:00</strong></span>
         </div>
       </section>
 
-      <section class="kpi-strip" aria-label="Executive readiness summary">
+      <section class="kpi-strip" aria-label="Audit summary">
         <div class="stat-card">
           <div class="stat-label">Readiness</div>
           <div class="stat-val tone-RED">59/100</div>
           <div class="stat-sub">4 tables, 15 cols</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Remediation</div>
+          <div class="stat-label">Est. Remediation</div>
           <div class="stat-val">28.0h</div>
-          <div class="stat-sub">rule-weighted effort</div>
+          <div class="stat-sub">estimated effort</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">DMS Blockers</div>
+          <div class="stat-label">Replication</div>
           <div class="stat-val">3</div>
           <div class="stat-sub">CDC / encoding</div>
         </div>
@@ -708,21 +709,21 @@
         <div class="stat-card">
           <div class="stat-label">Data Hygiene</div>
           <div class="stat-val">5</div>
-          <div class="stat-sub">type / format flaws</div>
+          <div class="stat-sub">type / format issues</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Shadow PII</div>
+          <div class="stat-label">Personal Data</div>
           <div class="stat-val">3</div>
-          <div class="stat-sub">unstructured text</div>
+          <div class="stat-sub">free-text patterns</div>
         </div>
       </section>
 
       <div class="callout">
-        Read-only scan. No raw cell values, orphan key values, or partial PII masks are written to this file. Run the generated <code>diagnostics/*_audit.sql</code> queries inside the source perimeter to inspect offending rows.
+        Read-only scan. Counts, rates, and rule IDs only; no raw cell values or partial masks are written to this file. Run the generated <code>diagnostics/*_audit.sql</code> queries locally inside the source network to inspect matching rows.
       </div>
 
-      <!-- 1. DMS & CDC Blockers -->
-      <h2 id="sec-dms">1. DMS &amp; CDC blockers</h2>
+      <!-- 1. Replication & Encoding -->
+      <h2 id="sec-dms">1. Replication &amp; encoding</h2>
       
       
         
@@ -759,7 +760,7 @@
               <td>
                 <span class="status-badge">
                   <span class="status-dot dot-HIGH" aria-hidden="true"></span>
-                  HIGH
+                  high
                 </span>
               </td>
               <td><code>cp1252_encoding_ghosts</code></td>
@@ -777,7 +778,7 @@
               <td>
                 <span class="status-badge">
                   <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
-                  CRITICAL
+                  critical
                 </span>
               </td>
               <td><code>postgres_null_byte_poison</code></td>
@@ -795,7 +796,7 @@
               <td>
                 <span class="status-badge">
                   <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
-                  CRITICAL
+                  critical
                 </span>
               </td>
               <td><code>missing_primary_key_for_cdc</code></td>
@@ -813,7 +814,7 @@
       </div>
       
 
-      <!-- 2. Shadow PII -->
+      <!-- 2. Unmasked Personal Data -->
       
       
         
@@ -881,7 +882,7 @@
         
       
 
-      <h2 id="sec-pii">2. Shadow PII</h2>
+      <h2 id="sec-pii">2. Unmasked personal data</h2>
       
       <div class="table-wrap" tabindex="0">
         <table>
@@ -903,7 +904,7 @@
               <td>
                 <span class="status-badge">
                   <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
-                  CRITICAL
+                  critical
                 </span>
               </td>
               <td>
@@ -919,7 +920,7 @@
               <td>
                 <span class="status-badge">
                   <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
-                  CRITICAL
+                  critical
                 </span>
               </td>
               <td>
@@ -935,7 +936,7 @@
               <td>
                 <span class="status-badge">
                   <span class="status-dot dot-WARN" aria-hidden="true"></span>
-                  WARN
+                  warn
                 </span>
               </td>
               <td>
@@ -1196,7 +1197,7 @@
                           <div class="flaw-item">
                             <span class="status-badge">
                               <span class="status-dot dot-HIGH" aria-hidden="true"></span>
-                              HIGH
+                              high
                             </span>
                             <code>cp1252_encoding_ghosts</code>
                             <div class="flaw-meta">[cp1252_encoding_ghosts] 23/200 (11.5%) sampled rows contain UTF-8/CP1252 mojibake artifacts</div>
@@ -1224,7 +1225,7 @@
                           <div class="flaw-item">
                             <span class="status-badge">
                               <span class="status-dot dot-WARN" aria-hidden="true"></span>
-                              WARN
+                              warn
                             </span>
                             <code>impossible_or_sentinel_date</code>
                             <div class="flaw-meta">[impossible_or_sentinel_date] 8/200 (4.0%) sampled rows in column &#39;dob_str&#39; contain sentinel or impossible dates</div>
@@ -1237,7 +1238,7 @@
                           <div class="flaw-item">
                             <span class="status-badge">
                               <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
-                              CRITICAL
+                              critical
                             </span>
                             <code>mixed_date_locales</code>
                             <div class="flaw-meta">[mixed_date_locales] Column &#39;dob_str&#39; mixes date locales across 36/200 (18.0%) sampled rows (16 DD/MM/YYYY, 20 MM/DD/YYYY)</div>
@@ -1265,7 +1266,7 @@
                           <div class="flaw-item">
                             <span class="status-badge">
                               <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
-                              CRITICAL
+                              critical
                             </span>
                             <code>postgres_null_byte_poison</code>
                             <div class="flaw-meta">[postgres_null_byte_poison] 7/200 (3.5%) sampled rows contain ASCII NUL (0x00) bytes</div>
@@ -1278,7 +1279,7 @@
                           <div class="flaw-item">
                             <span class="status-badge">
                               <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
-                              CRITICAL
+                              critical
                             </span>
                             <code>shadow_uk_nino</code>
                             <div class="flaw-meta">[shadow_uk_nino] 1/200 (0.5%) sampled rows in column &#39;legacy_notes&#39; match UK National Insurance Number pattern</div>
@@ -1291,7 +1292,7 @@
                           <div class="flaw-item">
                             <span class="status-badge">
                               <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
-                              CRITICAL
+                              critical
                             </span>
                             <code>shadow_nhs_number</code>
                             <div class="flaw-meta">[shadow_nhs_number] 1/200 (0.5%) sampled rows in column &#39;legacy_notes&#39; match Modulus-11 verified UK NHS Number pattern</div>
@@ -1304,7 +1305,7 @@
                           <div class="flaw-item">
                             <span class="status-badge">
                               <span class="status-dot dot-WARN" aria-hidden="true"></span>
-                              WARN
+                              warn
                             </span>
                             <code>legacy_redaction_markers</code>
                             <div class="flaw-meta">[legacy_redaction_markers] 1/200 (0.5%) sampled rows in column &#39;legacy_notes&#39; contain legacy redaction or deletion tombstones</div>
@@ -1404,7 +1405,7 @@ SELECT * FROM sanitized</pre>
                           <div class="flaw-item">
                             <span class="status-badge">
                               <span class="status-dot dot-WARN" aria-hidden="true"></span>
-                              WARN
+                              warn
                             </span>
                             <code>text_currency</code>
                             <div class="flaw-meta">[text_currency] 150/150 (100.0%) sampled rows contain formatted currency strings</div>
@@ -1432,7 +1433,7 @@ SELECT * FROM sanitized</pre>
                           <div class="flaw-item">
                             <span class="status-badge">
                               <span class="status-dot dot-HIGH" aria-hidden="true"></span>
-                              HIGH
+                              high
                             </span>
                             <code>negative_unsigned_field</code>
                             <div class="flaw-meta">[negative_unsigned_field] 18/150 (12.0%) sampled values in unsigned column &#39;arrears_months&#39; are negative</div>
@@ -1687,7 +1688,7 @@ SELECT * FROM sanitized</pre>
                           <div class="flaw-item">
                             <span class="status-badge">
                               <span class="status-dot dot-WARN" aria-hidden="true"></span>
-                              WARN
+                              warn
                             </span>
                             <code>overloaded_freetext_column</code>
                             <div class="flaw-meta">[overloaded_freetext_column] 150/150 (100.0%) sampled rows in column &#39;tenancy_memo&#39; contain packed key:value pairs</div>
@@ -1740,7 +1741,7 @@ SELECT * FROM sanitized</pre>
       
     </main>
 
-    <footer>Generated by SchemaFirst — Read-Only Air-Gapped Pre-Migration Profiler</footer>
+    <footer>Generated by SchemaFirst (read-only schema audit)</footer>
   </div>
 
   <script>

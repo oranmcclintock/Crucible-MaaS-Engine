@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ branding.brand_name }} — Schema Audit ({{ metadata.source_redacted_url }})</title>
+  <title>{{ branding.brand_name }}: Schema Audit ({{ metadata.source_redacted_url }})</title>
   <meta name="description" content="{{ meta_description }}">
   {% if canonical_url %}
   <link rel="canonical" href="{{ canonical_url }}">
   {% endif %}
   <meta property="og:type" content="article">
-  <meta property="og:title" content="{{ branding.brand_name }} — Schema Audit ({{ metadata.source_redacted_url }})">
+  <meta property="og:title" content="{{ branding.brand_name }}: Schema Audit ({{ metadata.source_redacted_url }})">
   <meta property="og:description" content="{{ meta_description }}">
   {% if canonical_url %}
   <meta property="og:url" content="{{ canonical_url }}">
@@ -654,7 +654,8 @@
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
   <div class="wrap">
-    {% set grade_color = executive_summary.readiness_grade.split()[0] %}
+    {% set _score = executive_summary.overall_readiness_score | default(0) | int %}
+    {% set grade_color = 'GREEN' if _score >= 85 else ('AMBER' if _score >= 60 else 'RED') %}
     <header class="site-header">
       <div class="brand-group">
         {% if branding.brand_logo %}
@@ -667,8 +668,8 @@
 
     <nav class="toc-nav" aria-label="Dossier sections">
       <span class="toc-label">Sections</span>
-      <a href="#sec-dms">1. DMS &amp; CDC</a>
-      <a href="#sec-pii">2. Shadow PII</a>
+      <a href="#sec-dms">1. Replication</a>
+      <a href="#sec-pii">2. Personal Data</a>
       <a href="#sec-topology">3. Topology &amp; FKs</a>
       <a href="#sec-tables">4. Table Profiles &amp; dbt</a>
     </nav>
@@ -676,7 +677,7 @@
     <main id="main-content">
       <section class="dossier-hero">
         <div class="title-row">
-          <h1>{{ branding.brand_name }} &mdash; Schema Audit</h1>
+          <h1>{{ branding.brand_name }}: Schema Audit</h1>
           <span class="status-badge">
             <span class="status-dot dot-{{ grade_color }}" aria-hidden="true"></span>
             {{ executive_summary.readiness_grade }}
@@ -690,19 +691,19 @@
         </div>
       </section>
 
-      <section class="kpi-strip" aria-label="Executive readiness summary">
+      <section class="kpi-strip" aria-label="Audit summary">
         <div class="stat-card">
           <div class="stat-label">Readiness</div>
           <div class="stat-val tone-{{ grade_color }}">{{ executive_summary.overall_readiness_score }}/100</div>
           <div class="stat-sub">{{ executive_summary.total_tables }} tables, {{ executive_summary.total_columns }} cols</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Remediation</div>
+          <div class="stat-label">Est. Remediation</div>
           <div class="stat-val">{{ executive_summary.estimated_remediation_hours }}h</div>
-          <div class="stat-sub">rule-weighted effort</div>
+          <div class="stat-sub">estimated effort</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">DMS Blockers</div>
+          <div class="stat-label">Replication</div>
           <div class="stat-val">{{ executive_summary.blocker_counts.dms_replication_blockers }}</div>
           <div class="stat-sub">CDC / encoding</div>
         </div>
@@ -714,21 +715,21 @@
         <div class="stat-card">
           <div class="stat-label">Data Hygiene</div>
           <div class="stat-val">{{ executive_summary.blocker_counts.semantic_data_rot }}</div>
-          <div class="stat-sub">type / format flaws</div>
+          <div class="stat-sub">type / format issues</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Shadow PII</div>
+          <div class="stat-label">Personal Data</div>
           <div class="stat-val">{{ executive_summary.blocker_counts.shadow_pii_exposures }}</div>
-          <div class="stat-sub">unstructured text</div>
+          <div class="stat-sub">free-text patterns</div>
         </div>
       </section>
 
       <div class="callout">
-        Read-only scan. No raw cell values, orphan key values, or partial PII masks are written to this file. Run the generated <code>diagnostics/*_audit.sql</code> queries inside the source perimeter to inspect offending rows.
+        Read-only scan. Counts, rates, and rule IDs only; no raw cell values or partial masks are written to this file. Run the generated <code>diagnostics/*_audit.sql</code> queries locally inside the source network to inspect matching rows.
       </div>
 
-      <!-- 1. DMS & CDC Blockers -->
-      <h2 id="sec-dms">1. DMS &amp; CDC blockers</h2>
+      <!-- 1. Replication & Encoding -->
+      <h2 id="sec-dms">1. Replication &amp; encoding</h2>
       {% set all_dms_blockers = [] %}
       {% for tname, tmeta in tables.items() %}
         {% for b in tmeta.dms_blockers %}
@@ -755,7 +756,7 @@
               <td>
                 <span class="status-badge">
                   <span class="status-dot dot-{{ item.blocker.severity }}" aria-hidden="true"></span>
-                  {{ item.blocker.severity }}
+                  {{ item.blocker.severity | lower }}
                 </span>
               </td>
               <td><code>{{ item.blocker.blocker_id }}</code></td>
@@ -776,10 +777,10 @@
         </table>
       </div>
       {% else %}
-      <div class="empty-state">No DMS replication blockers found.</div>
+      <div class="empty-state">No replication or encoding blockers found.</div>
       {% endif %}
 
-      <!-- 2. Shadow PII -->
+      <!-- 2. Unmasked Personal Data -->
       {% set pii_findings = [] %}
       {% for tname, tmeta in tables.items() %}
         {% for cname, cmeta in tmeta.columns.items() %}
@@ -791,7 +792,7 @@
         {% endfor %}
       {% endfor %}
 
-      <h2 id="sec-pii">2. Shadow PII</h2>
+      <h2 id="sec-pii">2. Unmasked personal data</h2>
       {% if pii_findings %}
       <div class="table-wrap" tabindex="0">
         <table>
@@ -813,7 +814,7 @@
               <td>
                 <span class="status-badge">
                   <span class="status-dot dot-{{ p.flaw.severity }}" aria-hidden="true"></span>
-                  {{ p.flaw.severity }}
+                  {{ p.flaw.severity | lower }}
                 </span>
               </td>
               <td>
@@ -992,7 +993,7 @@
                           <div class="flaw-item">
                             <span class="status-badge">
                               <span class="status-dot dot-{{ f.severity }}" aria-hidden="true"></span>
-                              {{ f.severity }}
+                              {{ f.severity | lower }}
                             </span>
                             <code>{{ f.flaw_id }}</code>
                             <div class="flaw-meta">{{ f.evidence }}</div>
