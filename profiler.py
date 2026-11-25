@@ -10,7 +10,7 @@ Features:
   - Empirical Shadow Foreign Key inference engine
   - AWS DMS CDC replication blocker audit
   - Mathematical readiness scoring and remediation effort estimation
-  - Emits profile.json strictly adhering to Crucible v2.0 Data Contract
+  - Emits profile.json strictly adhering to SchemaFirst v2.0 Data Contract
 """
 from __future__ import annotations
 

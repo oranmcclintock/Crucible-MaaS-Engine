@@ -1,7 +1,7 @@
 """
 tests/test_end_to_end.py
 ========================
-Full pipeline automated verification suite for Crucible v2.0.
+Full pipeline automated verification suite for SchemaFirst v2.0.
 
 Verification Criteria:
   1. executor.py no longer exists.

@@ -1,7 +1,7 @@
 """
 tests/test_dossier_invariants.py
 ================================
-Formal invariant test suite for the Crucible Migration Readiness Dossier
+Formal invariant test suite for the SchemaFirst Migration Readiness Dossier
 (`templates/readiness_dossier.html.j2` + `reportgen.py`).
 
 Enforces 4 formal invariants:
