@@ -1,7 +1,7 @@
 """
 reportgen.py
 ============
-Standalone Air-Gapped HTML Schema Audit Generator (v2.0).
+Standalone Air-Gapped HTML Database Audit Generator (v2.0).
 Compiles profile.json and dbt assets into a zero-dependency, single-file HTML report.
 Prints cleanly to PDF via @media print stylesheet rules.
 Zero external CDN dependencies (completely air-gapped).
@@ -193,7 +193,7 @@ def generate_dossier(
     json_ld_payload: dict[str, Any] = {
         "@context": "https://schema.org",
         "@type": "Report",
-        "name": f"{brand_name}: Schema Audit ({source_url})",
+        "name": f"{brand_name}: Database Audit ({source_url})",
         "description": meta_description,
         "datePublished": metadata.get("generated_at", ""),
         "softwareVersion": metadata.get("schemafirst_version") or metadata.get("crucible_version", ""),

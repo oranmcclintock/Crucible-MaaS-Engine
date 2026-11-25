@@ -1,22 +1,22 @@
 {
   "metadata": {
     "schemafirst_version": "2.0.0",
-    "generated_at": "2026-11-25T20:41:52.149008+00:00",
-    "source_redacted_url": "sqlite:////tmp/schemafirst_demo_council.db",
+    "generated_at": "2026-11-25T20:57:46.144828+00:00",
+    "source_redacted_url": "sqlite:///demo_legacy_council.db",
     "dialect": "sqlite",
     "sample_size_per_table": 1000
   },
   "executive_summary": {
-    "overall_readiness_score": 59,
+    "overall_readiness_score": 50,
     "readiness_grade": "High Risk",
-    "total_tables": 4,
-    "total_columns": 15,
-    "estimated_remediation_hours": 28.0,
+    "total_tables": 15,
+    "total_columns": 78,
+    "estimated_remediation_hours": 118.5,
     "blocker_counts": {
-      "dms_replication_blockers": 3,
-      "referential_integrity_failures": 1,
-      "semantic_data_rot": 5,
-      "shadow_pii_exposures": 3,
+      "dms_replication_blockers": 18,
+      "referential_integrity_failures": 4,
+      "semantic_data_rot": 17,
+      "shadow_pii_exposures": 7,
       "custom_rules": 0
     }
   },
@@ -24,12 +24,167 @@
     "load_order": [
       "staff",
       "citizens",
+      "wards",
+      "case_correspondence",
+      "properties",
+      "contractors",
       "tenancies",
-      "rent_ledger"
+      "council_tax_accounts",
+      "safeguarding_referrals",
+      "repair_work_orders",
+      "rent_ledger",
+      "payment_transactions",
+      "legacy_audit_log",
+      "housing_benefit_claims",
+      "electoral_roll_staging"
     ],
     "fk_cycle_warning": [],
-    "mermaid_dag": "graph TD;\n  rent_ledger --> tenancies;\n  tenancies --> citizens;\n  tenancies -.->|inferred| staff;",
+    "mermaid_dag": "graph TD;\n  case_correspondence --> citizens;\n  council_tax_accounts --> citizens;\n  council_tax_accounts --> properties;\n  electoral_roll_staging --> citizens;\n  electoral_roll_staging --> wards;\n  housing_benefit_claims --> citizens;\n  housing_benefit_claims --> tenancies;\n  payment_transactions --> council_tax_accounts;\n  properties --> wards;\n  rent_ledger --> tenancies;\n  repair_work_orders --> properties;\n  repair_work_orders --> citizens;\n  repair_work_orders --> contractors;\n  safeguarding_referrals --> citizens;\n  safeguarding_referrals --> properties;\n  tenancies --> citizens;\n  case_correspondence -.->|inferred| staff;\n  council_tax_accounts -.->|inferred| case_correspondence;\n  legacy_audit_log -.->|inferred| case_correspondence;\n  tenancies -.->|inferred| staff;",
     "edges": [
+      {
+        "child_table": "case_correspondence",
+        "child_col": "citizen_id",
+        "parent_table": "citizens",
+        "parent_col": "citizen_id",
+        "relationship_type": "DECLARED_FK",
+        "confidence": 1.0,
+        "orphan_row_count": 0,
+        "distinct_orphan_keys": 0,
+        "status": "HEALTHY",
+        "diagnostic_sql": "SELECT c.\"citizen_id\", COUNT(*) FROM \"case_correspondence\" c LEFT JOIN \"citizens\" p ON c.\"citizen_id\" = p.\"citizen_id\" WHERE c.\"citizen_id\" IS NOT NULL AND p.\"citizen_id\" IS NULL GROUP BY 1;"
+      },
+      {
+        "child_table": "case_correspondence",
+        "child_col": "handled_by_code",
+        "parent_table": "staff",
+        "parent_col": "staff_code",
+        "relationship_type": "INFERRED_SHADOW_FK",
+        "confidence": 0.94,
+        "orphan_row_count": 272,
+        "distinct_orphan_keys": 1,
+        "status": "ORPHANED_RECORDS_DETECTED",
+        "diagnostic_sql": "SELECT c.\"handled_by_code\", COUNT(*) FROM \"case_correspondence\" c LEFT JOIN \"staff\" p ON c.\"handled_by_code\" = p.\"staff_code\" WHERE c.\"handled_by_code\" IS NOT NULL AND p.\"staff_code\" IS NULL GROUP BY 1;"
+      },
+      {
+        "child_table": "council_tax_accounts",
+        "child_col": "citizen_id",
+        "parent_table": "citizens",
+        "parent_col": "citizen_id",
+        "relationship_type": "DECLARED_FK",
+        "confidence": 1.0,
+        "orphan_row_count": 0,
+        "distinct_orphan_keys": 0,
+        "status": "HEALTHY",
+        "diagnostic_sql": "SELECT c.\"citizen_id\", COUNT(*) FROM \"council_tax_accounts\" c LEFT JOIN \"citizens\" p ON c.\"citizen_id\" = p.\"citizen_id\" WHERE c.\"citizen_id\" IS NOT NULL AND p.\"citizen_id\" IS NULL GROUP BY 1;"
+      },
+      {
+        "child_table": "council_tax_accounts",
+        "child_col": "property_id",
+        "parent_table": "properties",
+        "parent_col": "property_id",
+        "relationship_type": "DECLARED_FK",
+        "confidence": 1.0,
+        "orphan_row_count": 0,
+        "distinct_orphan_keys": 0,
+        "status": "HEALTHY",
+        "diagnostic_sql": "SELECT c.\"property_id\", COUNT(*) FROM \"council_tax_accounts\" c LEFT JOIN \"properties\" p ON c.\"property_id\" = p.\"property_id\" WHERE c.\"property_id\" IS NOT NULL AND p.\"property_id\" IS NULL GROUP BY 1;"
+      },
+      {
+        "child_table": "council_tax_accounts",
+        "child_col": "collector_code",
+        "parent_table": "case_correspondence",
+        "parent_col": "handled_by_code",
+        "relationship_type": "INFERRED_SHADOW_FK",
+        "confidence": 0.94,
+        "orphan_row_count": 291,
+        "distinct_orphan_keys": 1,
+        "status": "ORPHANED_RECORDS_DETECTED",
+        "diagnostic_sql": "SELECT c.\"collector_code\", COUNT(*) FROM \"council_tax_accounts\" c LEFT JOIN \"case_correspondence\" p ON c.\"collector_code\" = p.\"handled_by_code\" WHERE c.\"collector_code\" IS NOT NULL AND p.\"handled_by_code\" IS NULL GROUP BY 1;"
+      },
+      {
+        "child_table": "electoral_roll_staging",
+        "child_col": "citizen_id",
+        "parent_table": "citizens",
+        "parent_col": "citizen_id",
+        "relationship_type": "DECLARED_FK",
+        "confidence": 1.0,
+        "orphan_row_count": 0,
+        "distinct_orphan_keys": 0,
+        "status": "HEALTHY",
+        "diagnostic_sql": "SELECT c.\"citizen_id\", COUNT(*) FROM \"electoral_roll_staging\" c LEFT JOIN \"citizens\" p ON c.\"citizen_id\" = p.\"citizen_id\" WHERE c.\"citizen_id\" IS NOT NULL AND p.\"citizen_id\" IS NULL GROUP BY 1;"
+      },
+      {
+        "child_table": "electoral_roll_staging",
+        "child_col": "ward_code",
+        "parent_table": "wards",
+        "parent_col": "ward_code",
+        "relationship_type": "DECLARED_FK",
+        "confidence": 1.0,
+        "orphan_row_count": 0,
+        "distinct_orphan_keys": 0,
+        "status": "HEALTHY",
+        "diagnostic_sql": "SELECT c.\"ward_code\", COUNT(*) FROM \"electoral_roll_staging\" c LEFT JOIN \"wards\" p ON c.\"ward_code\" = p.\"ward_code\" WHERE c.\"ward_code\" IS NOT NULL AND p.\"ward_code\" IS NULL GROUP BY 1;"
+      },
+      {
+        "child_table": "housing_benefit_claims",
+        "child_col": "citizen_id",
+        "parent_table": "citizens",
+        "parent_col": "citizen_id",
+        "relationship_type": "DECLARED_FK",
+        "confidence": 1.0,
+        "orphan_row_count": 0,
+        "distinct_orphan_keys": 0,
+        "status": "HEALTHY",
+        "diagnostic_sql": "SELECT c.\"citizen_id\", COUNT(*) FROM \"housing_benefit_claims\" c LEFT JOIN \"citizens\" p ON c.\"citizen_id\" = p.\"citizen_id\" WHERE c.\"citizen_id\" IS NOT NULL AND p.\"citizen_id\" IS NULL GROUP BY 1;"
+      },
+      {
+        "child_table": "housing_benefit_claims",
+        "child_col": "tenancy_id",
+        "parent_table": "tenancies",
+        "parent_col": "tenancy_id",
+        "relationship_type": "DECLARED_FK",
+        "confidence": 1.0,
+        "orphan_row_count": 0,
+        "distinct_orphan_keys": 0,
+        "status": "HEALTHY",
+        "diagnostic_sql": "SELECT c.\"tenancy_id\", COUNT(*) FROM \"housing_benefit_claims\" c LEFT JOIN \"tenancies\" p ON c.\"tenancy_id\" = p.\"tenancy_id\" WHERE c.\"tenancy_id\" IS NOT NULL AND p.\"tenancy_id\" IS NULL GROUP BY 1;"
+      },
+      {
+        "child_table": "legacy_audit_log",
+        "child_col": "actor_code",
+        "parent_table": "case_correspondence",
+        "parent_col": "handled_by_code",
+        "relationship_type": "INFERRED_SHADOW_FK",
+        "confidence": 0.94,
+        "orphan_row_count": 180,
+        "distinct_orphan_keys": 1,
+        "status": "ORPHANED_RECORDS_DETECTED",
+        "diagnostic_sql": "SELECT c.\"actor_code\", COUNT(*) FROM \"legacy_audit_log\" c LEFT JOIN \"case_correspondence\" p ON c.\"actor_code\" = p.\"handled_by_code\" WHERE c.\"actor_code\" IS NOT NULL AND p.\"handled_by_code\" IS NULL GROUP BY 1;"
+      },
+      {
+        "child_table": "payment_transactions",
+        "child_col": "account_id",
+        "parent_table": "council_tax_accounts",
+        "parent_col": "account_id",
+        "relationship_type": "DECLARED_FK",
+        "confidence": 1.0,
+        "orphan_row_count": 0,
+        "distinct_orphan_keys": 0,
+        "status": "HEALTHY",
+        "diagnostic_sql": "SELECT c.\"account_id\", COUNT(*) FROM \"payment_transactions\" c LEFT JOIN \"council_tax_accounts\" p ON c.\"account_id\" = p.\"account_id\" WHERE c.\"account_id\" IS NOT NULL AND p.\"account_id\" IS NULL GROUP BY 1;"
+      },
+      {
+        "child_table": "properties",
+        "child_col": "ward_code",
+        "parent_table": "wards",
+        "parent_col": "ward_code",
+        "relationship_type": "DECLARED_FK",
+        "confidence": 1.0,
+        "orphan_row_count": 0,
+        "distinct_orphan_keys": 0,
+        "status": "HEALTHY",
+        "diagnostic_sql": "SELECT c.\"ward_code\", COUNT(*) FROM \"properties\" c LEFT JOIN \"wards\" p ON c.\"ward_code\" = p.\"ward_code\" WHERE c.\"ward_code\" IS NOT NULL AND p.\"ward_code\" IS NULL GROUP BY 1;"
+      },
       {
         "child_table": "rent_ledger",
         "child_col": "tenancy_id",
@@ -41,6 +196,66 @@
         "distinct_orphan_keys": 0,
         "status": "HEALTHY",
         "diagnostic_sql": "SELECT c.\"tenancy_id\", COUNT(*) FROM \"rent_ledger\" c LEFT JOIN \"tenancies\" p ON c.\"tenancy_id\" = p.\"tenancy_id\" WHERE c.\"tenancy_id\" IS NOT NULL AND p.\"tenancy_id\" IS NULL GROUP BY 1;"
+      },
+      {
+        "child_table": "repair_work_orders",
+        "child_col": "property_id",
+        "parent_table": "properties",
+        "parent_col": "property_id",
+        "relationship_type": "DECLARED_FK",
+        "confidence": 1.0,
+        "orphan_row_count": 0,
+        "distinct_orphan_keys": 0,
+        "status": "HEALTHY",
+        "diagnostic_sql": "SELECT c.\"property_id\", COUNT(*) FROM \"repair_work_orders\" c LEFT JOIN \"properties\" p ON c.\"property_id\" = p.\"property_id\" WHERE c.\"property_id\" IS NOT NULL AND p.\"property_id\" IS NULL GROUP BY 1;"
+      },
+      {
+        "child_table": "repair_work_orders",
+        "child_col": "reported_by_citizen_id",
+        "parent_table": "citizens",
+        "parent_col": "citizen_id",
+        "relationship_type": "DECLARED_FK",
+        "confidence": 1.0,
+        "orphan_row_count": 0,
+        "distinct_orphan_keys": 0,
+        "status": "HEALTHY",
+        "diagnostic_sql": "SELECT c.\"reported_by_citizen_id\", COUNT(*) FROM \"repair_work_orders\" c LEFT JOIN \"citizens\" p ON c.\"reported_by_citizen_id\" = p.\"citizen_id\" WHERE c.\"reported_by_citizen_id\" IS NOT NULL AND p.\"citizen_id\" IS NULL GROUP BY 1;"
+      },
+      {
+        "child_table": "repair_work_orders",
+        "child_col": "contractor_code",
+        "parent_table": "contractors",
+        "parent_col": "contractor_code",
+        "relationship_type": "DECLARED_FK",
+        "confidence": 1.0,
+        "orphan_row_count": 0,
+        "distinct_orphan_keys": 0,
+        "status": "HEALTHY",
+        "diagnostic_sql": "SELECT c.\"contractor_code\", COUNT(*) FROM \"repair_work_orders\" c LEFT JOIN \"contractors\" p ON c.\"contractor_code\" = p.\"contractor_code\" WHERE c.\"contractor_code\" IS NOT NULL AND p.\"contractor_code\" IS NULL GROUP BY 1;"
+      },
+      {
+        "child_table": "safeguarding_referrals",
+        "child_col": "citizen_id",
+        "parent_table": "citizens",
+        "parent_col": "citizen_id",
+        "relationship_type": "DECLARED_FK",
+        "confidence": 1.0,
+        "orphan_row_count": 0,
+        "distinct_orphan_keys": 0,
+        "status": "HEALTHY",
+        "diagnostic_sql": "SELECT c.\"citizen_id\", COUNT(*) FROM \"safeguarding_referrals\" c LEFT JOIN \"citizens\" p ON c.\"citizen_id\" = p.\"citizen_id\" WHERE c.\"citizen_id\" IS NOT NULL AND p.\"citizen_id\" IS NULL GROUP BY 1;"
+      },
+      {
+        "child_table": "safeguarding_referrals",
+        "child_col": "property_id",
+        "parent_table": "properties",
+        "parent_col": "property_id",
+        "relationship_type": "DECLARED_FK",
+        "confidence": 1.0,
+        "orphan_row_count": 0,
+        "distinct_orphan_keys": 0,
+        "status": "HEALTHY",
+        "diagnostic_sql": "SELECT c.\"property_id\", COUNT(*) FROM \"safeguarding_referrals\" c LEFT JOIN \"properties\" p ON c.\"property_id\" = p.\"property_id\" WHERE c.\"property_id\" IS NOT NULL AND p.\"property_id\" IS NULL GROUP BY 1;"
       },
       {
         "child_table": "tenancies",
@@ -60,8 +275,8 @@
         "parent_table": "staff",
         "parent_col": "staff_code",
         "relationship_type": "INFERRED_SHADOW_FK",
-        "confidence": 0.86,
-        "orphan_row_count": 31,
+        "confidence": 0.93,
+        "orphan_row_count": 668,
         "distinct_orphan_keys": 2,
         "status": "ORPHANED_RECORDS_DETECTED",
         "diagnostic_sql": "SELECT c.\"officer_code\", COUNT(*) FROM \"tenancies\" c LEFT JOIN \"staff\" p ON c.\"officer_code\" = p.\"staff_code\" WHERE c.\"officer_code\" IS NOT NULL AND p.\"staff_code\" IS NULL GROUP BY 1;"
@@ -69,6 +284,160 @@
     ]
   },
   "tables": {
+    "case_correspondence": {
+      "row_count_estimate": 3000,
+      "row_sample_size": 1000,
+      "table_readiness_score": 1,
+      "declared_pk": [
+        "correspondence_id"
+      ],
+      "dms_blockers": [
+        {
+          "blocker_id": "postgres_null_byte_poison",
+          "severity": "CRITICAL",
+          "column": "body_text",
+          "description": "[postgres_null_byte_poison] Column 'body_text' triggered DMS replication blocker (5.0% affected sample rate)."
+        }
+      ],
+      "declared_fks": [
+        {
+          "name": null,
+          "constrained_columns": [
+            "citizen_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "citizens",
+          "referred_columns": [
+            "citizen_id"
+          ],
+          "options": {}
+        }
+      ],
+      "inferred_fks": [
+        {
+          "child_table": "case_correspondence",
+          "child_col": "handled_by_code",
+          "parent_table": "staff",
+          "parent_col": "staff_code",
+          "confidence": 0.94,
+          "match_reason": "suffix_match + 99.2% sample value overlap"
+        }
+      ],
+      "dangling_fk_findings": [
+        {
+          "child_table": "case_correspondence",
+          "child_col": "handled_by_code",
+          "parent_table": "staff",
+          "parent_col": "staff_code",
+          "is_inferred": true,
+          "orphan_row_count": 272,
+          "distinct_orphan_keys": 1,
+          "diagnostic_sql": "SELECT c.\"handled_by_code\", COUNT(*) FROM \"case_correspondence\" c LEFT JOIN \"staff\" p ON c.\"handled_by_code\" = p.\"staff_code\" WHERE c.\"handled_by_code\" IS NOT NULL AND p.\"staff_code\" IS NULL GROUP BY 1;"
+        }
+      ],
+      "columns": {
+        "correspondence_id": {
+          "declared_type": "INTEGER",
+          "recommended_target_type": "BIGINT",
+          "nullable": false,
+          "is_declared_pk": true,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "citizen_id": {
+          "declared_type": "INTEGER",
+          "recommended_target_type": "INTEGER",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.2,
+          "flaws": []
+        },
+        "handled_by_code": {
+          "declared_type": "VARCHAR(20)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.12,
+          "flaws": []
+        },
+        "channel": {
+          "declared_type": "VARCHAR(24)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.0,
+          "flaws": []
+        },
+        "sent_date": {
+          "declared_type": "VARCHAR(40)",
+          "recommended_target_type": "DATE",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.0,
+          "flaws": [
+            {
+              "flaw_id": "impossible_or_sentinel_date",
+              "category": "semantic_data_rot",
+              "severity": "WARN",
+              "confidence": 0.04,
+              "affected_rate": 0.04,
+              "evidence": "[impossible_or_sentinel_date] 40/1000 (4.0%) sampled rows in column 'sent_date' contain sentinel or impossible dates",
+              "remediation_advice": "Map legacy sentinel dates (1900-01-01, 9999-12-31) to NULL and enforce ISO-8601 calendar validation.",
+              "dbt_sql_expr": "CASE WHEN \"sent_date\" IN ('1900-01-01', '1970-01-01', '9999-12-31', '0000-00-00') THEN NULL ELSE CAST(\"sent_date\" AS DATE) END",
+              "diagnostic_sql": "SELECT \"sent_date\" FROM \"case_correspondence\" WHERE \"sent_date\" IN ('1900-01-01', '1970-01-01', '9999-12-31', '0000-00-00');"
+            }
+          ]
+        },
+        "body_text": {
+          "declared_type": "TEXT",
+          "recommended_target_type": "TEXT",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.93,
+          "flaws": [
+            {
+              "flaw_id": "postgres_null_byte_poison",
+              "category": "dms_replication_blockers",
+              "severity": "CRITICAL",
+              "confidence": 1.0,
+              "affected_rate": 0.05,
+              "evidence": "[postgres_null_byte_poison] 54/1000 (5.4%) sampled rows contain ASCII NUL (0x00) bytes",
+              "remediation_advice": "Strip ASCII NUL (0x00) bytes using REPLACE to prevent PostgreSQL wire termination and AWS DMS CDC replication task crashes.",
+              "dbt_sql_expr": "REPLACE(\"body_text\", CHR(0), '')",
+              "diagnostic_sql": "SELECT \"body_text\" FROM \"case_correspondence\" WHERE \"body_text\" LIKE '%' || CHR(0) || '%';"
+            },
+            {
+              "flaw_id": "shadow_uk_nino",
+              "category": "shadow_pii_exposures",
+              "severity": "CRITICAL",
+              "confidence": 0.98,
+              "affected_rate": 0.08,
+              "evidence": "[shadow_uk_nino] 76/1000 (7.6%) sampled rows in column 'body_text' match UK National Insurance Number pattern",
+              "remediation_advice": "UK National Insurance Number detected in general text. Quarantine or tokenize under UK GDPR.",
+              "dbt_sql_expr": "REGEXP_REPLACE(\"body_text\", '(?i)\\y(?:QQ|(?!BG|GB|NK|KN|TN|NT|ZZ)[A-CEGHJ-PR-TW-ZQ][A-CEGHJ-NPR-TW-ZQ])\\s*\\d{2}\\s*\\d{2}\\s*\\d{2}\\s*[A-D]\\y', '[REDACTED_NINO]', 'g')",
+              "diagnostic_sql": "SELECT \"body_text\" FROM \"case_correspondence\" WHERE \"body_text\" ~* '\\y[A-Z]{2}\\s?[0-9]{2}\\s?[0-9]{2}\\s?[0-9]{2}\\s?[A-D]\\y';"
+            },
+            {
+              "flaw_id": "shadow_nhs_number",
+              "category": "shadow_pii_exposures",
+              "severity": "CRITICAL",
+              "confidence": 0.99,
+              "affected_rate": 0.08,
+              "evidence": "[shadow_nhs_number] 76/1000 (7.6%) sampled rows in column 'body_text' match Modulus-11 verified UK NHS Number pattern",
+              "remediation_advice": "UK NHS Number detected in general text. Quarantine under UK Data Protection Act.",
+              "dbt_sql_expr": "REGEXP_REPLACE(\"body_text\", '\\y\\d{3}\\s?\\d{3}\\s?\\d{4}\\y', '[REDACTED_NHS]', 'g')",
+              "diagnostic_sql": "SELECT \"body_text\" FROM \"case_correspondence\" WHERE \"body_text\" ~ '\\y[0-9]{3}\\s?[0-9]{3}\\s?[0-9]{4}\\y';"
+            }
+          ]
+        }
+      }
+    },
     "citizens": {
       "row_count_estimate": 200,
       "row_sample_size": 200,
@@ -81,7 +450,7 @@
           "blocker_id": "cp1252_encoding_ghosts",
           "severity": "HIGH",
           "column": "full_name",
-          "description": "[cp1252_encoding_ghosts] Column 'full_name' triggered DMS replication blocker (12.0% affected sample rate)."
+          "description": "[cp1252_encoding_ghosts] Column 'full_name' triggered DMS replication blocker (9.0% affected sample rate)."
         },
         {
           "blocker_id": "postgres_null_byte_poison",
@@ -109,15 +478,15 @@
           "nullable": false,
           "is_declared_pk": false,
           "null_rate": 0.0,
-          "distinct_rate": 0.45,
+          "distinct_rate": 0.42,
           "flaws": [
             {
               "flaw_id": "cp1252_encoding_ghosts",
               "category": "dms_replication_blockers",
               "severity": "HIGH",
               "confidence": 0.95,
-              "affected_rate": 0.12,
-              "evidence": "[cp1252_encoding_ghosts] 23/200 (11.5%) sampled rows contain UTF-8/CP1252 mojibake artifacts",
+              "affected_rate": 0.09,
+              "evidence": "[cp1252_encoding_ghosts] 17/200 (8.5%) sampled rows contain UTF-8/CP1252 mojibake artifacts",
               "remediation_advice": "Re-encode CP1252/Windows-1252 mojibake artifacts back to valid UTF-8 equivalents.",
               "dbt_sql_expr": "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"full_name\", '\u00e2\u20ac\u2122', ''''), '\u00e2\u20ac\u201c', '-'), '\u00e2\u20ac\u0153', '\"'), '\u00c3\u00a9', '\u00e9'), '\u00c3\u00a3', '\u00e3'), CHR(65533), '')",
               "diagnostic_sql": "SELECT \"full_name\" FROM \"citizens\" WHERE \"full_name\" LIKE '%\u00e2%' OR \"full_name\" LIKE '%\ufffd%';"
@@ -212,9 +581,868 @@
         }
       }
     },
+    "contractors": {
+      "row_count_estimate": 85,
+      "row_sample_size": 85,
+      "table_readiness_score": 100,
+      "declared_pk": [
+        "contractor_code"
+      ],
+      "dms_blockers": [],
+      "declared_fks": [],
+      "inferred_fks": [],
+      "dangling_fk_findings": [],
+      "columns": {
+        "contractor_code": {
+          "declared_type": "VARCHAR(20)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": false,
+          "is_declared_pk": true,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "company_name": {
+          "declared_type": "VARCHAR(100)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": false,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "trade_category": {
+          "declared_type": "VARCHAR(40)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": false,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.07,
+          "flaws": []
+        },
+        "vat_number": {
+          "declared_type": "VARCHAR(20)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": false,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        }
+      }
+    },
+    "council_tax_accounts": {
+      "row_count_estimate": 3500,
+      "row_sample_size": 1000,
+      "table_readiness_score": 47,
+      "declared_pk": [
+        "account_id"
+      ],
+      "dms_blockers": [],
+      "declared_fks": [
+        {
+          "name": null,
+          "constrained_columns": [
+            "citizen_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "citizens",
+          "referred_columns": [
+            "citizen_id"
+          ],
+          "options": {}
+        },
+        {
+          "name": null,
+          "constrained_columns": [
+            "property_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "properties",
+          "referred_columns": [
+            "property_id"
+          ],
+          "options": {}
+        }
+      ],
+      "inferred_fks": [
+        {
+          "child_table": "council_tax_accounts",
+          "child_col": "collector_code",
+          "parent_table": "case_correspondence",
+          "parent_col": "handled_by_code",
+          "confidence": 0.94,
+          "match_reason": "suffix_match + 99.1% sample value overlap"
+        }
+      ],
+      "dangling_fk_findings": [
+        {
+          "child_table": "council_tax_accounts",
+          "child_col": "collector_code",
+          "parent_table": "case_correspondence",
+          "parent_col": "handled_by_code",
+          "is_inferred": true,
+          "orphan_row_count": 291,
+          "distinct_orphan_keys": 1,
+          "diagnostic_sql": "SELECT c.\"collector_code\", COUNT(*) FROM \"council_tax_accounts\" c LEFT JOIN \"case_correspondence\" p ON c.\"collector_code\" = p.\"handled_by_code\" WHERE c.\"collector_code\" IS NOT NULL AND p.\"handled_by_code\" IS NULL GROUP BY 1;"
+        }
+      ],
+      "columns": {
+        "account_id": {
+          "declared_type": "INTEGER",
+          "recommended_target_type": "BIGINT",
+          "nullable": false,
+          "is_declared_pk": true,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "citizen_id": {
+          "declared_type": "INTEGER",
+          "recommended_target_type": "INTEGER",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.2,
+          "flaws": []
+        },
+        "property_id": {
+          "declared_type": "INTEGER",
+          "recommended_target_type": "INTEGER",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "band_code": {
+          "declared_type": "VARCHAR(4)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.01,
+          "flaws": []
+        },
+        "annual_liability": {
+          "declared_type": "VARCHAR(40)",
+          "recommended_target_type": "NUMERIC(18,2)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.01,
+          "flaws": [
+            {
+              "flaw_id": "text_currency",
+              "category": "semantic_data_rot",
+              "severity": "WARN",
+              "confidence": 1.0,
+              "affected_rate": 1.0,
+              "evidence": "[text_currency] 1000/1000 (100.0%) sampled rows contain formatted currency strings",
+              "remediation_advice": "Strip formatting currency symbols/suffixes and cast text values to NUMERIC(18,2).",
+              "dbt_sql_expr": "CAST(NULLIF(REGEXP_REPLACE(\"annual_liability\", '[^0-9.-]', '', 'g'), '') AS NUMERIC(18,2))",
+              "diagnostic_sql": "SELECT \"annual_liability\" FROM \"council_tax_accounts\" WHERE \"annual_liability\" ~ '[$\u00a3\u20ac]' OR \"annual_liability\" ~* '(USD|EUR|GBP)';"
+            }
+          ]
+        },
+        "billing_start_date": {
+          "declared_type": "VARCHAR(40)",
+          "recommended_target_type": "DATE",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.0,
+          "flaws": [
+            {
+              "flaw_id": "impossible_or_sentinel_date",
+              "category": "semantic_data_rot",
+              "severity": "WARN",
+              "confidence": 0.05,
+              "affected_rate": 0.05,
+              "evidence": "[impossible_or_sentinel_date] 52/1000 (5.2%) sampled rows in column 'billing_start_date' contain sentinel or impossible dates",
+              "remediation_advice": "Map legacy sentinel dates (1900-01-01, 9999-12-31) to NULL and enforce ISO-8601 calendar validation.",
+              "dbt_sql_expr": "CASE WHEN \"billing_start_date\" IN ('1900-01-01', '1970-01-01', '9999-12-31', '0000-00-00') THEN NULL ELSE CAST(\"billing_start_date\" AS DATE) END",
+              "diagnostic_sql": "SELECT \"billing_start_date\" FROM \"council_tax_accounts\" WHERE \"billing_start_date\" IN ('1900-01-01', '1970-01-01', '9999-12-31', '0000-00-00');"
+            },
+            {
+              "flaw_id": "mixed_date_locales",
+              "category": "semantic_data_rot",
+              "severity": "CRITICAL",
+              "confidence": 0.95,
+              "affected_rate": 0.21,
+              "evidence": "[mixed_date_locales] Column 'billing_start_date' mixes date locales across 212/1000 (21.2%) sampled rows (106 DD/MM/YYYY, 106 MM/DD/YYYY)",
+              "remediation_advice": "Cannot auto-parse ambiguous dates (e.g. 04/05/1990). Quarantine ambiguous rows and enforce ISO-8601.",
+              "dbt_sql_expr": "CASE WHEN \"billing_start_date\" ~ '^\\d{4}-\\d{2}-\\d{2}$' THEN CAST(\"billing_start_date\" AS DATE) ELSE NULL END",
+              "diagnostic_sql": "SELECT \"billing_start_date\" FROM \"council_tax_accounts\" WHERE \"billing_start_date\" IS NOT NULL;"
+            }
+          ]
+        },
+        "collector_code": {
+          "declared_type": "VARCHAR(20)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.11,
+          "flaws": []
+        }
+      }
+    },
+    "electoral_roll_staging": {
+      "row_count_estimate": 2600,
+      "row_sample_size": 1000,
+      "table_readiness_score": 21,
+      "declared_pk": [],
+      "dms_blockers": [
+        {
+          "blocker_id": "missing_primary_key_for_cdc",
+          "severity": "CRITICAL",
+          "column": null,
+          "description": "Table has no declared Primary Key or Unique Index. AWS DMS Full Load + CDC cannot replicate incremental UPDATE or DELETE events without a Primary Key."
+        },
+        {
+          "blocker_id": "lob_column_without_pk",
+          "severity": "CRITICAL",
+          "column": "raw_import_line",
+          "description": "Table contains LOB column 'raw_import_line' without a Primary Key. AWS DMS CDC replication fails on keyless LOB tables."
+        },
+        {
+          "blocker_id": "postgres_null_byte_poison",
+          "severity": "CRITICAL",
+          "column": "raw_import_line",
+          "description": "[postgres_null_byte_poison] Column 'raw_import_line' triggered DMS replication blocker (5.0% affected sample rate)."
+        }
+      ],
+      "declared_fks": [
+        {
+          "name": null,
+          "constrained_columns": [
+            "citizen_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "citizens",
+          "referred_columns": [
+            "citizen_id"
+          ],
+          "options": {}
+        },
+        {
+          "name": null,
+          "constrained_columns": [
+            "ward_code"
+          ],
+          "referred_schema": null,
+          "referred_table": "wards",
+          "referred_columns": [
+            "ward_code"
+          ],
+          "options": {}
+        }
+      ],
+      "inferred_fks": [],
+      "dangling_fk_findings": [],
+      "columns": {
+        "citizen_id": {
+          "declared_type": "INTEGER",
+          "recommended_target_type": "INTEGER",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.2,
+          "flaws": []
+        },
+        "ward_code": {
+          "declared_type": "VARCHAR(16)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.04,
+          "flaws": []
+        },
+        "reg_date": {
+          "declared_type": "VARCHAR(40)",
+          "recommended_target_type": "DATE",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.0,
+          "flaws": [
+            {
+              "flaw_id": "impossible_or_sentinel_date",
+              "category": "semantic_data_rot",
+              "severity": "WARN",
+              "confidence": 0.07,
+              "affected_rate": 0.07,
+              "evidence": "[impossible_or_sentinel_date] 66/1000 (6.6%) sampled rows in column 'reg_date' contain sentinel or impossible dates",
+              "remediation_advice": "Map legacy sentinel dates (1900-01-01, 9999-12-31) to NULL and enforce ISO-8601 calendar validation.",
+              "dbt_sql_expr": "CASE WHEN \"reg_date\" IN ('1900-01-01', '1970-01-01', '9999-12-31', '0000-00-00') THEN NULL ELSE CAST(\"reg_date\" AS DATE) END",
+              "diagnostic_sql": "SELECT \"reg_date\" FROM \"electoral_roll_staging\" WHERE \"reg_date\" IN ('1900-01-01', '1970-01-01', '9999-12-31', '0000-00-00');"
+            }
+          ]
+        },
+        "postal_vote_flag": {
+          "declared_type": "VARCHAR(10)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.0,
+          "flaws": []
+        },
+        "raw_import_line": {
+          "declared_type": "TEXT",
+          "recommended_target_type": "TEXT",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": [
+            {
+              "flaw_id": "postgres_null_byte_poison",
+              "category": "dms_replication_blockers",
+              "severity": "CRITICAL",
+              "confidence": 1.0,
+              "affected_rate": 0.05,
+              "evidence": "[postgres_null_byte_poison] 47/1000 (4.7%) sampled rows contain ASCII NUL (0x00) bytes",
+              "remediation_advice": "Strip ASCII NUL (0x00) bytes using REPLACE to prevent PostgreSQL wire termination and AWS DMS CDC replication task crashes.",
+              "dbt_sql_expr": "REPLACE(\"raw_import_line\", CHR(0), '')",
+              "diagnostic_sql": "SELECT \"raw_import_line\" FROM \"electoral_roll_staging\" WHERE \"raw_import_line\" LIKE '%' || CHR(0) || '%';"
+            }
+          ]
+        }
+      }
+    },
+    "housing_benefit_claims": {
+      "row_count_estimate": 2800,
+      "row_sample_size": 1000,
+      "table_readiness_score": 42,
+      "declared_pk": [
+        "claim_id"
+      ],
+      "dms_blockers": [
+        {
+          "blocker_id": "postgres_null_byte_poison",
+          "severity": "CRITICAL",
+          "column": "assessor_notes",
+          "description": "[postgres_null_byte_poison] Column 'assessor_notes' triggered DMS replication blocker (4.0% affected sample rate)."
+        }
+      ],
+      "declared_fks": [
+        {
+          "name": null,
+          "constrained_columns": [
+            "citizen_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "citizens",
+          "referred_columns": [
+            "citizen_id"
+          ],
+          "options": {}
+        },
+        {
+          "name": null,
+          "constrained_columns": [
+            "tenancy_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "tenancies",
+          "referred_columns": [
+            "tenancy_id"
+          ],
+          "options": {}
+        }
+      ],
+      "inferred_fks": [],
+      "dangling_fk_findings": [],
+      "columns": {
+        "claim_id": {
+          "declared_type": "INTEGER",
+          "recommended_target_type": "BIGINT",
+          "nullable": false,
+          "is_declared_pk": true,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "citizen_id": {
+          "declared_type": "INTEGER",
+          "recommended_target_type": "INTEGER",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.2,
+          "flaws": []
+        },
+        "tenancy_id": {
+          "declared_type": "INTEGER",
+          "recommended_target_type": "INTEGER",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "claim_ref": {
+          "declared_type": "VARCHAR(32)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": false,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "weekly_award_amt": {
+          "declared_type": "VARCHAR(40)",
+          "recommended_target_type": "NUMERIC(18,2)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.12,
+          "flaws": [
+            {
+              "flaw_id": "text_currency",
+              "category": "semantic_data_rot",
+              "severity": "WARN",
+              "confidence": 1.0,
+              "affected_rate": 1.0,
+              "evidence": "[text_currency] 1000/1000 (100.0%) sampled rows contain formatted currency strings",
+              "remediation_advice": "Strip formatting currency symbols/suffixes and cast text values to NUMERIC(18,2).",
+              "dbt_sql_expr": "CAST(NULLIF(REGEXP_REPLACE(\"weekly_award_amt\", '[^0-9.-]', '', 'g'), '') AS NUMERIC(18,2))",
+              "diagnostic_sql": "SELECT \"weekly_award_amt\" FROM \"housing_benefit_claims\" WHERE \"weekly_award_amt\" ~ '[$\u00a3\u20ac]' OR \"weekly_award_amt\" ~* '(USD|EUR|GBP)';"
+            }
+          ]
+        },
+        "assessment_date": {
+          "declared_type": "VARCHAR(40)",
+          "recommended_target_type": "DATE",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.0,
+          "flaws": [
+            {
+              "flaw_id": "impossible_or_sentinel_date",
+              "category": "semantic_data_rot",
+              "severity": "WARN",
+              "confidence": 0.05,
+              "affected_rate": 0.05,
+              "evidence": "[impossible_or_sentinel_date] 50/1000 (5.0%) sampled rows in column 'assessment_date' contain sentinel or impossible dates",
+              "remediation_advice": "Map legacy sentinel dates (1900-01-01, 9999-12-31) to NULL and enforce ISO-8601 calendar validation.",
+              "dbt_sql_expr": "CASE WHEN \"assessment_date\" IN ('1900-01-01', '1970-01-01', '9999-12-31', '0000-00-00') THEN NULL ELSE CAST(\"assessment_date\" AS DATE) END",
+              "diagnostic_sql": "SELECT \"assessment_date\" FROM \"housing_benefit_claims\" WHERE \"assessment_date\" IN ('1900-01-01', '1970-01-01', '9999-12-31', '0000-00-00');"
+            }
+          ]
+        },
+        "assessor_notes": {
+          "declared_type": "TEXT",
+          "recommended_target_type": "TEXT",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": [
+            {
+              "flaw_id": "postgres_null_byte_poison",
+              "category": "dms_replication_blockers",
+              "severity": "CRITICAL",
+              "confidence": 1.0,
+              "affected_rate": 0.04,
+              "evidence": "[postgres_null_byte_poison] 41/1000 (4.1%) sampled rows contain ASCII NUL (0x00) bytes",
+              "remediation_advice": "Strip ASCII NUL (0x00) bytes using REPLACE to prevent PostgreSQL wire termination and AWS DMS CDC replication task crashes.",
+              "dbt_sql_expr": "REPLACE(\"assessor_notes\", CHR(0), '')",
+              "diagnostic_sql": "SELECT \"assessor_notes\" FROM \"housing_benefit_claims\" WHERE \"assessor_notes\" LIKE '%' || CHR(0) || '%';"
+            },
+            {
+              "flaw_id": "shadow_uk_nino",
+              "category": "shadow_pii_exposures",
+              "severity": "CRITICAL",
+              "confidence": 0.98,
+              "affected_rate": 0.06,
+              "evidence": "[shadow_uk_nino] 58/1000 (5.8%) sampled rows in column 'assessor_notes' match UK National Insurance Number pattern",
+              "remediation_advice": "UK National Insurance Number detected in general text. Quarantine or tokenize under UK GDPR.",
+              "dbt_sql_expr": "REGEXP_REPLACE(\"assessor_notes\", '(?i)\\y(?:QQ|(?!BG|GB|NK|KN|TN|NT|ZZ)[A-CEGHJ-PR-TW-ZQ][A-CEGHJ-NPR-TW-ZQ])\\s*\\d{2}\\s*\\d{2}\\s*\\d{2}\\s*[A-D]\\y', '[REDACTED_NINO]', 'g')",
+              "diagnostic_sql": "SELECT \"assessor_notes\" FROM \"housing_benefit_claims\" WHERE \"assessor_notes\" ~* '\\y[A-Z]{2}\\s?[0-9]{2}\\s?[0-9]{2}\\s?[0-9]{2}\\s?[A-D]\\y';"
+            }
+          ]
+        }
+      }
+    },
+    "legacy_audit_log": {
+      "row_count_estimate": 1800,
+      "row_sample_size": 1000,
+      "table_readiness_score": 5,
+      "declared_pk": [],
+      "dms_blockers": [
+        {
+          "blocker_id": "missing_primary_key_for_cdc",
+          "severity": "CRITICAL",
+          "column": null,
+          "description": "Table has no declared Primary Key or Unique Index. AWS DMS Full Load + CDC cannot replicate incremental UPDATE or DELETE events without a Primary Key."
+        },
+        {
+          "blocker_id": "lob_column_without_pk",
+          "severity": "CRITICAL",
+          "column": "payload_blob",
+          "description": "Table contains LOB column 'payload_blob' without a Primary Key. AWS DMS CDC replication fails on keyless LOB tables."
+        },
+        {
+          "blocker_id": "postgres_null_byte_poison",
+          "severity": "CRITICAL",
+          "column": "payload_blob",
+          "description": "[postgres_null_byte_poison] Column 'payload_blob' triggered DMS replication blocker (4.0% affected sample rate)."
+        }
+      ],
+      "declared_fks": [],
+      "inferred_fks": [
+        {
+          "child_table": "legacy_audit_log",
+          "child_col": "actor_code",
+          "parent_table": "case_correspondence",
+          "parent_col": "handled_by_code",
+          "confidence": 0.94,
+          "match_reason": "suffix_match + 99.1% sample value overlap"
+        }
+      ],
+      "dangling_fk_findings": [
+        {
+          "child_table": "legacy_audit_log",
+          "child_col": "actor_code",
+          "parent_table": "case_correspondence",
+          "parent_col": "handled_by_code",
+          "is_inferred": true,
+          "orphan_row_count": 180,
+          "distinct_orphan_keys": 1,
+          "diagnostic_sql": "SELECT c.\"actor_code\", COUNT(*) FROM \"legacy_audit_log\" c LEFT JOIN \"case_correspondence\" p ON c.\"actor_code\" = p.\"handled_by_code\" WHERE c.\"actor_code\" IS NOT NULL AND p.\"handled_by_code\" IS NULL GROUP BY 1;"
+        }
+      ],
+      "columns": {
+        "entity_type": {
+          "declared_type": "VARCHAR(30)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.01,
+          "flaws": []
+        },
+        "entity_ref": {
+          "declared_type": "VARCHAR(40)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "actor_code": {
+          "declared_type": "VARCHAR(20)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.11,
+          "flaws": []
+        },
+        "event_ts": {
+          "declared_type": "VARCHAR(40)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.0,
+          "flaws": []
+        },
+        "payload_blob": {
+          "declared_type": "TEXT",
+          "recommended_target_type": "TEXT",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": [
+            {
+              "flaw_id": "postgres_null_byte_poison",
+              "category": "dms_replication_blockers",
+              "severity": "CRITICAL",
+              "confidence": 1.0,
+              "affected_rate": 0.04,
+              "evidence": "[postgres_null_byte_poison] 40/1000 (4.0%) sampled rows contain ASCII NUL (0x00) bytes",
+              "remediation_advice": "Strip ASCII NUL (0x00) bytes using REPLACE to prevent PostgreSQL wire termination and AWS DMS CDC replication task crashes.",
+              "dbt_sql_expr": "REPLACE(\"payload_blob\", CHR(0), '')",
+              "diagnostic_sql": "SELECT \"payload_blob\" FROM \"legacy_audit_log\" WHERE \"payload_blob\" LIKE '%' || CHR(0) || '%';"
+            }
+          ]
+        }
+      }
+    },
+    "payment_transactions": {
+      "row_count_estimate": 5500,
+      "row_sample_size": 1000,
+      "table_readiness_score": 0,
+      "declared_pk": [],
+      "dms_blockers": [
+        {
+          "blocker_id": "missing_primary_key_for_cdc",
+          "severity": "CRITICAL",
+          "column": null,
+          "description": "Table has no declared Primary Key or Unique Index. AWS DMS Full Load + CDC cannot replicate incremental UPDATE or DELETE events without a Primary Key."
+        },
+        {
+          "blocker_id": "lob_column_without_pk",
+          "severity": "CRITICAL",
+          "column": "remittance_memo",
+          "description": "Table contains LOB column 'remittance_memo' without a Primary Key. AWS DMS CDC replication fails on keyless LOB tables."
+        },
+        {
+          "blocker_id": "postgres_null_byte_poison",
+          "severity": "CRITICAL",
+          "column": "remittance_memo",
+          "description": "[postgres_null_byte_poison] Column 'remittance_memo' triggered DMS replication blocker (3.0% affected sample rate)."
+        }
+      ],
+      "declared_fks": [
+        {
+          "name": null,
+          "constrained_columns": [
+            "account_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "council_tax_accounts",
+          "referred_columns": [
+            "account_id"
+          ],
+          "options": {}
+        }
+      ],
+      "inferred_fks": [],
+      "dangling_fk_findings": [],
+      "columns": {
+        "account_id": {
+          "declared_type": "INTEGER",
+          "recommended_target_type": "INTEGER",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "payment_date": {
+          "declared_type": "VARCHAR(40)",
+          "recommended_target_type": "DATE",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.0,
+          "flaws": [
+            {
+              "flaw_id": "mixed_date_locales",
+              "category": "semantic_data_rot",
+              "severity": "CRITICAL",
+              "confidence": 0.95,
+              "affected_rate": 0.25,
+              "evidence": "[mixed_date_locales] Column 'payment_date' mixes date locales across 250/1000 (25.0%) sampled rows (125 DD/MM/YYYY, 125 MM/DD/YYYY)",
+              "remediation_advice": "Cannot auto-parse ambiguous dates (e.g. 04/05/1990). Quarantine ambiguous rows and enforce ISO-8601.",
+              "dbt_sql_expr": "CASE WHEN \"payment_date\" ~ '^\\d{4}-\\d{2}-\\d{2}$' THEN CAST(\"payment_date\" AS DATE) ELSE NULL END",
+              "diagnostic_sql": "SELECT \"payment_date\" FROM \"payment_transactions\" WHERE \"payment_date\" IS NOT NULL;"
+            }
+          ]
+        },
+        "amount_paid": {
+          "declared_type": "VARCHAR(40)",
+          "recommended_target_type": "NUMERIC(18,2)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.09,
+          "flaws": [
+            {
+              "flaw_id": "text_currency",
+              "category": "semantic_data_rot",
+              "severity": "WARN",
+              "confidence": 1.0,
+              "affected_rate": 1.0,
+              "evidence": "[text_currency] 1000/1000 (100.0%) sampled rows contain formatted currency strings",
+              "remediation_advice": "Strip formatting currency symbols/suffixes and cast text values to NUMERIC(18,2).",
+              "dbt_sql_expr": "CAST(NULLIF(REGEXP_REPLACE(\"amount_paid\", '[^0-9.-]', '', 'g'), '') AS NUMERIC(18,2))",
+              "diagnostic_sql": "SELECT \"amount_paid\" FROM \"payment_transactions\" WHERE \"amount_paid\" ~ '[$\u00a3\u20ac]' OR \"amount_paid\" ~* '(USD|EUR|GBP)';"
+            }
+          ]
+        },
+        "payment_channel": {
+          "declared_type": "VARCHAR(30)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.0,
+          "flaws": []
+        },
+        "remittance_memo": {
+          "declared_type": "TEXT",
+          "recommended_target_type": "TEXT",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.06,
+          "flaws": [
+            {
+              "flaw_id": "postgres_null_byte_poison",
+              "category": "dms_replication_blockers",
+              "severity": "CRITICAL",
+              "confidence": 1.0,
+              "affected_rate": 0.03,
+              "evidence": "[postgres_null_byte_poison] 34/1000 (3.4%) sampled rows contain ASCII NUL (0x00) bytes",
+              "remediation_advice": "Strip ASCII NUL (0x00) bytes using REPLACE to prevent PostgreSQL wire termination and AWS DMS CDC replication task crashes.",
+              "dbt_sql_expr": "REPLACE(\"remittance_memo\", CHR(0), '')",
+              "diagnostic_sql": "SELECT \"remittance_memo\" FROM \"payment_transactions\" WHERE \"remittance_memo\" LIKE '%' || CHR(0) || '%';"
+            }
+          ]
+        }
+      }
+    },
+    "properties": {
+      "row_count_estimate": 2400,
+      "row_sample_size": 1000,
+      "table_readiness_score": 72,
+      "declared_pk": [
+        "property_id"
+      ],
+      "dms_blockers": [
+        {
+          "blocker_id": "cp1252_encoding_ghosts",
+          "severity": "HIGH",
+          "column": "address_line1",
+          "description": "[cp1252_encoding_ghosts] Column 'address_line1' triggered DMS replication blocker (12.0% affected sample rate)."
+        },
+        {
+          "blocker_id": "cp1252_encoding_ghosts",
+          "severity": "HIGH",
+          "column": "inspection_notes",
+          "description": "[cp1252_encoding_ghosts] Column 'inspection_notes' triggered DMS replication blocker (9.0% affected sample rate)."
+        }
+      ],
+      "declared_fks": [
+        {
+          "name": null,
+          "constrained_columns": [
+            "ward_code"
+          ],
+          "referred_schema": null,
+          "referred_table": "wards",
+          "referred_columns": [
+            "ward_code"
+          ],
+          "options": {}
+        }
+      ],
+      "inferred_fks": [],
+      "dangling_fk_findings": [],
+      "columns": {
+        "property_id": {
+          "declared_type": "INTEGER",
+          "recommended_target_type": "BIGINT",
+          "nullable": false,
+          "is_declared_pk": true,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "uprn": {
+          "declared_type": "VARCHAR(20)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": false,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "address_line1": {
+          "declared_type": "VARCHAR(120)",
+          "recommended_target_type": "TEXT",
+          "nullable": false,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.36,
+          "flaws": [
+            {
+              "flaw_id": "cp1252_encoding_ghosts",
+              "category": "dms_replication_blockers",
+              "severity": "HIGH",
+              "confidence": 0.95,
+              "affected_rate": 0.12,
+              "evidence": "[cp1252_encoding_ghosts] 125/1000 (12.5%) sampled rows contain UTF-8/CP1252 mojibake artifacts",
+              "remediation_advice": "Re-encode CP1252/Windows-1252 mojibake artifacts back to valid UTF-8 equivalents.",
+              "dbt_sql_expr": "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"address_line1\", '\u00e2\u20ac\u2122', ''''), '\u00e2\u20ac\u201c', '-'), '\u00e2\u20ac\u0153', '\"'), '\u00c3\u00a9', '\u00e9'), '\u00c3\u00a3', '\u00e3'), CHR(65533), '')",
+              "diagnostic_sql": "SELECT \"address_line1\" FROM \"properties\" WHERE \"address_line1\" LIKE '%\u00e2%' OR \"address_line1\" LIKE '%\ufffd%';"
+            }
+          ]
+        },
+        "postcode": {
+          "declared_type": "VARCHAR(16)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": false,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.01,
+          "flaws": []
+        },
+        "ward_code": {
+          "declared_type": "VARCHAR(16)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.04,
+          "flaws": []
+        },
+        "void_status": {
+          "declared_type": "VARCHAR(24)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.0,
+          "flaws": []
+        },
+        "inspection_notes": {
+          "declared_type": "TEXT",
+          "recommended_target_type": "TEXT",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.02,
+          "flaws": [
+            {
+              "flaw_id": "cp1252_encoding_ghosts",
+              "category": "dms_replication_blockers",
+              "severity": "HIGH",
+              "confidence": 0.95,
+              "affected_rate": 0.09,
+              "evidence": "[cp1252_encoding_ghosts] 90/1000 (9.0%) sampled rows contain UTF-8/CP1252 mojibake artifacts",
+              "remediation_advice": "Re-encode CP1252/Windows-1252 mojibake artifacts back to valid UTF-8 equivalents.",
+              "dbt_sql_expr": "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"inspection_notes\", '\u00e2\u20ac\u2122', ''''), '\u00e2\u20ac\u201c', '-'), '\u00e2\u20ac\u0153', '\"'), '\u00c3\u00a9', '\u00e9'), '\u00c3\u00a3', '\u00e3'), CHR(65533), '')",
+              "diagnostic_sql": "SELECT \"inspection_notes\" FROM \"properties\" WHERE \"inspection_notes\" LIKE '%\u00e2%' OR \"inspection_notes\" LIKE '%\ufffd%';"
+            },
+            {
+              "flaw_id": "overloaded_freetext_column",
+              "category": "semantic_data_rot",
+              "severity": "WARN",
+              "confidence": 1.0,
+              "affected_rate": 1.0,
+              "evidence": "[overloaded_freetext_column] 1000/1000 (100.0%) sampled rows in column 'inspection_notes' contain packed key:value pairs",
+              "remediation_advice": "Unpack packed key:value pairs into structured downstream staging columns or JSON.",
+              "dbt_sql_expr": "\"inspection_notes\"",
+              "diagnostic_sql": "SELECT \"inspection_notes\" FROM \"properties\" WHERE \"inspection_notes\" ~ '[A-Za-z_]+:[A-Za-z0-9_]+';"
+            }
+          ]
+        }
+      }
+    },
     "rent_ledger": {
-      "row_count_estimate": 150,
-      "row_sample_size": 150,
+      "row_count_estimate": 6500,
+      "row_sample_size": 1000,
       "table_readiness_score": 59,
       "declared_pk": [],
       "dms_blockers": [
@@ -257,7 +1485,7 @@
           "nullable": true,
           "is_declared_pk": false,
           "null_rate": 0.0,
-          "distinct_rate": 0.87,
+          "distinct_rate": 0.6,
           "flaws": [
             {
               "flaw_id": "text_currency",
@@ -265,7 +1493,7 @@
               "severity": "WARN",
               "confidence": 1.0,
               "affected_rate": 1.0,
-              "evidence": "[text_currency] 150/150 (100.0%) sampled rows contain formatted currency strings",
+              "evidence": "[text_currency] 1000/1000 (100.0%) sampled rows contain formatted currency strings",
               "remediation_advice": "Strip formatting currency symbols/suffixes and cast text values to NUMERIC(18,2).",
               "dbt_sql_expr": "CAST(NULLIF(REGEXP_REPLACE(\"balance_amt\", '[^0-9.-]', '', 'g'), '') AS NUMERIC(18,2))",
               "diagnostic_sql": "SELECT \"balance_amt\" FROM \"rent_ledger\" WHERE \"balance_amt\" ~ '[$\u00a3\u20ac]' OR \"balance_amt\" ~* '(USD|EUR|GBP)';"
@@ -278,7 +1506,7 @@
           "nullable": true,
           "is_declared_pk": false,
           "null_rate": 0.0,
-          "distinct_rate": 0.05,
+          "distinct_rate": 0.01,
           "flaws": [
             {
               "flaw_id": "negative_unsigned_field",
@@ -286,7 +1514,7 @@
               "severity": "HIGH",
               "confidence": 0.42,
               "affected_rate": 0.12,
-              "evidence": "[negative_unsigned_field] 18/150 (12.0%) sampled values in unsigned column 'arrears_months' are negative",
+              "evidence": "[negative_unsigned_field] 125/1000 (12.5%) sampled values in unsigned column 'arrears_months' are negative",
               "remediation_advice": "Flag or nullify negative values in columns where unsigned positive quantities are required.",
               "dbt_sql_expr": "CASE WHEN CAST(\"arrears_months\" AS NUMERIC) < 0 THEN NULL ELSE CAST(\"arrears_months\" AS NUMERIC) END",
               "diagnostic_sql": "SELECT \"arrears_months\" FROM \"rent_ledger\" WHERE CAST(\"arrears_months\" AS NUMERIC) < 0;"
@@ -299,14 +1527,294 @@
           "nullable": true,
           "is_declared_pk": false,
           "null_rate": 0.0,
-          "distinct_rate": 0.01,
+          "distinct_rate": 0.0,
           "flaws": []
         }
       }
     },
+    "repair_work_orders": {
+      "row_count_estimate": 4200,
+      "row_sample_size": 1000,
+      "table_readiness_score": 84,
+      "declared_pk": [
+        "work_order_id"
+      ],
+      "dms_blockers": [
+        {
+          "blocker_id": "cp1252_encoding_ghosts",
+          "severity": "HIGH",
+          "column": "dispatch_notes",
+          "description": "[cp1252_encoding_ghosts] Column 'dispatch_notes' triggered DMS replication blocker (5.0% affected sample rate)."
+        }
+      ],
+      "declared_fks": [
+        {
+          "name": null,
+          "constrained_columns": [
+            "property_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "properties",
+          "referred_columns": [
+            "property_id"
+          ],
+          "options": {}
+        },
+        {
+          "name": null,
+          "constrained_columns": [
+            "reported_by_citizen_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "citizens",
+          "referred_columns": [
+            "citizen_id"
+          ],
+          "options": {}
+        },
+        {
+          "name": null,
+          "constrained_columns": [
+            "contractor_code"
+          ],
+          "referred_schema": null,
+          "referred_table": "contractors",
+          "referred_columns": [
+            "contractor_code"
+          ],
+          "options": {}
+        }
+      ],
+      "inferred_fks": [],
+      "dangling_fk_findings": [],
+      "columns": {
+        "work_order_id": {
+          "declared_type": "INTEGER",
+          "recommended_target_type": "BIGINT",
+          "nullable": false,
+          "is_declared_pk": true,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "property_id": {
+          "declared_type": "INTEGER",
+          "recommended_target_type": "INTEGER",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "reported_by_citizen_id": {
+          "declared_type": "INTEGER",
+          "recommended_target_type": "INTEGER",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.2,
+          "flaws": []
+        },
+        "contractor_code": {
+          "declared_type": "VARCHAR(20)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.09,
+          "flaws": []
+        },
+        "priority_level": {
+          "declared_type": "VARCHAR(20)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.0,
+          "flaws": []
+        },
+        "estimated_cost": {
+          "declared_type": "VARCHAR(40)",
+          "recommended_target_type": "NUMERIC(18,2)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.38,
+          "flaws": [
+            {
+              "flaw_id": "text_currency",
+              "category": "semantic_data_rot",
+              "severity": "WARN",
+              "confidence": 1.0,
+              "affected_rate": 1.0,
+              "evidence": "[text_currency] 1000/1000 (100.0%) sampled rows contain formatted currency strings",
+              "remediation_advice": "Strip formatting currency symbols/suffixes and cast text values to NUMERIC(18,2).",
+              "dbt_sql_expr": "CAST(NULLIF(REGEXP_REPLACE(\"estimated_cost\", '[^0-9.-]', '', 'g'), '') AS NUMERIC(18,2))",
+              "diagnostic_sql": "SELECT \"estimated_cost\" FROM \"repair_work_orders\" WHERE \"estimated_cost\" ~ '[$\u00a3\u20ac]' OR \"estimated_cost\" ~* '(USD|EUR|GBP)';"
+            }
+          ]
+        },
+        "dispatch_notes": {
+          "declared_type": "TEXT",
+          "recommended_target_type": "TEXT",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.39,
+          "flaws": [
+            {
+              "flaw_id": "cp1252_encoding_ghosts",
+              "category": "dms_replication_blockers",
+              "severity": "HIGH",
+              "confidence": 0.95,
+              "affected_rate": 0.05,
+              "evidence": "[cp1252_encoding_ghosts] 52/1000 (5.2%) sampled rows contain UTF-8/CP1252 mojibake artifacts",
+              "remediation_advice": "Re-encode CP1252/Windows-1252 mojibake artifacts back to valid UTF-8 equivalents.",
+              "dbt_sql_expr": "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"dispatch_notes\", '\u00e2\u20ac\u2122', ''''), '\u00e2\u20ac\u201c', '-'), '\u00e2\u20ac\u0153', '\"'), '\u00c3\u00a9', '\u00e9'), '\u00c3\u00a3', '\u00e3'), CHR(65533), '')",
+              "diagnostic_sql": "SELECT \"dispatch_notes\" FROM \"repair_work_orders\" WHERE \"dispatch_notes\" LIKE '%\u00e2%' OR \"dispatch_notes\" LIKE '%\ufffd%';"
+            }
+          ]
+        }
+      }
+    },
+    "safeguarding_referrals": {
+      "row_count_estimate": 900,
+      "row_sample_size": 900,
+      "table_readiness_score": 38,
+      "declared_pk": [
+        "referral_id"
+      ],
+      "dms_blockers": [
+        {
+          "blocker_id": "cp1252_encoding_ghosts",
+          "severity": "HIGH",
+          "column": "case_summary",
+          "description": "[cp1252_encoding_ghosts] Column 'case_summary' triggered DMS replication blocker (14.0% affected sample rate)."
+        }
+      ],
+      "declared_fks": [
+        {
+          "name": null,
+          "constrained_columns": [
+            "citizen_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "citizens",
+          "referred_columns": [
+            "citizen_id"
+          ],
+          "options": {}
+        },
+        {
+          "name": null,
+          "constrained_columns": [
+            "property_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "properties",
+          "referred_columns": [
+            "property_id"
+          ],
+          "options": {}
+        }
+      ],
+      "inferred_fks": [],
+      "dangling_fk_findings": [],
+      "columns": {
+        "referral_id": {
+          "declared_type": "INTEGER",
+          "recommended_target_type": "BIGINT",
+          "nullable": false,
+          "is_declared_pk": true,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "citizen_id": {
+          "declared_type": "INTEGER",
+          "recommended_target_type": "INTEGER",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.22,
+          "flaws": []
+        },
+        "property_id": {
+          "declared_type": "INTEGER",
+          "recommended_target_type": "INTEGER",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "referral_date": {
+          "declared_type": "VARCHAR(40)",
+          "recommended_target_type": "DATE",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.0,
+          "flaws": [
+            {
+              "flaw_id": "mixed_date_locales",
+              "category": "semantic_data_rot",
+              "severity": "CRITICAL",
+              "confidence": 0.95,
+              "affected_rate": 0.33,
+              "evidence": "[mixed_date_locales] Column 'referral_date' mixes date locales across 300/900 (33.3%) sampled rows (150 DD/MM/YYYY, 150 MM/DD/YYYY)",
+              "remediation_advice": "Cannot auto-parse ambiguous dates (e.g. 04/05/1990). Quarantine ambiguous rows and enforce ISO-8601.",
+              "dbt_sql_expr": "CASE WHEN \"referral_date\" ~ '^\\d{4}-\\d{2}-\\d{2}$' THEN CAST(\"referral_date\" AS DATE) ELSE NULL END",
+              "diagnostic_sql": "SELECT \"referral_date\" FROM \"safeguarding_referrals\" WHERE \"referral_date\" IS NOT NULL;"
+            }
+          ]
+        },
+        "risk_tier": {
+          "declared_type": "VARCHAR(20)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.0,
+          "flaws": []
+        },
+        "case_summary": {
+          "declared_type": "TEXT",
+          "recommended_target_type": "TEXT",
+          "nullable": true,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.15,
+          "flaws": [
+            {
+              "flaw_id": "cp1252_encoding_ghosts",
+              "category": "dms_replication_blockers",
+              "severity": "HIGH",
+              "confidence": 0.95,
+              "affected_rate": 0.14,
+              "evidence": "[cp1252_encoding_ghosts] 128/900 (14.2%) sampled rows contain UTF-8/CP1252 mojibake artifacts",
+              "remediation_advice": "Re-encode CP1252/Windows-1252 mojibake artifacts back to valid UTF-8 equivalents.",
+              "dbt_sql_expr": "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"case_summary\", '\u00e2\u20ac\u2122', ''''), '\u00e2\u20ac\u201c', '-'), '\u00e2\u20ac\u0153', '\"'), '\u00c3\u00a9', '\u00e9'), '\u00c3\u00a3', '\u00e3'), CHR(65533), '')",
+              "diagnostic_sql": "SELECT \"case_summary\" FROM \"safeguarding_referrals\" WHERE \"case_summary\" LIKE '%\u00e2%' OR \"case_summary\" LIKE '%\ufffd%';"
+            },
+            {
+              "flaw_id": "shadow_nhs_number",
+              "category": "shadow_pii_exposures",
+              "severity": "CRITICAL",
+              "confidence": 0.99,
+              "affected_rate": 0.14,
+              "evidence": "[shadow_nhs_number] 128/900 (14.2%) sampled rows in column 'case_summary' match Modulus-11 verified UK NHS Number pattern",
+              "remediation_advice": "UK NHS Number detected in general text. Quarantine under UK Data Protection Act.",
+              "dbt_sql_expr": "REGEXP_REPLACE(\"case_summary\", '\\y\\d{3}\\s?\\d{3}\\s?\\d{4}\\y', '[REDACTED_NHS]', 'g')",
+              "diagnostic_sql": "SELECT \"case_summary\" FROM \"safeguarding_referrals\" WHERE \"case_summary\" ~ '\\y[0-9]{3}\\s?[0-9]{3}\\s?[0-9]{4}\\y';"
+            }
+          ]
+        }
+      }
+    },
     "staff": {
-      "row_count_estimate": 20,
-      "row_sample_size": 20,
+      "row_count_estimate": 120,
+      "row_sample_size": 120,
       "table_readiness_score": 100,
       "declared_pk": [
         "staff_code"
@@ -340,14 +1848,14 @@
           "nullable": false,
           "is_declared_pk": false,
           "null_rate": 0.0,
-          "distinct_rate": 0.05,
+          "distinct_rate": 0.04,
           "flaws": []
         }
       }
     },
     "tenancies": {
-      "row_count_estimate": 150,
-      "row_sample_size": 150,
+      "row_count_estimate": 3200,
+      "row_sample_size": 1000,
       "table_readiness_score": 76,
       "declared_pk": [
         "tenancy_id"
@@ -373,8 +1881,8 @@
           "child_col": "officer_code",
           "parent_table": "staff",
           "parent_col": "staff_code",
-          "confidence": 0.86,
-          "match_reason": "domain_synonym_match (officer -> staff) + 90.9% sample value overlap"
+          "confidence": 0.93,
+          "match_reason": "domain_synonym_match (officer -> staff) + 98.4% sample value overlap"
         }
       ],
       "dangling_fk_findings": [
@@ -384,7 +1892,7 @@
           "parent_table": "staff",
           "parent_col": "staff_code",
           "is_inferred": true,
-          "orphan_row_count": 31,
+          "orphan_row_count": 668,
           "distinct_orphan_keys": 2,
           "diagnostic_sql": "SELECT c.\"officer_code\", COUNT(*) FROM \"tenancies\" c LEFT JOIN \"staff\" p ON c.\"officer_code\" = p.\"staff_code\" WHERE c.\"officer_code\" IS NOT NULL AND p.\"staff_code\" IS NULL GROUP BY 1;"
         }
@@ -405,7 +1913,7 @@
           "nullable": true,
           "is_declared_pk": false,
           "null_rate": 0.0,
-          "distinct_rate": 1.0,
+          "distinct_rate": 0.2,
           "flaws": []
         },
         "officer_code": {
@@ -414,7 +1922,7 @@
           "nullable": true,
           "is_declared_pk": false,
           "null_rate": 0.0,
-          "distinct_rate": 0.15,
+          "distinct_rate": 0.12,
           "flaws": []
         },
         "tenancy_memo": {
@@ -431,12 +1939,62 @@
               "severity": "WARN",
               "confidence": 1.0,
               "affected_rate": 1.0,
-              "evidence": "[overloaded_freetext_column] 150/150 (100.0%) sampled rows in column 'tenancy_memo' contain packed key:value pairs",
+              "evidence": "[overloaded_freetext_column] 1000/1000 (100.0%) sampled rows in column 'tenancy_memo' contain packed key:value pairs",
               "remediation_advice": "Unpack packed key:value pairs into structured downstream staging columns or JSON.",
               "dbt_sql_expr": "\"tenancy_memo\"",
               "diagnostic_sql": "SELECT \"tenancy_memo\" FROM \"tenancies\" WHERE \"tenancy_memo\" ~ '[A-Za-z_]+:[A-Za-z0-9_]+';"
             }
           ]
+        }
+      }
+    },
+    "wards": {
+      "row_count_estimate": 45,
+      "row_sample_size": 45,
+      "table_readiness_score": 100,
+      "declared_pk": [
+        "ward_code"
+      ],
+      "dms_blockers": [],
+      "declared_fks": [],
+      "inferred_fks": [],
+      "dangling_fk_findings": [],
+      "columns": {
+        "ward_code": {
+          "declared_type": "VARCHAR(16)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": false,
+          "is_declared_pk": true,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "ward_name": {
+          "declared_type": "VARCHAR(80)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": false,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 1.0,
+          "flaws": []
+        },
+        "borough_zone": {
+          "declared_type": "VARCHAR(30)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": false,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.11,
+          "flaws": []
+        },
+        "council_tax_band_default": {
+          "declared_type": "VARCHAR(4)",
+          "recommended_target_type": "VARCHAR(255)",
+          "nullable": false,
+          "is_declared_pk": false,
+          "null_rate": 0.0,
+          "distinct_rate": 0.11,
+          "flaws": []
         }
       }
     }

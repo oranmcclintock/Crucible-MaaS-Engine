@@ -3,14 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SchemaFirst: Schema Audit (sqlite:////tmp/schemafirst_demo_council.db)</title>
-  <meta name="description" content="SchemaFirst migration readiness dossier for sqlite:////tmp/schemafirst_demo_council.db: score 59/100 (High Risk) across 4 tables and 15 columns.">
+  <title>SchemaFirst: Database Audit (sqlite:///demo_legacy_council.db)</title>
+  <meta name="description" content="SchemaFirst migration readiness dossier for sqlite:///demo_legacy_council.db: score 50/100 (High Risk) across 15 tables and 78 columns.">
+  
+  <link rel="canonical" href="https://crucible.parkanore.com/">
   
   <meta property="og:type" content="article">
-  <meta property="og:title" content="SchemaFirst: Schema Audit (sqlite:////tmp/schemafirst_demo_council.db)">
-  <meta property="og:description" content="SchemaFirst migration readiness dossier for sqlite:////tmp/schemafirst_demo_council.db: score 59/100 (High Risk) across 4 tables and 15 columns.">
+  <meta property="og:title" content="SchemaFirst: Database Audit (sqlite:///demo_legacy_council.db)">
+  <meta property="og:description" content="SchemaFirst migration readiness dossier for sqlite:///demo_legacy_council.db: score 50/100 (High Risk) across 15 tables and 78 columns.">
   
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Report", "name": "SchemaFirst: Schema Audit (sqlite:////tmp/schemafirst_demo_council.db)", "description": "SchemaFirst migration readiness dossier for sqlite:////tmp/schemafirst_demo_council.db: score 59/100 (High Risk) across 4 tables and 15 columns.", "datePublished": "2026-11-25T20:41:52.149008+00:00", "softwareVersion": "2.0.0", "author": {"@type": "Organization", "name": "SchemaFirst"}}</script>
+  <meta property="og:url" content="https://crucible.parkanore.com/">
+  
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Report", "name": "SchemaFirst: Database Audit (sqlite:///demo_legacy_council.db)", "description": "SchemaFirst migration readiness dossier for sqlite:///demo_legacy_council.db: score 50/100 (High Risk) across 15 tables and 78 columns.", "datePublished": "2026-11-25T20:57:46.144828+00:00", "softwareVersion": "2.0.0", "author": {"@type": "Organization", "name": "SchemaFirst"}, "url": "https://crucible.parkanore.com/"}</script>
   <script>
     (function () {
       try {
@@ -386,7 +390,8 @@
     }
 
     th, td {
-      padding: 9px 12px;
+      padding: 12px 14px;
+      line-height: 1.5;
       text-align: left;
       vertical-align: top;
       border-bottom: 1px solid var(--border);
@@ -397,6 +402,7 @@
     }
 
     th {
+      padding: 10px 14px;
       background: var(--muted);
       font-family: var(--font-mono);
       font-size: 12px;
@@ -671,49 +677,45 @@
     <main id="main-content">
       <section class="dossier-hero">
         <div class="title-row">
-          <h1>SchemaFirst: Schema Audit</h1>
-          <span class="status-badge">
-            <span class="status-dot dot-RED" aria-hidden="true"></span>
-            High Risk
-          </span>
+          <h1>SchemaFirst: Database Audit</h1>
         </div>
         <div class="meta-line">
-          <span>target: <strong>sqlite:////tmp/schemafirst_demo_council.db</strong></span>
+          <span>target: <strong>sqlite:///demo_legacy_council.db</strong></span>
           <span>dialect: <strong>sqlite</strong></span>
           <span>version: <strong>2.0.0</strong></span>
-          <span>generated: <strong>2026-11-25T20:41:52.149008+00:00</strong></span>
+          <span>generated: <strong>2026-11-25T20:57:46.144828+00:00</strong></span>
         </div>
       </section>
 
       <section class="kpi-strip" aria-label="Audit summary">
         <div class="stat-card">
           <div class="stat-label">Readiness</div>
-          <div class="stat-val tone-RED">59/100</div>
-          <div class="stat-sub">4 tables, 15 cols</div>
+          <div class="stat-val tone-RED">50/100</div>
+          <div class="stat-sub">15 tables, 78 cols</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Est. Remediation</div>
-          <div class="stat-val">28.0h</div>
+          <div class="stat-val">118.5h</div>
           <div class="stat-sub">estimated effort</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Replication</div>
-          <div class="stat-val">3</div>
+          <div class="stat-val">18</div>
           <div class="stat-sub">CDC / encoding</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Referential</div>
-          <div class="stat-val">1</div>
+          <div class="stat-val">4</div>
           <div class="stat-sub">orphan FK edges</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Data Hygiene</div>
-          <div class="stat-val">5</div>
+          <div class="stat-val">17</div>
           <div class="stat-sub">type / format issues</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Personal Data</div>
-          <div class="stat-val">3</div>
+          <div class="stat-val">7</div>
           <div class="stat-sub">free-text patterns</div>
         </div>
       </section>
@@ -729,11 +731,63 @@
         
           
         
+      
+        
+          
+        
+          
+        
+      
+        
+      
+        
+      
+        
+          
+        
+          
+        
           
         
       
         
           
+        
+      
+        
+          
+        
+          
+        
+          
+        
+      
+        
+          
+        
+          
+        
+          
+        
+      
+        
+          
+        
+          
+        
+      
+        
+          
+        
+      
+        
+          
+        
+      
+        
+          
+        
+      
         
       
         
@@ -756,6 +810,24 @@
           <tbody>
             
             <tr>
+              <td><code>case_correspondence</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                  critical
+                </span>
+              </td>
+              <td><code>postgres_null_byte_poison</code></td>
+              <td><code>body_text</code></td>
+              <td>
+                [postgres_null_byte_poison] Column &#39;body_text&#39; triggered DMS replication blocker (5.0% affected sample rate).
+                
+                  <div class="flaw-meta">PostgreSQL UTF-8 COPY and DMS tasks abort on 0x00 bytes.</div>
+                
+              </td>
+            </tr>
+            
+            <tr>
               <td><code>citizens</code></td>
               <td>
                 <span class="status-badge">
@@ -766,7 +838,7 @@
               <td><code>cp1252_encoding_ghosts</code></td>
               <td><code>full_name</code></td>
               <td>
-                [cp1252_encoding_ghosts] Column &#39;full_name&#39; triggered DMS replication blocker (12.0% affected sample rate).
+                [cp1252_encoding_ghosts] Column &#39;full_name&#39; triggered DMS replication blocker (9.0% affected sample rate).
                 
                   <div class="flaw-meta">CP1252 mojibake sequences fail strict UTF-8 target validation.</div>
                 
@@ -792,6 +864,216 @@
             </tr>
             
             <tr>
+              <td><code>electoral_roll_staging</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                  critical
+                </span>
+              </td>
+              <td><code>missing_primary_key_for_cdc</code></td>
+              <td>&mdash;</td>
+              <td>
+                Table has no declared Primary Key or Unique Index. AWS DMS Full Load + CDC cannot replicate incremental UPDATE or DELETE events without a Primary Key.
+                
+                  <div class="flaw-meta">AWS DMS cannot apply UPDATE/DELETE CDC events without a primary key.</div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>electoral_roll_staging</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                  critical
+                </span>
+              </td>
+              <td><code>lob_column_without_pk</code></td>
+              <td><code>raw_import_line</code></td>
+              <td>
+                Table contains LOB column &#39;raw_import_line&#39; without a Primary Key. AWS DMS CDC replication fails on keyless LOB tables.
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>electoral_roll_staging</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                  critical
+                </span>
+              </td>
+              <td><code>postgres_null_byte_poison</code></td>
+              <td><code>raw_import_line</code></td>
+              <td>
+                [postgres_null_byte_poison] Column &#39;raw_import_line&#39; triggered DMS replication blocker (5.0% affected sample rate).
+                
+                  <div class="flaw-meta">PostgreSQL UTF-8 COPY and DMS tasks abort on 0x00 bytes.</div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>housing_benefit_claims</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                  critical
+                </span>
+              </td>
+              <td><code>postgres_null_byte_poison</code></td>
+              <td><code>assessor_notes</code></td>
+              <td>
+                [postgres_null_byte_poison] Column &#39;assessor_notes&#39; triggered DMS replication blocker (4.0% affected sample rate).
+                
+                  <div class="flaw-meta">PostgreSQL UTF-8 COPY and DMS tasks abort on 0x00 bytes.</div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>legacy_audit_log</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                  critical
+                </span>
+              </td>
+              <td><code>missing_primary_key_for_cdc</code></td>
+              <td>&mdash;</td>
+              <td>
+                Table has no declared Primary Key or Unique Index. AWS DMS Full Load + CDC cannot replicate incremental UPDATE or DELETE events without a Primary Key.
+                
+                  <div class="flaw-meta">AWS DMS cannot apply UPDATE/DELETE CDC events without a primary key.</div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>legacy_audit_log</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                  critical
+                </span>
+              </td>
+              <td><code>lob_column_without_pk</code></td>
+              <td><code>payload_blob</code></td>
+              <td>
+                Table contains LOB column &#39;payload_blob&#39; without a Primary Key. AWS DMS CDC replication fails on keyless LOB tables.
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>legacy_audit_log</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                  critical
+                </span>
+              </td>
+              <td><code>postgres_null_byte_poison</code></td>
+              <td><code>payload_blob</code></td>
+              <td>
+                [postgres_null_byte_poison] Column &#39;payload_blob&#39; triggered DMS replication blocker (4.0% affected sample rate).
+                
+                  <div class="flaw-meta">PostgreSQL UTF-8 COPY and DMS tasks abort on 0x00 bytes.</div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>payment_transactions</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                  critical
+                </span>
+              </td>
+              <td><code>missing_primary_key_for_cdc</code></td>
+              <td>&mdash;</td>
+              <td>
+                Table has no declared Primary Key or Unique Index. AWS DMS Full Load + CDC cannot replicate incremental UPDATE or DELETE events without a Primary Key.
+                
+                  <div class="flaw-meta">AWS DMS cannot apply UPDATE/DELETE CDC events without a primary key.</div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>payment_transactions</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                  critical
+                </span>
+              </td>
+              <td><code>lob_column_without_pk</code></td>
+              <td><code>remittance_memo</code></td>
+              <td>
+                Table contains LOB column &#39;remittance_memo&#39; without a Primary Key. AWS DMS CDC replication fails on keyless LOB tables.
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>payment_transactions</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                  critical
+                </span>
+              </td>
+              <td><code>postgres_null_byte_poison</code></td>
+              <td><code>remittance_memo</code></td>
+              <td>
+                [postgres_null_byte_poison] Column &#39;remittance_memo&#39; triggered DMS replication blocker (3.0% affected sample rate).
+                
+                  <div class="flaw-meta">PostgreSQL UTF-8 COPY and DMS tasks abort on 0x00 bytes.</div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>properties</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-HIGH" aria-hidden="true"></span>
+                  high
+                </span>
+              </td>
+              <td><code>cp1252_encoding_ghosts</code></td>
+              <td><code>address_line1</code></td>
+              <td>
+                [cp1252_encoding_ghosts] Column &#39;address_line1&#39; triggered DMS replication blocker (12.0% affected sample rate).
+                
+                  <div class="flaw-meta">CP1252 mojibake sequences fail strict UTF-8 target validation.</div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>properties</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-HIGH" aria-hidden="true"></span>
+                  high
+                </span>
+              </td>
+              <td><code>cp1252_encoding_ghosts</code></td>
+              <td><code>inspection_notes</code></td>
+              <td>
+                [cp1252_encoding_ghosts] Column &#39;inspection_notes&#39; triggered DMS replication blocker (9.0% affected sample rate).
+                
+                  <div class="flaw-meta">CP1252 mojibake sequences fail strict UTF-8 target validation.</div>
+                
+              </td>
+            </tr>
+            
+            <tr>
               <td><code>rent_ledger</code></td>
               <td>
                 <span class="status-badge">
@@ -809,6 +1091,42 @@
               </td>
             </tr>
             
+            <tr>
+              <td><code>repair_work_orders</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-HIGH" aria-hidden="true"></span>
+                  high
+                </span>
+              </td>
+              <td><code>cp1252_encoding_ghosts</code></td>
+              <td><code>dispatch_notes</code></td>
+              <td>
+                [cp1252_encoding_ghosts] Column &#39;dispatch_notes&#39; triggered DMS replication blocker (5.0% affected sample rate).
+                
+                  <div class="flaw-meta">CP1252 mojibake sequences fail strict UTF-8 target validation.</div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>safeguarding_referrals</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-HIGH" aria-hidden="true"></span>
+                  high
+                </span>
+              </td>
+              <td><code>cp1252_encoding_ghosts</code></td>
+              <td><code>case_summary</code></td>
+              <td>
+                [cp1252_encoding_ghosts] Column &#39;case_summary&#39; triggered DMS replication blocker (14.0% affected sample rate).
+                
+                  <div class="flaw-meta">CP1252 mojibake sequences fail strict UTF-8 target validation.</div>
+                
+              </td>
+            </tr>
+            
           </tbody>
         </table>
       </div>
@@ -821,6 +1139,32 @@
           
         
           
+        
+          
+        
+          
+        
+          
+            
+          
+        
+          
+            
+          
+            
+              
+            
+          
+            
+              
+            
+          
+        
+      
+        
+          
+        
+          
             
           
         
@@ -851,13 +1195,183 @@
           
         
           
-            
+        
+          
+        
+          
+        
+      
+        
+          
+        
+          
+        
+          
+        
           
         
           
             
           
         
+          
+            
+          
+            
+          
+        
+          
+        
+      
+        
+          
+        
+          
+        
+          
+            
+          
+        
+          
+        
+          
+            
+          
+        
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            
+          
+        
+          
+            
+          
+        
+          
+            
+          
+            
+              
+            
+          
+        
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            
+          
+        
+      
+        
+          
+        
+          
+            
+          
+        
+          
+            
+          
+        
+          
+        
+          
+            
+          
+        
+      
+        
+          
+        
+          
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            
+          
+            
+          
+        
+      
+        
+          
+        
+          
+            
+          
+        
+          
+            
+          
+        
+          
+        
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            
+          
+        
+          
+            
+          
+        
+      
+        
+          
+        
+          
+        
+          
+        
+          
+            
+          
+        
+          
+        
+          
+            
+          
+            
+              
+            
           
         
       
@@ -878,6 +1392,16 @@
         
           
             
+          
+        
+      
+        
+          
+        
+          
+        
+          
+        
           
         
       
@@ -896,6 +1420,38 @@
             </tr>
           </thead>
           <tbody>
+            
+            <tr>
+              <td><code>case_correspondence</code></td>
+              <td><code>body_text</code></td>
+              <td><code>shadow_uk_nino</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                  critical
+                </span>
+              </td>
+              <td>
+                <div>[shadow_uk_nino] 76/1000 (7.6%) sampled rows in column &#39;body_text&#39; match UK National Insurance Number pattern</div>
+                <div class="flaw-meta">UK National Insurance Number detected in general text. Quarantine or tokenize under UK GDPR.</div>
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>case_correspondence</code></td>
+              <td><code>body_text</code></td>
+              <td><code>shadow_nhs_number</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                  critical
+                </span>
+              </td>
+              <td>
+                <div>[shadow_nhs_number] 76/1000 (7.6%) sampled rows in column &#39;body_text&#39; match Modulus-11 verified UK NHS Number pattern</div>
+                <div class="flaw-meta">UK NHS Number detected in general text. Quarantine under UK Data Protection Act.</div>
+              </td>
+            </tr>
             
             <tr>
               <td><code>citizens</code></td>
@@ -945,6 +1501,38 @@
               </td>
             </tr>
             
+            <tr>
+              <td><code>housing_benefit_claims</code></td>
+              <td><code>assessor_notes</code></td>
+              <td><code>shadow_uk_nino</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                  critical
+                </span>
+              </td>
+              <td>
+                <div>[shadow_uk_nino] 58/1000 (5.8%) sampled rows in column &#39;assessor_notes&#39; match UK National Insurance Number pattern</div>
+                <div class="flaw-meta">UK National Insurance Number detected in general text. Quarantine or tokenize under UK GDPR.</div>
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>safeguarding_referrals</code></td>
+              <td><code>case_summary</code></td>
+              <td><code>shadow_nhs_number</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                  critical
+                </span>
+              </td>
+              <td>
+                <div>[shadow_nhs_number] 128/900 (14.2%) sampled rows in column &#39;case_summary&#39; match Modulus-11 verified UK NHS Number pattern</div>
+                <div class="flaw-meta">UK NHS Number detected in general text. Quarantine under UK Data Protection Act.</div>
+              </td>
+            </tr>
+            
           </tbody>
         </table>
       </div>
@@ -960,9 +1548,31 @@
         
         <li>citizens</li>
         
+        <li>wards</li>
+        
+        <li>case_correspondence</li>
+        
+        <li>properties</li>
+        
+        <li>contractors</li>
+        
         <li>tenancies</li>
         
+        <li>council_tax_accounts</li>
+        
+        <li>safeguarding_referrals</li>
+        
+        <li>repair_work_orders</li>
+        
         <li>rent_ledger</li>
+        
+        <li>payment_transactions</li>
+        
+        <li>legacy_audit_log</li>
+        
+        <li>housing_benefit_claims</li>
+        
+        <li>electoral_roll_staging</li>
         
       </ol>
       
@@ -976,8 +1586,25 @@
           <button type="button" class="btn copy-btn">Copy</button>
         </div>
         <pre tabindex="0">graph TD;
+  case_correspondence --&gt; citizens;
+  council_tax_accounts --&gt; citizens;
+  council_tax_accounts --&gt; properties;
+  electoral_roll_staging --&gt; citizens;
+  electoral_roll_staging --&gt; wards;
+  housing_benefit_claims --&gt; citizens;
+  housing_benefit_claims --&gt; tenancies;
+  payment_transactions --&gt; council_tax_accounts;
+  properties --&gt; wards;
   rent_ledger --&gt; tenancies;
+  repair_work_orders --&gt; properties;
+  repair_work_orders --&gt; citizens;
+  repair_work_orders --&gt; contractors;
+  safeguarding_referrals --&gt; citizens;
+  safeguarding_referrals --&gt; properties;
   tenancies --&gt; citizens;
+  case_correspondence -.-&gt;|inferred| staff;
+  council_tax_accounts -.-&gt;|inferred| case_correspondence;
+  legacy_audit_log -.-&gt;|inferred| case_correspondence;
   tenancies -.-&gt;|inferred| staff;</pre>
       </div>
 
@@ -997,6 +1624,510 @@
             </tr>
           </thead>
           <tbody>
+            
+            <tr>
+              <td><code>case_correspondence.citizen_id</code></td>
+              <td><code>citizens.citizen_id</code></td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                  DECLARED
+                </span>
+                
+              </td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-GREEN" aria-hidden="true"></span>
+                  OK
+                </span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td>
+                
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">SELECT c.&#34;citizen_id&#34;, COUNT(*) FROM &#34;case_correspondence&#34; c LEFT JOIN &#34;citizens&#34; p ON c.&#34;citizen_id&#34; = p.&#34;citizen_id&#34; WHERE c.&#34;citizen_id&#34; IS NOT NULL AND p.&#34;citizen_id&#34; IS NULL GROUP BY 1;</pre>
+                </div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>case_correspondence.handled_by_code</code></td>
+              <td><code>staff.staff_code</code></td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-WARN" aria-hidden="true"></span>
+                  INFERRED (94%)
+                </span>
+                
+              </td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-RED" aria-hidden="true"></span>
+                  ORPHANS
+                </span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-bad">272</span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-bad">1</span>
+                
+              </td>
+              <td>
+                
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">SELECT c.&#34;handled_by_code&#34;, COUNT(*) FROM &#34;case_correspondence&#34; c LEFT JOIN &#34;staff&#34; p ON c.&#34;handled_by_code&#34; = p.&#34;staff_code&#34; WHERE c.&#34;handled_by_code&#34; IS NOT NULL AND p.&#34;staff_code&#34; IS NULL GROUP BY 1;</pre>
+                </div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>council_tax_accounts.citizen_id</code></td>
+              <td><code>citizens.citizen_id</code></td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                  DECLARED
+                </span>
+                
+              </td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-GREEN" aria-hidden="true"></span>
+                  OK
+                </span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td>
+                
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">SELECT c.&#34;citizen_id&#34;, COUNT(*) FROM &#34;council_tax_accounts&#34; c LEFT JOIN &#34;citizens&#34; p ON c.&#34;citizen_id&#34; = p.&#34;citizen_id&#34; WHERE c.&#34;citizen_id&#34; IS NOT NULL AND p.&#34;citizen_id&#34; IS NULL GROUP BY 1;</pre>
+                </div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>council_tax_accounts.property_id</code></td>
+              <td><code>properties.property_id</code></td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                  DECLARED
+                </span>
+                
+              </td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-GREEN" aria-hidden="true"></span>
+                  OK
+                </span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td>
+                
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">SELECT c.&#34;property_id&#34;, COUNT(*) FROM &#34;council_tax_accounts&#34; c LEFT JOIN &#34;properties&#34; p ON c.&#34;property_id&#34; = p.&#34;property_id&#34; WHERE c.&#34;property_id&#34; IS NOT NULL AND p.&#34;property_id&#34; IS NULL GROUP BY 1;</pre>
+                </div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>council_tax_accounts.collector_code</code></td>
+              <td><code>case_correspondence.handled_by_code</code></td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-WARN" aria-hidden="true"></span>
+                  INFERRED (94%)
+                </span>
+                
+              </td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-RED" aria-hidden="true"></span>
+                  ORPHANS
+                </span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-bad">291</span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-bad">1</span>
+                
+              </td>
+              <td>
+                
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">SELECT c.&#34;collector_code&#34;, COUNT(*) FROM &#34;council_tax_accounts&#34; c LEFT JOIN &#34;case_correspondence&#34; p ON c.&#34;collector_code&#34; = p.&#34;handled_by_code&#34; WHERE c.&#34;collector_code&#34; IS NOT NULL AND p.&#34;handled_by_code&#34; IS NULL GROUP BY 1;</pre>
+                </div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>electoral_roll_staging.citizen_id</code></td>
+              <td><code>citizens.citizen_id</code></td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                  DECLARED
+                </span>
+                
+              </td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-GREEN" aria-hidden="true"></span>
+                  OK
+                </span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td>
+                
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">SELECT c.&#34;citizen_id&#34;, COUNT(*) FROM &#34;electoral_roll_staging&#34; c LEFT JOIN &#34;citizens&#34; p ON c.&#34;citizen_id&#34; = p.&#34;citizen_id&#34; WHERE c.&#34;citizen_id&#34; IS NOT NULL AND p.&#34;citizen_id&#34; IS NULL GROUP BY 1;</pre>
+                </div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>electoral_roll_staging.ward_code</code></td>
+              <td><code>wards.ward_code</code></td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                  DECLARED
+                </span>
+                
+              </td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-GREEN" aria-hidden="true"></span>
+                  OK
+                </span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td>
+                
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">SELECT c.&#34;ward_code&#34;, COUNT(*) FROM &#34;electoral_roll_staging&#34; c LEFT JOIN &#34;wards&#34; p ON c.&#34;ward_code&#34; = p.&#34;ward_code&#34; WHERE c.&#34;ward_code&#34; IS NOT NULL AND p.&#34;ward_code&#34; IS NULL GROUP BY 1;</pre>
+                </div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>housing_benefit_claims.citizen_id</code></td>
+              <td><code>citizens.citizen_id</code></td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                  DECLARED
+                </span>
+                
+              </td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-GREEN" aria-hidden="true"></span>
+                  OK
+                </span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td>
+                
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">SELECT c.&#34;citizen_id&#34;, COUNT(*) FROM &#34;housing_benefit_claims&#34; c LEFT JOIN &#34;citizens&#34; p ON c.&#34;citizen_id&#34; = p.&#34;citizen_id&#34; WHERE c.&#34;citizen_id&#34; IS NOT NULL AND p.&#34;citizen_id&#34; IS NULL GROUP BY 1;</pre>
+                </div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>housing_benefit_claims.tenancy_id</code></td>
+              <td><code>tenancies.tenancy_id</code></td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                  DECLARED
+                </span>
+                
+              </td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-GREEN" aria-hidden="true"></span>
+                  OK
+                </span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td>
+                
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">SELECT c.&#34;tenancy_id&#34;, COUNT(*) FROM &#34;housing_benefit_claims&#34; c LEFT JOIN &#34;tenancies&#34; p ON c.&#34;tenancy_id&#34; = p.&#34;tenancy_id&#34; WHERE c.&#34;tenancy_id&#34; IS NOT NULL AND p.&#34;tenancy_id&#34; IS NULL GROUP BY 1;</pre>
+                </div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>legacy_audit_log.actor_code</code></td>
+              <td><code>case_correspondence.handled_by_code</code></td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-WARN" aria-hidden="true"></span>
+                  INFERRED (94%)
+                </span>
+                
+              </td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-RED" aria-hidden="true"></span>
+                  ORPHANS
+                </span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-bad">180</span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-bad">1</span>
+                
+              </td>
+              <td>
+                
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">SELECT c.&#34;actor_code&#34;, COUNT(*) FROM &#34;legacy_audit_log&#34; c LEFT JOIN &#34;case_correspondence&#34; p ON c.&#34;actor_code&#34; = p.&#34;handled_by_code&#34; WHERE c.&#34;actor_code&#34; IS NOT NULL AND p.&#34;handled_by_code&#34; IS NULL GROUP BY 1;</pre>
+                </div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>payment_transactions.account_id</code></td>
+              <td><code>council_tax_accounts.account_id</code></td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                  DECLARED
+                </span>
+                
+              </td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-GREEN" aria-hidden="true"></span>
+                  OK
+                </span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td>
+                
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">SELECT c.&#34;account_id&#34;, COUNT(*) FROM &#34;payment_transactions&#34; c LEFT JOIN &#34;council_tax_accounts&#34; p ON c.&#34;account_id&#34; = p.&#34;account_id&#34; WHERE c.&#34;account_id&#34; IS NOT NULL AND p.&#34;account_id&#34; IS NULL GROUP BY 1;</pre>
+                </div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>properties.ward_code</code></td>
+              <td><code>wards.ward_code</code></td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                  DECLARED
+                </span>
+                
+              </td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-GREEN" aria-hidden="true"></span>
+                  OK
+                </span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td>
+                
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">SELECT c.&#34;ward_code&#34;, COUNT(*) FROM &#34;properties&#34; c LEFT JOIN &#34;wards&#34; p ON c.&#34;ward_code&#34; = p.&#34;ward_code&#34; WHERE c.&#34;ward_code&#34; IS NOT NULL AND p.&#34;ward_code&#34; IS NULL GROUP BY 1;</pre>
+                </div>
+                
+              </td>
+            </tr>
             
             <tr>
               <td><code>rent_ledger.tenancy_id</code></td>
@@ -1035,6 +2166,216 @@
                     <button type="button" class="btn copy-btn">Copy SQL</button>
                   </div>
                   <pre tabindex="0">SELECT c.&#34;tenancy_id&#34;, COUNT(*) FROM &#34;rent_ledger&#34; c LEFT JOIN &#34;tenancies&#34; p ON c.&#34;tenancy_id&#34; = p.&#34;tenancy_id&#34; WHERE c.&#34;tenancy_id&#34; IS NOT NULL AND p.&#34;tenancy_id&#34; IS NULL GROUP BY 1;</pre>
+                </div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>repair_work_orders.property_id</code></td>
+              <td><code>properties.property_id</code></td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                  DECLARED
+                </span>
+                
+              </td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-GREEN" aria-hidden="true"></span>
+                  OK
+                </span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td>
+                
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">SELECT c.&#34;property_id&#34;, COUNT(*) FROM &#34;repair_work_orders&#34; c LEFT JOIN &#34;properties&#34; p ON c.&#34;property_id&#34; = p.&#34;property_id&#34; WHERE c.&#34;property_id&#34; IS NOT NULL AND p.&#34;property_id&#34; IS NULL GROUP BY 1;</pre>
+                </div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>repair_work_orders.reported_by_citizen_id</code></td>
+              <td><code>citizens.citizen_id</code></td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                  DECLARED
+                </span>
+                
+              </td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-GREEN" aria-hidden="true"></span>
+                  OK
+                </span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td>
+                
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">SELECT c.&#34;reported_by_citizen_id&#34;, COUNT(*) FROM &#34;repair_work_orders&#34; c LEFT JOIN &#34;citizens&#34; p ON c.&#34;reported_by_citizen_id&#34; = p.&#34;citizen_id&#34; WHERE c.&#34;reported_by_citizen_id&#34; IS NOT NULL AND p.&#34;citizen_id&#34; IS NULL GROUP BY 1;</pre>
+                </div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>repair_work_orders.contractor_code</code></td>
+              <td><code>contractors.contractor_code</code></td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                  DECLARED
+                </span>
+                
+              </td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-GREEN" aria-hidden="true"></span>
+                  OK
+                </span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td>
+                
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">SELECT c.&#34;contractor_code&#34;, COUNT(*) FROM &#34;repair_work_orders&#34; c LEFT JOIN &#34;contractors&#34; p ON c.&#34;contractor_code&#34; = p.&#34;contractor_code&#34; WHERE c.&#34;contractor_code&#34; IS NOT NULL AND p.&#34;contractor_code&#34; IS NULL GROUP BY 1;</pre>
+                </div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>safeguarding_referrals.citizen_id</code></td>
+              <td><code>citizens.citizen_id</code></td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                  DECLARED
+                </span>
+                
+              </td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-GREEN" aria-hidden="true"></span>
+                  OK
+                </span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td>
+                
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">SELECT c.&#34;citizen_id&#34;, COUNT(*) FROM &#34;safeguarding_referrals&#34; c LEFT JOIN &#34;citizens&#34; p ON c.&#34;citizen_id&#34; = p.&#34;citizen_id&#34; WHERE c.&#34;citizen_id&#34; IS NOT NULL AND p.&#34;citizen_id&#34; IS NULL GROUP BY 1;</pre>
+                </div>
+                
+              </td>
+            </tr>
+            
+            <tr>
+              <td><code>safeguarding_referrals.property_id</code></td>
+              <td><code>properties.property_id</code></td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                  DECLARED
+                </span>
+                
+              </td>
+              <td>
+                
+                <span class="status-badge">
+                  <span class="status-dot dot-GREEN" aria-hidden="true"></span>
+                  OK
+                </span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td class="num-cell">
+                
+                <span class="num-ok">0</span>
+                
+              </td>
+              <td>
+                
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">SELECT c.&#34;property_id&#34;, COUNT(*) FROM &#34;safeguarding_referrals&#34; c LEFT JOIN &#34;properties&#34; p ON c.&#34;property_id&#34; = p.&#34;property_id&#34; WHERE c.&#34;property_id&#34; IS NOT NULL AND p.&#34;property_id&#34; IS NULL GROUP BY 1;</pre>
                 </div>
                 
               </td>
@@ -1089,7 +2430,7 @@
                 
                 <span class="status-badge">
                   <span class="status-dot dot-WARN" aria-hidden="true"></span>
-                  INFERRED (86%)
+                  INFERRED (93%)
                 </span>
                 
               </td>
@@ -1103,7 +2444,7 @@
               </td>
               <td class="num-cell">
                 
-                <span class="num-bad">31</span>
+                <span class="num-bad">668</span>
                 
               </td>
               <td class="num-cell">
@@ -1140,6 +2481,214 @@
 
       
       <div id="table-profiles">
+        
+        <details>
+          <summary>case_correspondence &mdash; 1/100 (3000 rows, 6 cols)</summary>
+          <div class="details-body">
+            <p>
+              pk: <code>[&#39;correspondence_id&#39;]</code> &middot;
+              sampled: <code>1000</code> &middot;
+              score: <code>1/100</code>
+            </p>
+
+            <div class="table-wrap" tabindex="0">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Column</th>
+                    <th scope="col">Declared</th>
+                    <th scope="col">Target</th>
+                    <th scope="col">Null / Distinct</th>
+                    <th scope="col">Findings</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                  <tr>
+                    <td>
+                      <code>correspondence_id</code>
+                      
+                      <span class="status-badge">
+                        <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                        PK
+                      </span>
+                      
+                    </td>
+                    <td><code>INTEGER</code></td>
+                    <td><code>BIGINT</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>citizen_id</code>
+                      
+                    </td>
+                    <td><code>INTEGER</code></td>
+                    <td><code>INTEGER</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>20%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>handled_by_code</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(20)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>12%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>channel</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(24)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>0%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>sent_date</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(40)</code></td>
+                    <td><code>DATE</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>0%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-WARN" aria-hidden="true"></span>
+                              warn
+                            </span>
+                            <code>impossible_or_sentinel_date</code>
+                            <div class="flaw-meta">[impossible_or_sentinel_date] 40/1000 (4.0%) sampled rows in column &#39;sent_date&#39; contain sentinel or impossible dates</div>
+                            <div class="flaw-sql">dbt: <code>CASE WHEN &#34;sent_date&#34; IN (&#39;1900-01-01&#39;, &#39;1970-01-01&#39;, &#39;9999-12-31&#39;, &#39;0000-00-00&#39;) THEN NULL ELSE CAST(&#34;sent_date&#34; AS DATE) END</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;sent_date&#34; FROM &#34;case_correspondence&#34; WHERE &#34;sent_date&#34; IN (&#39;1900-01-01&#39;, &#39;1970-01-01&#39;, &#39;9999-12-31&#39;, &#39;0000-00-00&#39;);</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>body_text</code>
+                      
+                    </td>
+                    <td><code>TEXT</code></td>
+                    <td><code>TEXT</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>93%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                              critical
+                            </span>
+                            <code>postgres_null_byte_poison</code>
+                            <div class="flaw-meta">[postgres_null_byte_poison] 54/1000 (5.4%) sampled rows contain ASCII NUL (0x00) bytes</div>
+                            <div class="flaw-sql">dbt: <code>REPLACE(&#34;body_text&#34;, CHR(0), &#39;&#39;)</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;body_text&#34; FROM &#34;case_correspondence&#34; WHERE &#34;body_text&#34; LIKE &#39;%&#39; || CHR(0) || &#39;%&#39;;</code></div>
+                            
+                          </div>
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                              critical
+                            </span>
+                            <code>shadow_uk_nino</code>
+                            <div class="flaw-meta">[shadow_uk_nino] 76/1000 (7.6%) sampled rows in column &#39;body_text&#39; match UK National Insurance Number pattern</div>
+                            <div class="flaw-sql">dbt: <code>REGEXP_REPLACE(&#34;body_text&#34;, &#39;(?i)\y(?:QQ|(?!BG|GB|NK|KN|TN|NT|ZZ)[A-CEGHJ-PR-TW-ZQ][A-CEGHJ-NPR-TW-ZQ])\s*\d{2}\s*\d{2}\s*\d{2}\s*[A-D]\y&#39;, &#39;[REDACTED_NINO]&#39;, &#39;g&#39;)</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;body_text&#34; FROM &#34;case_correspondence&#34; WHERE &#34;body_text&#34; ~* &#39;\y[A-Z]{2}\s?[0-9]{2}\s?[0-9]{2}\s?[0-9]{2}\s?[A-D]\y&#39;;</code></div>
+                            
+                          </div>
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                              critical
+                            </span>
+                            <code>shadow_nhs_number</code>
+                            <div class="flaw-meta">[shadow_nhs_number] 76/1000 (7.6%) sampled rows in column &#39;body_text&#39; match Modulus-11 verified UK NHS Number pattern</div>
+                            <div class="flaw-sql">dbt: <code>REGEXP_REPLACE(&#34;body_text&#34;, &#39;\y\d{3}\s?\d{3}\s?\d{4}\y&#39;, &#39;[REDACTED_NHS]&#39;, &#39;g&#39;)</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;body_text&#34; FROM &#34;case_correspondence&#34; WHERE &#34;body_text&#34; ~ &#39;\y[0-9]{3}\s?[0-9]{3}\s?[0-9]{4}\y&#39;;</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+
+            
+            <h3><code>stg_case_correspondence.sql</code></h3>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-title">stg_case_correspondence.sql</span>
+                <button type="button" class="btn copy-btn">Copy SQL</button>
+              </div>
+              <pre tabindex="0">-- Auto-generated by SchemaFirst Migration Readiness Compiler v2.0
+-- Flaw Signature: body_text:postgres_null_byte_poison,body_text:shadow_uk_nino,body_text:shadow_nhs_number,sent_date:impossible_or_sentinel_date
+WITH source AS (
+    SELECT * FROM {{ source(&#39;legacy_source&#39;, &#39;case_correspondence&#39;) }}
+),
+sanitized AS (
+    SELECT
+    
+        &#34;correspondence_id&#34; AS &#34;correspondence_id&#34;, -- Direct pass-through (INTEGER)
+    
+        &#34;citizen_id&#34; AS &#34;citizen_id&#34;, -- Direct pass-through (INTEGER)
+    
+        &#34;handled_by_code&#34; AS &#34;handled_by_code&#34;, -- Direct pass-through (VARCHAR(20))
+    
+        &#34;channel&#34; AS &#34;channel&#34;, -- Direct pass-through (VARCHAR(24))
+    
+        CASE WHEN &#34;sent_date&#34; IN (&#39;1900-01-01&#39;, &#39;1970-01-01&#39;, &#39;9999-12-31&#39;, &#39;0000-00-00&#39;) THEN NULL ELSE CAST(&#34;sent_date&#34; AS DATE) END AS &#34;sent_date&#34;, -- Sanitized: impossible_or_sentinel_date -&gt; DATE
+    
+        REGEXP_REPLACE(REGEXP_REPLACE(REPLACE(&#34;body_text&#34;, CHR(0), &#39;&#39;), &#39;(?i)\y(?:QQ|(?!BG|GB|NK|KN|TN|NT|ZZ)[A-CEGHJ-PR-TW-ZQ][A-CEGHJ-NPR-TW-ZQ])\s*\d{2}\s*\d{2}\s*\d{2}\s*[A-D]\y&#39;, &#39;[REDACTED_NINO]&#39;, &#39;g&#39;), &#39;\y\d{3}\s?\d{3}\s?\d{4}\y&#39;, &#39;[REDACTED_NHS]&#39;, &#39;g&#39;) AS &#34;body_text&#34; -- Sanitized: postgres_null_byte_poison, shadow_uk_nino, shadow_nhs_number -&gt; TEXT
+    
+    FROM source
+)
+SELECT * FROM sanitized</pre>
+            </div>
+            
+          </div>
+        </details>
         
         <details>
           <summary>citizens &mdash; 0/100 (200 rows, 4 cols)</summary>
@@ -1190,7 +2739,7 @@
                     </td>
                     <td><code>VARCHAR(100)</code></td>
                     <td><code>TEXT</code></td>
-                    <td class="num-cell"><code>0%</code> / <code>45%</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>42%</code></td>
                     <td>
                       
                         
@@ -1200,7 +2749,7 @@
                               high
                             </span>
                             <code>cp1252_encoding_ghosts</code>
-                            <div class="flaw-meta">[cp1252_encoding_ghosts] 23/200 (11.5%) sampled rows contain UTF-8/CP1252 mojibake artifacts</div>
+                            <div class="flaw-meta">[cp1252_encoding_ghosts] 17/200 (8.5%) sampled rows contain UTF-8/CP1252 mojibake artifacts</div>
                             <div class="flaw-sql">dbt: <code>REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(&#34;full_name&#34;, &#39;â€™&#39;, &#39;&#39;&#39;&#39;), &#39;â€“&#39;, &#39;-&#39;), &#39;â€œ&#39;, &#39;&#34;&#39;), &#39;Ã©&#39;, &#39;é&#39;), &#39;Ã£&#39;, &#39;ã&#39;), CHR(65533), &#39;&#39;)</code></div>
                             
                             <div class="flaw-sql">Audit SQL: <code>SELECT &#34;full_name&#34; FROM &#34;citizens&#34; WHERE &#34;full_name&#34; LIKE &#39;%â%&#39; OR &#34;full_name&#34; LIKE &#39;%�%&#39;;</code></div>
@@ -1355,11 +2904,1262 @@ SELECT * FROM sanitized</pre>
         </details>
         
         <details>
-          <summary>rent_ledger &mdash; 59/100 (150 rows, 4 cols)</summary>
+          <summary>contractors &mdash; 100/100 (85 rows, 4 cols)</summary>
+          <div class="details-body">
+            <p>
+              pk: <code>[&#39;contractor_code&#39;]</code> &middot;
+              sampled: <code>85</code> &middot;
+              score: <code>100/100</code>
+            </p>
+
+            <div class="table-wrap" tabindex="0">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Column</th>
+                    <th scope="col">Declared</th>
+                    <th scope="col">Target</th>
+                    <th scope="col">Null / Distinct</th>
+                    <th scope="col">Findings</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                  <tr>
+                    <td>
+                      <code>contractor_code</code>
+                      
+                      <span class="status-badge">
+                        <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                        PK
+                      </span>
+                      
+                    </td>
+                    <td><code>VARCHAR(20)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>company_name</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(100)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>trade_category</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(40)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>7%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>vat_number</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(20)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+
+            
+            <h3><code>stg_contractors.sql</code></h3>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-title">stg_contractors.sql</span>
+                <button type="button" class="btn copy-btn">Copy SQL</button>
+              </div>
+              <pre tabindex="0">-- Auto-generated by SchemaFirst Migration Readiness Compiler v2.0
+-- Flaw Signature: clean
+WITH source AS (
+    SELECT * FROM {{ source(&#39;legacy_source&#39;, &#39;contractors&#39;) }}
+),
+sanitized AS (
+    SELECT
+    
+        &#34;contractor_code&#34; AS &#34;contractor_code&#34;, -- Direct pass-through (VARCHAR(20))
+    
+        &#34;company_name&#34; AS &#34;company_name&#34;, -- Direct pass-through (VARCHAR(100))
+    
+        &#34;trade_category&#34; AS &#34;trade_category&#34;, -- Direct pass-through (VARCHAR(40))
+    
+        &#34;vat_number&#34; AS &#34;vat_number&#34; -- Direct pass-through (VARCHAR(20))
+    
+    FROM source
+)
+SELECT * FROM sanitized</pre>
+            </div>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>council_tax_accounts &mdash; 47/100 (3500 rows, 7 cols)</summary>
+          <div class="details-body">
+            <p>
+              pk: <code>[&#39;account_id&#39;]</code> &middot;
+              sampled: <code>1000</code> &middot;
+              score: <code>47/100</code>
+            </p>
+
+            <div class="table-wrap" tabindex="0">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Column</th>
+                    <th scope="col">Declared</th>
+                    <th scope="col">Target</th>
+                    <th scope="col">Null / Distinct</th>
+                    <th scope="col">Findings</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                  <tr>
+                    <td>
+                      <code>account_id</code>
+                      
+                      <span class="status-badge">
+                        <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                        PK
+                      </span>
+                      
+                    </td>
+                    <td><code>INTEGER</code></td>
+                    <td><code>BIGINT</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>citizen_id</code>
+                      
+                    </td>
+                    <td><code>INTEGER</code></td>
+                    <td><code>INTEGER</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>20%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>property_id</code>
+                      
+                    </td>
+                    <td><code>INTEGER</code></td>
+                    <td><code>INTEGER</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>band_code</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(4)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>1%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>annual_liability</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(40)</code></td>
+                    <td><code>NUMERIC(18,2)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>1%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-WARN" aria-hidden="true"></span>
+                              warn
+                            </span>
+                            <code>text_currency</code>
+                            <div class="flaw-meta">[text_currency] 1000/1000 (100.0%) sampled rows contain formatted currency strings</div>
+                            <div class="flaw-sql">dbt: <code>CAST(NULLIF(REGEXP_REPLACE(&#34;annual_liability&#34;, &#39;[^0-9.-]&#39;, &#39;&#39;, &#39;g&#39;), &#39;&#39;) AS NUMERIC(18,2))</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;annual_liability&#34; FROM &#34;council_tax_accounts&#34; WHERE &#34;annual_liability&#34; ~ &#39;[$£€]&#39; OR &#34;annual_liability&#34; ~* &#39;(USD|EUR|GBP)&#39;;</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>billing_start_date</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(40)</code></td>
+                    <td><code>DATE</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>0%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-WARN" aria-hidden="true"></span>
+                              warn
+                            </span>
+                            <code>impossible_or_sentinel_date</code>
+                            <div class="flaw-meta">[impossible_or_sentinel_date] 52/1000 (5.2%) sampled rows in column &#39;billing_start_date&#39; contain sentinel or impossible dates</div>
+                            <div class="flaw-sql">dbt: <code>CASE WHEN &#34;billing_start_date&#34; IN (&#39;1900-01-01&#39;, &#39;1970-01-01&#39;, &#39;9999-12-31&#39;, &#39;0000-00-00&#39;) THEN NULL ELSE CAST(&#34;billing_start_date&#34; AS DATE) END</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;billing_start_date&#34; FROM &#34;council_tax_accounts&#34; WHERE &#34;billing_start_date&#34; IN (&#39;1900-01-01&#39;, &#39;1970-01-01&#39;, &#39;9999-12-31&#39;, &#39;0000-00-00&#39;);</code></div>
+                            
+                          </div>
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                              critical
+                            </span>
+                            <code>mixed_date_locales</code>
+                            <div class="flaw-meta">[mixed_date_locales] Column &#39;billing_start_date&#39; mixes date locales across 212/1000 (21.2%) sampled rows (106 DD/MM/YYYY, 106 MM/DD/YYYY)</div>
+                            <div class="flaw-sql">dbt: <code>CASE WHEN &#34;billing_start_date&#34; ~ &#39;^\d{4}-\d{2}-\d{2}$&#39; THEN CAST(&#34;billing_start_date&#34; AS DATE) ELSE NULL END</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;billing_start_date&#34; FROM &#34;council_tax_accounts&#34; WHERE &#34;billing_start_date&#34; IS NOT NULL;</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>collector_code</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(20)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>11%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+
+            
+            <h3><code>stg_council_tax_accounts.sql</code></h3>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-title">stg_council_tax_accounts.sql</span>
+                <button type="button" class="btn copy-btn">Copy SQL</button>
+              </div>
+              <pre tabindex="0">-- Auto-generated by SchemaFirst Migration Readiness Compiler v2.0
+-- Flaw Signature: annual_liability:text_currency,billing_start_date:impossible_or_sentinel_date,billing_start_date:mixed_date_locales
+WITH source AS (
+    SELECT * FROM {{ source(&#39;legacy_source&#39;, &#39;council_tax_accounts&#39;) }}
+),
+sanitized AS (
+    SELECT
+    
+        &#34;account_id&#34; AS &#34;account_id&#34;, -- Direct pass-through (INTEGER)
+    
+        &#34;citizen_id&#34; AS &#34;citizen_id&#34;, -- Direct pass-through (INTEGER)
+    
+        &#34;property_id&#34; AS &#34;property_id&#34;, -- Direct pass-through (INTEGER)
+    
+        &#34;band_code&#34; AS &#34;band_code&#34;, -- Direct pass-through (VARCHAR(4))
+    
+        CAST(NULLIF(REGEXP_REPLACE(&#34;annual_liability&#34;, &#39;[^0-9.-]&#39;, &#39;&#39;, &#39;g&#39;), &#39;&#39;) AS NUMERIC(18,2)) AS &#34;annual_liability&#34;, -- Sanitized: text_currency -&gt; NUMERIC(18,2)
+    
+        CASE WHEN &#34;billing_start_date&#34; IN (&#39;1900-01-01&#39;, &#39;1970-01-01&#39;, &#39;9999-12-31&#39;, &#39;0000-00-00&#39;) THEN NULL WHEN &#34;billing_start_date&#34; ~ &#39;^\d{4}-\d{2}-\d{2}$&#39; THEN CAST(&#34;billing_start_date&#34; AS DATE) ELSE NULL END AS &#34;billing_start_date&#34;, -- Sanitized: impossible_or_sentinel_date, mixed_date_locales -&gt; DATE
+    
+        &#34;collector_code&#34; AS &#34;collector_code&#34; -- Direct pass-through (VARCHAR(20))
+    
+    FROM source
+)
+SELECT * FROM sanitized</pre>
+            </div>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>electoral_roll_staging &mdash; 21/100 (2600 rows, 5 cols)</summary>
           <div class="details-body">
             <p>
               pk: <code>none</code> &middot;
-              sampled: <code>150</code> &middot;
+              sampled: <code>1000</code> &middot;
+              score: <code>21/100</code>
+            </p>
+
+            <div class="table-wrap" tabindex="0">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Column</th>
+                    <th scope="col">Declared</th>
+                    <th scope="col">Target</th>
+                    <th scope="col">Null / Distinct</th>
+                    <th scope="col">Findings</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                  <tr>
+                    <td>
+                      <code>citizen_id</code>
+                      
+                    </td>
+                    <td><code>INTEGER</code></td>
+                    <td><code>INTEGER</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>20%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>ward_code</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(16)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>4%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>reg_date</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(40)</code></td>
+                    <td><code>DATE</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>0%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-WARN" aria-hidden="true"></span>
+                              warn
+                            </span>
+                            <code>impossible_or_sentinel_date</code>
+                            <div class="flaw-meta">[impossible_or_sentinel_date] 66/1000 (6.6%) sampled rows in column &#39;reg_date&#39; contain sentinel or impossible dates</div>
+                            <div class="flaw-sql">dbt: <code>CASE WHEN &#34;reg_date&#34; IN (&#39;1900-01-01&#39;, &#39;1970-01-01&#39;, &#39;9999-12-31&#39;, &#39;0000-00-00&#39;) THEN NULL ELSE CAST(&#34;reg_date&#34; AS DATE) END</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;reg_date&#34; FROM &#34;electoral_roll_staging&#34; WHERE &#34;reg_date&#34; IN (&#39;1900-01-01&#39;, &#39;1970-01-01&#39;, &#39;9999-12-31&#39;, &#39;0000-00-00&#39;);</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>postal_vote_flag</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(10)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>0%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>raw_import_line</code>
+                      
+                    </td>
+                    <td><code>TEXT</code></td>
+                    <td><code>TEXT</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                              critical
+                            </span>
+                            <code>postgres_null_byte_poison</code>
+                            <div class="flaw-meta">[postgres_null_byte_poison] 47/1000 (4.7%) sampled rows contain ASCII NUL (0x00) bytes</div>
+                            <div class="flaw-sql">dbt: <code>REPLACE(&#34;raw_import_line&#34;, CHR(0), &#39;&#39;)</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;raw_import_line&#34; FROM &#34;electoral_roll_staging&#34; WHERE &#34;raw_import_line&#34; LIKE &#39;%&#39; || CHR(0) || &#39;%&#39;;</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+
+            
+            <h3><code>stg_electoral_roll_staging.sql</code></h3>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-title">stg_electoral_roll_staging.sql</span>
+                <button type="button" class="btn copy-btn">Copy SQL</button>
+              </div>
+              <pre tabindex="0">-- Auto-generated by SchemaFirst Migration Readiness Compiler v2.0
+-- Flaw Signature: raw_import_line:postgres_null_byte_poison,reg_date:impossible_or_sentinel_date
+WITH source AS (
+    SELECT * FROM {{ source(&#39;legacy_source&#39;, &#39;electoral_roll_staging&#39;) }}
+),
+sanitized AS (
+    SELECT
+    
+        &#34;citizen_id&#34; AS &#34;citizen_id&#34;, -- Direct pass-through (INTEGER)
+    
+        &#34;ward_code&#34; AS &#34;ward_code&#34;, -- Direct pass-through (VARCHAR(16))
+    
+        CASE WHEN &#34;reg_date&#34; IN (&#39;1900-01-01&#39;, &#39;1970-01-01&#39;, &#39;9999-12-31&#39;, &#39;0000-00-00&#39;) THEN NULL ELSE CAST(&#34;reg_date&#34; AS DATE) END AS &#34;reg_date&#34;, -- Sanitized: impossible_or_sentinel_date -&gt; DATE
+    
+        &#34;postal_vote_flag&#34; AS &#34;postal_vote_flag&#34;, -- Direct pass-through (VARCHAR(10))
+    
+        REPLACE(&#34;raw_import_line&#34;, CHR(0), &#39;&#39;) AS &#34;raw_import_line&#34; -- Sanitized: postgres_null_byte_poison -&gt; TEXT
+    
+    FROM source
+)
+SELECT * FROM sanitized</pre>
+            </div>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>housing_benefit_claims &mdash; 42/100 (2800 rows, 7 cols)</summary>
+          <div class="details-body">
+            <p>
+              pk: <code>[&#39;claim_id&#39;]</code> &middot;
+              sampled: <code>1000</code> &middot;
+              score: <code>42/100</code>
+            </p>
+
+            <div class="table-wrap" tabindex="0">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Column</th>
+                    <th scope="col">Declared</th>
+                    <th scope="col">Target</th>
+                    <th scope="col">Null / Distinct</th>
+                    <th scope="col">Findings</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                  <tr>
+                    <td>
+                      <code>claim_id</code>
+                      
+                      <span class="status-badge">
+                        <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                        PK
+                      </span>
+                      
+                    </td>
+                    <td><code>INTEGER</code></td>
+                    <td><code>BIGINT</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>citizen_id</code>
+                      
+                    </td>
+                    <td><code>INTEGER</code></td>
+                    <td><code>INTEGER</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>20%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>tenancy_id</code>
+                      
+                    </td>
+                    <td><code>INTEGER</code></td>
+                    <td><code>INTEGER</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>claim_ref</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(32)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>weekly_award_amt</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(40)</code></td>
+                    <td><code>NUMERIC(18,2)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>12%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-WARN" aria-hidden="true"></span>
+                              warn
+                            </span>
+                            <code>text_currency</code>
+                            <div class="flaw-meta">[text_currency] 1000/1000 (100.0%) sampled rows contain formatted currency strings</div>
+                            <div class="flaw-sql">dbt: <code>CAST(NULLIF(REGEXP_REPLACE(&#34;weekly_award_amt&#34;, &#39;[^0-9.-]&#39;, &#39;&#39;, &#39;g&#39;), &#39;&#39;) AS NUMERIC(18,2))</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;weekly_award_amt&#34; FROM &#34;housing_benefit_claims&#34; WHERE &#34;weekly_award_amt&#34; ~ &#39;[$£€]&#39; OR &#34;weekly_award_amt&#34; ~* &#39;(USD|EUR|GBP)&#39;;</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>assessment_date</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(40)</code></td>
+                    <td><code>DATE</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>0%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-WARN" aria-hidden="true"></span>
+                              warn
+                            </span>
+                            <code>impossible_or_sentinel_date</code>
+                            <div class="flaw-meta">[impossible_or_sentinel_date] 50/1000 (5.0%) sampled rows in column &#39;assessment_date&#39; contain sentinel or impossible dates</div>
+                            <div class="flaw-sql">dbt: <code>CASE WHEN &#34;assessment_date&#34; IN (&#39;1900-01-01&#39;, &#39;1970-01-01&#39;, &#39;9999-12-31&#39;, &#39;0000-00-00&#39;) THEN NULL ELSE CAST(&#34;assessment_date&#34; AS DATE) END</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;assessment_date&#34; FROM &#34;housing_benefit_claims&#34; WHERE &#34;assessment_date&#34; IN (&#39;1900-01-01&#39;, &#39;1970-01-01&#39;, &#39;9999-12-31&#39;, &#39;0000-00-00&#39;);</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>assessor_notes</code>
+                      
+                    </td>
+                    <td><code>TEXT</code></td>
+                    <td><code>TEXT</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                              critical
+                            </span>
+                            <code>postgres_null_byte_poison</code>
+                            <div class="flaw-meta">[postgres_null_byte_poison] 41/1000 (4.1%) sampled rows contain ASCII NUL (0x00) bytes</div>
+                            <div class="flaw-sql">dbt: <code>REPLACE(&#34;assessor_notes&#34;, CHR(0), &#39;&#39;)</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;assessor_notes&#34; FROM &#34;housing_benefit_claims&#34; WHERE &#34;assessor_notes&#34; LIKE &#39;%&#39; || CHR(0) || &#39;%&#39;;</code></div>
+                            
+                          </div>
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                              critical
+                            </span>
+                            <code>shadow_uk_nino</code>
+                            <div class="flaw-meta">[shadow_uk_nino] 58/1000 (5.8%) sampled rows in column &#39;assessor_notes&#39; match UK National Insurance Number pattern</div>
+                            <div class="flaw-sql">dbt: <code>REGEXP_REPLACE(&#34;assessor_notes&#34;, &#39;(?i)\y(?:QQ|(?!BG|GB|NK|KN|TN|NT|ZZ)[A-CEGHJ-PR-TW-ZQ][A-CEGHJ-NPR-TW-ZQ])\s*\d{2}\s*\d{2}\s*\d{2}\s*[A-D]\y&#39;, &#39;[REDACTED_NINO]&#39;, &#39;g&#39;)</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;assessor_notes&#34; FROM &#34;housing_benefit_claims&#34; WHERE &#34;assessor_notes&#34; ~* &#39;\y[A-Z]{2}\s?[0-9]{2}\s?[0-9]{2}\s?[0-9]{2}\s?[A-D]\y&#39;;</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+
+            
+            <h3><code>stg_housing_benefit_claims.sql</code></h3>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-title">stg_housing_benefit_claims.sql</span>
+                <button type="button" class="btn copy-btn">Copy SQL</button>
+              </div>
+              <pre tabindex="0">-- Auto-generated by SchemaFirst Migration Readiness Compiler v2.0
+-- Flaw Signature: assessment_date:impossible_or_sentinel_date,assessor_notes:postgres_null_byte_poison,assessor_notes:shadow_uk_nino,weekly_award_amt:text_currency
+WITH source AS (
+    SELECT * FROM {{ source(&#39;legacy_source&#39;, &#39;housing_benefit_claims&#39;) }}
+),
+sanitized AS (
+    SELECT
+    
+        &#34;claim_id&#34; AS &#34;claim_id&#34;, -- Direct pass-through (INTEGER)
+    
+        &#34;citizen_id&#34; AS &#34;citizen_id&#34;, -- Direct pass-through (INTEGER)
+    
+        &#34;tenancy_id&#34; AS &#34;tenancy_id&#34;, -- Direct pass-through (INTEGER)
+    
+        &#34;claim_ref&#34; AS &#34;claim_ref&#34;, -- Direct pass-through (VARCHAR(32))
+    
+        CAST(NULLIF(REGEXP_REPLACE(&#34;weekly_award_amt&#34;, &#39;[^0-9.-]&#39;, &#39;&#39;, &#39;g&#39;), &#39;&#39;) AS NUMERIC(18,2)) AS &#34;weekly_award_amt&#34;, -- Sanitized: text_currency -&gt; NUMERIC(18,2)
+    
+        CASE WHEN &#34;assessment_date&#34; IN (&#39;1900-01-01&#39;, &#39;1970-01-01&#39;, &#39;9999-12-31&#39;, &#39;0000-00-00&#39;) THEN NULL ELSE CAST(&#34;assessment_date&#34; AS DATE) END AS &#34;assessment_date&#34;, -- Sanitized: impossible_or_sentinel_date -&gt; DATE
+    
+        REGEXP_REPLACE(REPLACE(&#34;assessor_notes&#34;, CHR(0), &#39;&#39;), &#39;(?i)\y(?:QQ|(?!BG|GB|NK|KN|TN|NT|ZZ)[A-CEGHJ-PR-TW-ZQ][A-CEGHJ-NPR-TW-ZQ])\s*\d{2}\s*\d{2}\s*\d{2}\s*[A-D]\y&#39;, &#39;[REDACTED_NINO]&#39;, &#39;g&#39;) AS &#34;assessor_notes&#34; -- Sanitized: postgres_null_byte_poison, shadow_uk_nino -&gt; TEXT
+    
+    FROM source
+)
+SELECT * FROM sanitized</pre>
+            </div>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>legacy_audit_log &mdash; 5/100 (1800 rows, 5 cols)</summary>
+          <div class="details-body">
+            <p>
+              pk: <code>none</code> &middot;
+              sampled: <code>1000</code> &middot;
+              score: <code>5/100</code>
+            </p>
+
+            <div class="table-wrap" tabindex="0">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Column</th>
+                    <th scope="col">Declared</th>
+                    <th scope="col">Target</th>
+                    <th scope="col">Null / Distinct</th>
+                    <th scope="col">Findings</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                  <tr>
+                    <td>
+                      <code>entity_type</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(30)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>1%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>entity_ref</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(40)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>actor_code</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(20)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>11%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>event_ts</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(40)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>0%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>payload_blob</code>
+                      
+                    </td>
+                    <td><code>TEXT</code></td>
+                    <td><code>TEXT</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                              critical
+                            </span>
+                            <code>postgres_null_byte_poison</code>
+                            <div class="flaw-meta">[postgres_null_byte_poison] 40/1000 (4.0%) sampled rows contain ASCII NUL (0x00) bytes</div>
+                            <div class="flaw-sql">dbt: <code>REPLACE(&#34;payload_blob&#34;, CHR(0), &#39;&#39;)</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;payload_blob&#34; FROM &#34;legacy_audit_log&#34; WHERE &#34;payload_blob&#34; LIKE &#39;%&#39; || CHR(0) || &#39;%&#39;;</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+
+            
+            <h3><code>stg_legacy_audit_log.sql</code></h3>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-title">stg_legacy_audit_log.sql</span>
+                <button type="button" class="btn copy-btn">Copy SQL</button>
+              </div>
+              <pre tabindex="0">-- Auto-generated by SchemaFirst Migration Readiness Compiler v2.0
+-- Flaw Signature: payload_blob:postgres_null_byte_poison
+WITH source AS (
+    SELECT * FROM {{ source(&#39;legacy_source&#39;, &#39;legacy_audit_log&#39;) }}
+),
+sanitized AS (
+    SELECT
+    
+        &#34;entity_type&#34; AS &#34;entity_type&#34;, -- Direct pass-through (VARCHAR(30))
+    
+        &#34;entity_ref&#34; AS &#34;entity_ref&#34;, -- Direct pass-through (VARCHAR(40))
+    
+        &#34;actor_code&#34; AS &#34;actor_code&#34;, -- Direct pass-through (VARCHAR(20))
+    
+        &#34;event_ts&#34; AS &#34;event_ts&#34;, -- Direct pass-through (VARCHAR(40))
+    
+        REPLACE(&#34;payload_blob&#34;, CHR(0), &#39;&#39;) AS &#34;payload_blob&#34; -- Sanitized: postgres_null_byte_poison -&gt; TEXT
+    
+    FROM source
+)
+SELECT * FROM sanitized</pre>
+            </div>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>payment_transactions &mdash; 0/100 (5500 rows, 5 cols)</summary>
+          <div class="details-body">
+            <p>
+              pk: <code>none</code> &middot;
+              sampled: <code>1000</code> &middot;
+              score: <code>0/100</code>
+            </p>
+
+            <div class="table-wrap" tabindex="0">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Column</th>
+                    <th scope="col">Declared</th>
+                    <th scope="col">Target</th>
+                    <th scope="col">Null / Distinct</th>
+                    <th scope="col">Findings</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                  <tr>
+                    <td>
+                      <code>account_id</code>
+                      
+                    </td>
+                    <td><code>INTEGER</code></td>
+                    <td><code>INTEGER</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>payment_date</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(40)</code></td>
+                    <td><code>DATE</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>0%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                              critical
+                            </span>
+                            <code>mixed_date_locales</code>
+                            <div class="flaw-meta">[mixed_date_locales] Column &#39;payment_date&#39; mixes date locales across 250/1000 (25.0%) sampled rows (125 DD/MM/YYYY, 125 MM/DD/YYYY)</div>
+                            <div class="flaw-sql">dbt: <code>CASE WHEN &#34;payment_date&#34; ~ &#39;^\d{4}-\d{2}-\d{2}$&#39; THEN CAST(&#34;payment_date&#34; AS DATE) ELSE NULL END</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;payment_date&#34; FROM &#34;payment_transactions&#34; WHERE &#34;payment_date&#34; IS NOT NULL;</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>amount_paid</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(40)</code></td>
+                    <td><code>NUMERIC(18,2)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>9%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-WARN" aria-hidden="true"></span>
+                              warn
+                            </span>
+                            <code>text_currency</code>
+                            <div class="flaw-meta">[text_currency] 1000/1000 (100.0%) sampled rows contain formatted currency strings</div>
+                            <div class="flaw-sql">dbt: <code>CAST(NULLIF(REGEXP_REPLACE(&#34;amount_paid&#34;, &#39;[^0-9.-]&#39;, &#39;&#39;, &#39;g&#39;), &#39;&#39;) AS NUMERIC(18,2))</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;amount_paid&#34; FROM &#34;payment_transactions&#34; WHERE &#34;amount_paid&#34; ~ &#39;[$£€]&#39; OR &#34;amount_paid&#34; ~* &#39;(USD|EUR|GBP)&#39;;</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>payment_channel</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(30)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>0%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>remittance_memo</code>
+                      
+                    </td>
+                    <td><code>TEXT</code></td>
+                    <td><code>TEXT</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>6%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                              critical
+                            </span>
+                            <code>postgres_null_byte_poison</code>
+                            <div class="flaw-meta">[postgres_null_byte_poison] 34/1000 (3.4%) sampled rows contain ASCII NUL (0x00) bytes</div>
+                            <div class="flaw-sql">dbt: <code>REPLACE(&#34;remittance_memo&#34;, CHR(0), &#39;&#39;)</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;remittance_memo&#34; FROM &#34;payment_transactions&#34; WHERE &#34;remittance_memo&#34; LIKE &#39;%&#39; || CHR(0) || &#39;%&#39;;</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+
+            
+            <h3><code>stg_payment_transactions.sql</code></h3>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-title">stg_payment_transactions.sql</span>
+                <button type="button" class="btn copy-btn">Copy SQL</button>
+              </div>
+              <pre tabindex="0">-- Auto-generated by SchemaFirst Migration Readiness Compiler v2.0
+-- Flaw Signature: amount_paid:text_currency,payment_date:mixed_date_locales,remittance_memo:postgres_null_byte_poison
+WITH source AS (
+    SELECT * FROM {{ source(&#39;legacy_source&#39;, &#39;payment_transactions&#39;) }}
+),
+sanitized AS (
+    SELECT
+    
+        &#34;account_id&#34; AS &#34;account_id&#34;, -- Direct pass-through (INTEGER)
+    
+        CASE WHEN &#34;payment_date&#34; ~ &#39;^\d{4}-\d{2}-\d{2}$&#39; THEN CAST(&#34;payment_date&#34; AS DATE) ELSE NULL END AS &#34;payment_date&#34;, -- Sanitized: mixed_date_locales -&gt; DATE
+    
+        CAST(NULLIF(REGEXP_REPLACE(&#34;amount_paid&#34;, &#39;[^0-9.-]&#39;, &#39;&#39;, &#39;g&#39;), &#39;&#39;) AS NUMERIC(18,2)) AS &#34;amount_paid&#34;, -- Sanitized: text_currency -&gt; NUMERIC(18,2)
+    
+        &#34;payment_channel&#34; AS &#34;payment_channel&#34;, -- Direct pass-through (VARCHAR(30))
+    
+        REPLACE(&#34;remittance_memo&#34;, CHR(0), &#39;&#39;) AS &#34;remittance_memo&#34; -- Sanitized: postgres_null_byte_poison -&gt; TEXT
+    
+    FROM source
+)
+SELECT * FROM sanitized</pre>
+            </div>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>properties &mdash; 72/100 (2400 rows, 7 cols)</summary>
+          <div class="details-body">
+            <p>
+              pk: <code>[&#39;property_id&#39;]</code> &middot;
+              sampled: <code>1000</code> &middot;
+              score: <code>72/100</code>
+            </p>
+
+            <div class="table-wrap" tabindex="0">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Column</th>
+                    <th scope="col">Declared</th>
+                    <th scope="col">Target</th>
+                    <th scope="col">Null / Distinct</th>
+                    <th scope="col">Findings</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                  <tr>
+                    <td>
+                      <code>property_id</code>
+                      
+                      <span class="status-badge">
+                        <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                        PK
+                      </span>
+                      
+                    </td>
+                    <td><code>INTEGER</code></td>
+                    <td><code>BIGINT</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>uprn</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(20)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>address_line1</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(120)</code></td>
+                    <td><code>TEXT</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>36%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-HIGH" aria-hidden="true"></span>
+                              high
+                            </span>
+                            <code>cp1252_encoding_ghosts</code>
+                            <div class="flaw-meta">[cp1252_encoding_ghosts] 125/1000 (12.5%) sampled rows contain UTF-8/CP1252 mojibake artifacts</div>
+                            <div class="flaw-sql">dbt: <code>REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(&#34;address_line1&#34;, &#39;â€™&#39;, &#39;&#39;&#39;&#39;), &#39;â€“&#39;, &#39;-&#39;), &#39;â€œ&#39;, &#39;&#34;&#39;), &#39;Ã©&#39;, &#39;é&#39;), &#39;Ã£&#39;, &#39;ã&#39;), CHR(65533), &#39;&#39;)</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;address_line1&#34; FROM &#34;properties&#34; WHERE &#34;address_line1&#34; LIKE &#39;%â%&#39; OR &#34;address_line1&#34; LIKE &#39;%�%&#39;;</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>postcode</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(16)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>1%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>ward_code</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(16)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>4%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>void_status</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(24)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>0%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>inspection_notes</code>
+                      
+                    </td>
+                    <td><code>TEXT</code></td>
+                    <td><code>TEXT</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>2%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-HIGH" aria-hidden="true"></span>
+                              high
+                            </span>
+                            <code>cp1252_encoding_ghosts</code>
+                            <div class="flaw-meta">[cp1252_encoding_ghosts] 90/1000 (9.0%) sampled rows contain UTF-8/CP1252 mojibake artifacts</div>
+                            <div class="flaw-sql">dbt: <code>REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(&#34;inspection_notes&#34;, &#39;â€™&#39;, &#39;&#39;&#39;&#39;), &#39;â€“&#39;, &#39;-&#39;), &#39;â€œ&#39;, &#39;&#34;&#39;), &#39;Ã©&#39;, &#39;é&#39;), &#39;Ã£&#39;, &#39;ã&#39;), CHR(65533), &#39;&#39;)</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;inspection_notes&#34; FROM &#34;properties&#34; WHERE &#34;inspection_notes&#34; LIKE &#39;%â%&#39; OR &#34;inspection_notes&#34; LIKE &#39;%�%&#39;;</code></div>
+                            
+                          </div>
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-WARN" aria-hidden="true"></span>
+                              warn
+                            </span>
+                            <code>overloaded_freetext_column</code>
+                            <div class="flaw-meta">[overloaded_freetext_column] 1000/1000 (100.0%) sampled rows in column &#39;inspection_notes&#39; contain packed key:value pairs</div>
+                            <div class="flaw-sql">dbt: <code>&#34;inspection_notes&#34;</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;inspection_notes&#34; FROM &#34;properties&#34; WHERE &#34;inspection_notes&#34; ~ &#39;[A-Za-z_]+:[A-Za-z0-9_]+&#39;;</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+
+            
+            <h3><code>stg_properties.sql</code></h3>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-title">stg_properties.sql</span>
+                <button type="button" class="btn copy-btn">Copy SQL</button>
+              </div>
+              <pre tabindex="0">-- Auto-generated by SchemaFirst Migration Readiness Compiler v2.0
+-- Flaw Signature: address_line1:cp1252_encoding_ghosts,inspection_notes:cp1252_encoding_ghosts,inspection_notes:overloaded_freetext_column
+WITH source AS (
+    SELECT * FROM {{ source(&#39;legacy_source&#39;, &#39;properties&#39;) }}
+),
+sanitized AS (
+    SELECT
+    
+        &#34;property_id&#34; AS &#34;property_id&#34;, -- Direct pass-through (INTEGER)
+    
+        &#34;uprn&#34; AS &#34;uprn&#34;, -- Direct pass-through (VARCHAR(20))
+    
+        REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(&#34;address_line1&#34;, &#39;â€™&#39;, &#39;&#39;&#39;&#39;), &#39;â€“&#39;, &#39;-&#39;), &#39;â€œ&#39;, &#39;&#34;&#39;), &#39;Ã©&#39;, &#39;é&#39;), &#39;Ã£&#39;, &#39;ã&#39;), CHR(65533), &#39;&#39;) AS &#34;address_line1&#34;, -- Sanitized: cp1252_encoding_ghosts -&gt; TEXT
+    
+        &#34;postcode&#34; AS &#34;postcode&#34;, -- Direct pass-through (VARCHAR(16))
+    
+        &#34;ward_code&#34; AS &#34;ward_code&#34;, -- Direct pass-through (VARCHAR(16))
+    
+        &#34;void_status&#34; AS &#34;void_status&#34;, -- Direct pass-through (VARCHAR(24))
+    
+        REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(&#34;inspection_notes&#34;, &#39;â€™&#39;, &#39;&#39;&#39;&#39;), &#39;â€“&#39;, &#39;-&#39;), &#39;â€œ&#39;, &#39;&#34;&#39;), &#39;Ã©&#39;, &#39;é&#39;), &#39;Ã£&#39;, &#39;ã&#39;), CHR(65533), &#39;&#39;) AS &#34;inspection_notes&#34; -- Sanitized: cp1252_encoding_ghosts, overloaded_freetext_column -&gt; TEXT
+    
+    FROM source
+)
+SELECT * FROM sanitized</pre>
+            </div>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>rent_ledger &mdash; 59/100 (6500 rows, 4 cols)</summary>
+          <div class="details-body">
+            <p>
+              pk: <code>none</code> &middot;
+              sampled: <code>1000</code> &middot;
               score: <code>59/100</code>
             </p>
 
@@ -1398,7 +4198,7 @@ SELECT * FROM sanitized</pre>
                     </td>
                     <td><code>VARCHAR(50)</code></td>
                     <td><code>NUMERIC(18,2)</code></td>
-                    <td class="num-cell"><code>0%</code> / <code>87%</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>60%</code></td>
                     <td>
                       
                         
@@ -1408,7 +4208,7 @@ SELECT * FROM sanitized</pre>
                               warn
                             </span>
                             <code>text_currency</code>
-                            <div class="flaw-meta">[text_currency] 150/150 (100.0%) sampled rows contain formatted currency strings</div>
+                            <div class="flaw-meta">[text_currency] 1000/1000 (100.0%) sampled rows contain formatted currency strings</div>
                             <div class="flaw-sql">dbt: <code>CAST(NULLIF(REGEXP_REPLACE(&#34;balance_amt&#34;, &#39;[^0-9.-]&#39;, &#39;&#39;, &#39;g&#39;), &#39;&#39;) AS NUMERIC(18,2))</code></div>
                             
                             <div class="flaw-sql">Audit SQL: <code>SELECT &#34;balance_amt&#34; FROM &#34;rent_ledger&#34; WHERE &#34;balance_amt&#34; ~ &#39;[$£€]&#39; OR &#34;balance_amt&#34; ~* &#39;(USD|EUR|GBP)&#39;;</code></div>
@@ -1426,7 +4226,7 @@ SELECT * FROM sanitized</pre>
                     </td>
                     <td><code>INTEGER</code></td>
                     <td><code>INTEGER</code></td>
-                    <td class="num-cell"><code>0%</code> / <code>5%</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>1%</code></td>
                     <td>
                       
                         
@@ -1436,7 +4236,7 @@ SELECT * FROM sanitized</pre>
                               high
                             </span>
                             <code>negative_unsigned_field</code>
-                            <div class="flaw-meta">[negative_unsigned_field] 18/150 (12.0%) sampled values in unsigned column &#39;arrears_months&#39; are negative</div>
+                            <div class="flaw-meta">[negative_unsigned_field] 125/1000 (12.5%) sampled values in unsigned column &#39;arrears_months&#39; are negative</div>
                             <div class="flaw-sql">dbt: <code>CASE WHEN CAST(&#34;arrears_months&#34; AS NUMERIC) &lt; 0 THEN NULL ELSE CAST(&#34;arrears_months&#34; AS NUMERIC) END</code></div>
                             
                             <div class="flaw-sql">Audit SQL: <code>SELECT &#34;arrears_months&#34; FROM &#34;rent_ledger&#34; WHERE CAST(&#34;arrears_months&#34; AS NUMERIC) &lt; 0;</code></div>
@@ -1454,7 +4254,7 @@ SELECT * FROM sanitized</pre>
                     </td>
                     <td><code>VARCHAR(50)</code></td>
                     <td><code>VARCHAR(255)</code></td>
-                    <td class="num-cell"><code>0%</code> / <code>1%</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>0%</code></td>
                     <td>
                       
                         <span class="num-ok">ok</span>
@@ -1498,11 +4298,405 @@ SELECT * FROM sanitized</pre>
         </details>
         
         <details>
-          <summary>staff &mdash; 100/100 (20 rows, 3 cols)</summary>
+          <summary>repair_work_orders &mdash; 84/100 (4200 rows, 7 cols)</summary>
+          <div class="details-body">
+            <p>
+              pk: <code>[&#39;work_order_id&#39;]</code> &middot;
+              sampled: <code>1000</code> &middot;
+              score: <code>84/100</code>
+            </p>
+
+            <div class="table-wrap" tabindex="0">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Column</th>
+                    <th scope="col">Declared</th>
+                    <th scope="col">Target</th>
+                    <th scope="col">Null / Distinct</th>
+                    <th scope="col">Findings</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                  <tr>
+                    <td>
+                      <code>work_order_id</code>
+                      
+                      <span class="status-badge">
+                        <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                        PK
+                      </span>
+                      
+                    </td>
+                    <td><code>INTEGER</code></td>
+                    <td><code>BIGINT</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>property_id</code>
+                      
+                    </td>
+                    <td><code>INTEGER</code></td>
+                    <td><code>INTEGER</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>reported_by_citizen_id</code>
+                      
+                    </td>
+                    <td><code>INTEGER</code></td>
+                    <td><code>INTEGER</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>20%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>contractor_code</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(20)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>9%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>priority_level</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(20)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>0%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>estimated_cost</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(40)</code></td>
+                    <td><code>NUMERIC(18,2)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>38%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-WARN" aria-hidden="true"></span>
+                              warn
+                            </span>
+                            <code>text_currency</code>
+                            <div class="flaw-meta">[text_currency] 1000/1000 (100.0%) sampled rows contain formatted currency strings</div>
+                            <div class="flaw-sql">dbt: <code>CAST(NULLIF(REGEXP_REPLACE(&#34;estimated_cost&#34;, &#39;[^0-9.-]&#39;, &#39;&#39;, &#39;g&#39;), &#39;&#39;) AS NUMERIC(18,2))</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;estimated_cost&#34; FROM &#34;repair_work_orders&#34; WHERE &#34;estimated_cost&#34; ~ &#39;[$£€]&#39; OR &#34;estimated_cost&#34; ~* &#39;(USD|EUR|GBP)&#39;;</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>dispatch_notes</code>
+                      
+                    </td>
+                    <td><code>TEXT</code></td>
+                    <td><code>TEXT</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>39%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-HIGH" aria-hidden="true"></span>
+                              high
+                            </span>
+                            <code>cp1252_encoding_ghosts</code>
+                            <div class="flaw-meta">[cp1252_encoding_ghosts] 52/1000 (5.2%) sampled rows contain UTF-8/CP1252 mojibake artifacts</div>
+                            <div class="flaw-sql">dbt: <code>REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(&#34;dispatch_notes&#34;, &#39;â€™&#39;, &#39;&#39;&#39;&#39;), &#39;â€“&#39;, &#39;-&#39;), &#39;â€œ&#39;, &#39;&#34;&#39;), &#39;Ã©&#39;, &#39;é&#39;), &#39;Ã£&#39;, &#39;ã&#39;), CHR(65533), &#39;&#39;)</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;dispatch_notes&#34; FROM &#34;repair_work_orders&#34; WHERE &#34;dispatch_notes&#34; LIKE &#39;%â%&#39; OR &#34;dispatch_notes&#34; LIKE &#39;%�%&#39;;</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+
+            
+            <h3><code>stg_repair_work_orders.sql</code></h3>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-title">stg_repair_work_orders.sql</span>
+                <button type="button" class="btn copy-btn">Copy SQL</button>
+              </div>
+              <pre tabindex="0">-- Auto-generated by SchemaFirst Migration Readiness Compiler v2.0
+-- Flaw Signature: dispatch_notes:cp1252_encoding_ghosts,estimated_cost:text_currency
+WITH source AS (
+    SELECT * FROM {{ source(&#39;legacy_source&#39;, &#39;repair_work_orders&#39;) }}
+),
+sanitized AS (
+    SELECT
+    
+        &#34;work_order_id&#34; AS &#34;work_order_id&#34;, -- Direct pass-through (INTEGER)
+    
+        &#34;property_id&#34; AS &#34;property_id&#34;, -- Direct pass-through (INTEGER)
+    
+        &#34;reported_by_citizen_id&#34; AS &#34;reported_by_citizen_id&#34;, -- Direct pass-through (INTEGER)
+    
+        &#34;contractor_code&#34; AS &#34;contractor_code&#34;, -- Direct pass-through (VARCHAR(20))
+    
+        &#34;priority_level&#34; AS &#34;priority_level&#34;, -- Direct pass-through (VARCHAR(20))
+    
+        CAST(NULLIF(REGEXP_REPLACE(&#34;estimated_cost&#34;, &#39;[^0-9.-]&#39;, &#39;&#39;, &#39;g&#39;), &#39;&#39;) AS NUMERIC(18,2)) AS &#34;estimated_cost&#34;, -- Sanitized: text_currency -&gt; NUMERIC(18,2)
+    
+        REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(&#34;dispatch_notes&#34;, &#39;â€™&#39;, &#39;&#39;&#39;&#39;), &#39;â€“&#39;, &#39;-&#39;), &#39;â€œ&#39;, &#39;&#34;&#39;), &#39;Ã©&#39;, &#39;é&#39;), &#39;Ã£&#39;, &#39;ã&#39;), CHR(65533), &#39;&#39;) AS &#34;dispatch_notes&#34; -- Sanitized: cp1252_encoding_ghosts -&gt; TEXT
+    
+    FROM source
+)
+SELECT * FROM sanitized</pre>
+            </div>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>safeguarding_referrals &mdash; 38/100 (900 rows, 6 cols)</summary>
+          <div class="details-body">
+            <p>
+              pk: <code>[&#39;referral_id&#39;]</code> &middot;
+              sampled: <code>900</code> &middot;
+              score: <code>38/100</code>
+            </p>
+
+            <div class="table-wrap" tabindex="0">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Column</th>
+                    <th scope="col">Declared</th>
+                    <th scope="col">Target</th>
+                    <th scope="col">Null / Distinct</th>
+                    <th scope="col">Findings</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                  <tr>
+                    <td>
+                      <code>referral_id</code>
+                      
+                      <span class="status-badge">
+                        <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                        PK
+                      </span>
+                      
+                    </td>
+                    <td><code>INTEGER</code></td>
+                    <td><code>BIGINT</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>citizen_id</code>
+                      
+                    </td>
+                    <td><code>INTEGER</code></td>
+                    <td><code>INTEGER</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>22%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>property_id</code>
+                      
+                    </td>
+                    <td><code>INTEGER</code></td>
+                    <td><code>INTEGER</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>referral_date</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(40)</code></td>
+                    <td><code>DATE</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>0%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                              critical
+                            </span>
+                            <code>mixed_date_locales</code>
+                            <div class="flaw-meta">[mixed_date_locales] Column &#39;referral_date&#39; mixes date locales across 300/900 (33.3%) sampled rows (150 DD/MM/YYYY, 150 MM/DD/YYYY)</div>
+                            <div class="flaw-sql">dbt: <code>CASE WHEN &#34;referral_date&#34; ~ &#39;^\d{4}-\d{2}-\d{2}$&#39; THEN CAST(&#34;referral_date&#34; AS DATE) ELSE NULL END</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;referral_date&#34; FROM &#34;safeguarding_referrals&#34; WHERE &#34;referral_date&#34; IS NOT NULL;</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>risk_tier</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(20)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>0%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>case_summary</code>
+                      
+                    </td>
+                    <td><code>TEXT</code></td>
+                    <td><code>TEXT</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>15%</code></td>
+                    <td>
+                      
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-HIGH" aria-hidden="true"></span>
+                              high
+                            </span>
+                            <code>cp1252_encoding_ghosts</code>
+                            <div class="flaw-meta">[cp1252_encoding_ghosts] 128/900 (14.2%) sampled rows contain UTF-8/CP1252 mojibake artifacts</div>
+                            <div class="flaw-sql">dbt: <code>REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(&#34;case_summary&#34;, &#39;â€™&#39;, &#39;&#39;&#39;&#39;), &#39;â€“&#39;, &#39;-&#39;), &#39;â€œ&#39;, &#39;&#34;&#39;), &#39;Ã©&#39;, &#39;é&#39;), &#39;Ã£&#39;, &#39;ã&#39;), CHR(65533), &#39;&#39;)</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;case_summary&#34; FROM &#34;safeguarding_referrals&#34; WHERE &#34;case_summary&#34; LIKE &#39;%â%&#39; OR &#34;case_summary&#34; LIKE &#39;%�%&#39;;</code></div>
+                            
+                          </div>
+                        
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-CRITICAL" aria-hidden="true"></span>
+                              critical
+                            </span>
+                            <code>shadow_nhs_number</code>
+                            <div class="flaw-meta">[shadow_nhs_number] 128/900 (14.2%) sampled rows in column &#39;case_summary&#39; match Modulus-11 verified UK NHS Number pattern</div>
+                            <div class="flaw-sql">dbt: <code>REGEXP_REPLACE(&#34;case_summary&#34;, &#39;\y\d{3}\s?\d{3}\s?\d{4}\y&#39;, &#39;[REDACTED_NHS]&#39;, &#39;g&#39;)</code></div>
+                            
+                            <div class="flaw-sql">Audit SQL: <code>SELECT &#34;case_summary&#34; FROM &#34;safeguarding_referrals&#34; WHERE &#34;case_summary&#34; ~ &#39;\y[0-9]{3}\s?[0-9]{3}\s?[0-9]{4}\y&#39;;</code></div>
+                            
+                          </div>
+                        
+                      
+                    </td>
+                  </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+
+            
+            <h3><code>stg_safeguarding_referrals.sql</code></h3>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-title">stg_safeguarding_referrals.sql</span>
+                <button type="button" class="btn copy-btn">Copy SQL</button>
+              </div>
+              <pre tabindex="0">-- Auto-generated by SchemaFirst Migration Readiness Compiler v2.0
+-- Flaw Signature: case_summary:cp1252_encoding_ghosts,case_summary:shadow_nhs_number,referral_date:mixed_date_locales
+WITH source AS (
+    SELECT * FROM {{ source(&#39;legacy_source&#39;, &#39;safeguarding_referrals&#39;) }}
+),
+sanitized AS (
+    SELECT
+    
+        &#34;referral_id&#34; AS &#34;referral_id&#34;, -- Direct pass-through (INTEGER)
+    
+        &#34;citizen_id&#34; AS &#34;citizen_id&#34;, -- Direct pass-through (INTEGER)
+    
+        &#34;property_id&#34; AS &#34;property_id&#34;, -- Direct pass-through (INTEGER)
+    
+        CASE WHEN &#34;referral_date&#34; ~ &#39;^\d{4}-\d{2}-\d{2}$&#39; THEN CAST(&#34;referral_date&#34; AS DATE) ELSE NULL END AS &#34;referral_date&#34;, -- Sanitized: mixed_date_locales -&gt; DATE
+    
+        &#34;risk_tier&#34; AS &#34;risk_tier&#34;, -- Direct pass-through (VARCHAR(20))
+    
+        REGEXP_REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(&#34;case_summary&#34;, &#39;â€™&#39;, &#39;&#39;&#39;&#39;), &#39;â€“&#39;, &#39;-&#39;), &#39;â€œ&#39;, &#39;&#34;&#39;), &#39;Ã©&#39;, &#39;é&#39;), &#39;Ã£&#39;, &#39;ã&#39;), CHR(65533), &#39;&#39;), &#39;\y\d{3}\s?\d{3}\s?\d{4}\y&#39;, &#39;[REDACTED_NHS]&#39;, &#39;g&#39;) AS &#34;case_summary&#34; -- Sanitized: cp1252_encoding_ghosts, shadow_nhs_number -&gt; TEXT
+    
+    FROM source
+)
+SELECT * FROM sanitized</pre>
+            </div>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>staff &mdash; 100/100 (120 rows, 3 cols)</summary>
           <div class="details-body">
             <p>
               pk: <code>[&#39;staff_code&#39;]</code> &middot;
-              sampled: <code>20</code> &middot;
+              sampled: <code>120</code> &middot;
               score: <code>100/100</code>
             </p>
 
@@ -1561,7 +4755,7 @@ SELECT * FROM sanitized</pre>
                     </td>
                     <td><code>VARCHAR(50)</code></td>
                     <td><code>VARCHAR(255)</code></td>
-                    <td class="num-cell"><code>0%</code> / <code>5%</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>4%</code></td>
                     <td>
                       
                         <span class="num-ok">ok</span>
@@ -1603,11 +4797,11 @@ SELECT * FROM sanitized</pre>
         </details>
         
         <details>
-          <summary>tenancies &mdash; 76/100 (150 rows, 4 cols)</summary>
+          <summary>tenancies &mdash; 76/100 (3200 rows, 4 cols)</summary>
           <div class="details-body">
             <p>
               pk: <code>[&#39;tenancy_id&#39;]</code> &middot;
-              sampled: <code>150</code> &middot;
+              sampled: <code>1000</code> &middot;
               score: <code>76/100</code>
             </p>
 
@@ -1651,7 +4845,7 @@ SELECT * FROM sanitized</pre>
                     </td>
                     <td><code>INTEGER</code></td>
                     <td><code>INTEGER</code></td>
-                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>20%</code></td>
                     <td>
                       
                         <span class="num-ok">ok</span>
@@ -1666,7 +4860,7 @@ SELECT * FROM sanitized</pre>
                     </td>
                     <td><code>VARCHAR(20)</code></td>
                     <td><code>VARCHAR(255)</code></td>
-                    <td class="num-cell"><code>0%</code> / <code>15%</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>12%</code></td>
                     <td>
                       
                         <span class="num-ok">ok</span>
@@ -1691,7 +4885,7 @@ SELECT * FROM sanitized</pre>
                               warn
                             </span>
                             <code>overloaded_freetext_column</code>
-                            <div class="flaw-meta">[overloaded_freetext_column] 150/150 (100.0%) sampled rows in column &#39;tenancy_memo&#39; contain packed key:value pairs</div>
+                            <div class="flaw-meta">[overloaded_freetext_column] 1000/1000 (100.0%) sampled rows in column &#39;tenancy_memo&#39; contain packed key:value pairs</div>
                             <div class="flaw-sql">dbt: <code>&#34;tenancy_memo&#34;</code></div>
                             
                             <div class="flaw-sql">Audit SQL: <code>SELECT &#34;tenancy_memo&#34; FROM &#34;tenancies&#34; WHERE &#34;tenancy_memo&#34; ~ &#39;[A-Za-z_]+:[A-Za-z0-9_]+&#39;;</code></div>
@@ -1728,6 +4922,128 @@ sanitized AS (
         &#34;officer_code&#34; AS &#34;officer_code&#34;, -- Direct pass-through (VARCHAR(20))
     
         &#34;tenancy_memo&#34; AS &#34;tenancy_memo&#34; -- Sanitized: overloaded_freetext_column -&gt; TEXT
+    
+    FROM source
+)
+SELECT * FROM sanitized</pre>
+            </div>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>wards &mdash; 100/100 (45 rows, 4 cols)</summary>
+          <div class="details-body">
+            <p>
+              pk: <code>[&#39;ward_code&#39;]</code> &middot;
+              sampled: <code>45</code> &middot;
+              score: <code>100/100</code>
+            </p>
+
+            <div class="table-wrap" tabindex="0">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Column</th>
+                    <th scope="col">Declared</th>
+                    <th scope="col">Target</th>
+                    <th scope="col">Null / Distinct</th>
+                    <th scope="col">Findings</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                  <tr>
+                    <td>
+                      <code>ward_code</code>
+                      
+                      <span class="status-badge">
+                        <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                        PK
+                      </span>
+                      
+                    </td>
+                    <td><code>VARCHAR(16)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>ward_name</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(80)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>100%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>borough_zone</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(30)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>11%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <code>council_tax_band_default</code>
+                      
+                    </td>
+                    <td><code>VARCHAR(4)</code></td>
+                    <td><code>VARCHAR(255)</code></td>
+                    <td class="num-cell"><code>0%</code> / <code>11%</code></td>
+                    <td>
+                      
+                        <span class="num-ok">ok</span>
+                      
+                    </td>
+                  </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+
+            
+            <h3><code>stg_wards.sql</code></h3>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-title">stg_wards.sql</span>
+                <button type="button" class="btn copy-btn">Copy SQL</button>
+              </div>
+              <pre tabindex="0">-- Auto-generated by SchemaFirst Migration Readiness Compiler v2.0
+-- Flaw Signature: clean
+WITH source AS (
+    SELECT * FROM {{ source(&#39;legacy_source&#39;, &#39;wards&#39;) }}
+),
+sanitized AS (
+    SELECT
+    
+        &#34;ward_code&#34; AS &#34;ward_code&#34;, -- Direct pass-through (VARCHAR(16))
+    
+        &#34;ward_name&#34; AS &#34;ward_name&#34;, -- Direct pass-through (VARCHAR(80))
+    
+        &#34;borough_zone&#34; AS &#34;borough_zone&#34;, -- Direct pass-through (VARCHAR(30))
+    
+        &#34;council_tax_band_default&#34; AS &#34;council_tax_band_default&#34; -- Direct pass-through (VARCHAR(4))
     
     FROM source
 )

@@ -5,11 +5,41 @@ sources:
     description: "Legacy database tables mirrored via CDC / Full Load"
     tables:
 
+      - name: case_correspondence
+        description: "Raw legacy table: case_correspondence"
+
       - name: citizens
         description: "Raw legacy table: citizens"
 
+      - name: contractors
+        description: "Raw legacy table: contractors"
+
+      - name: council_tax_accounts
+        description: "Raw legacy table: council_tax_accounts"
+
+      - name: electoral_roll_staging
+        description: "Raw legacy table: electoral_roll_staging"
+
+      - name: housing_benefit_claims
+        description: "Raw legacy table: housing_benefit_claims"
+
+      - name: legacy_audit_log
+        description: "Raw legacy table: legacy_audit_log"
+
+      - name: payment_transactions
+        description: "Raw legacy table: payment_transactions"
+
+      - name: properties
+        description: "Raw legacy table: properties"
+
       - name: rent_ledger
         description: "Raw legacy table: rent_ledger"
+
+      - name: repair_work_orders
+        description: "Raw legacy table: repair_work_orders"
+
+      - name: safeguarding_referrals
+        description: "Raw legacy table: safeguarding_referrals"
 
       - name: staff
         description: "Raw legacy table: staff"
@@ -17,8 +47,79 @@ sources:
       - name: tenancies
         description: "Raw legacy table: tenancies"
 
+      - name: wards
+        description: "Raw legacy table: wards"
+
 
 models:
+
+  - name: stg_case_correspondence
+    description: "SchemaFirst sanitized staging model for case_correspondence"
+    columns:
+
+      - name: "correspondence_id"
+        description: "Target: BIGINT"
+
+        tests:
+
+
+          - not_null:
+              config:
+                store_failures: true
+                schema: schemafirst_quarantine
+
+
+
+          - unique:
+              config:
+                store_failures: true
+                schema: schemafirst_quarantine
+
+
+
+
+      - name: "citizen_id"
+        description: "Target: INTEGER"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_citizens')
+              field: "citizen_id"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "handled_by_code"
+        description: "Target: VARCHAR(255)"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_staff')
+              field: "staff_code"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "channel"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "sent_date"
+        description: "Target: DATE"
+
+
+      - name: "body_text"
+        description: "Target: TEXT"
+
+
 
   - name: stg_citizens
     description: "SchemaFirst sanitized staging model for citizens"
@@ -58,6 +159,379 @@ models:
 
 
 
+  - name: stg_contractors
+    description: "SchemaFirst sanitized staging model for contractors"
+    columns:
+
+      - name: "contractor_code"
+        description: "Target: VARCHAR(255)"
+
+        tests:
+
+
+          - not_null:
+              config:
+                store_failures: true
+                schema: schemafirst_quarantine
+
+
+
+          - unique:
+              config:
+                store_failures: true
+                schema: schemafirst_quarantine
+
+
+
+
+      - name: "company_name"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "trade_category"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "vat_number"
+        description: "Target: VARCHAR(255)"
+
+
+
+  - name: stg_council_tax_accounts
+    description: "SchemaFirst sanitized staging model for council_tax_accounts"
+    columns:
+
+      - name: "account_id"
+        description: "Target: BIGINT"
+
+        tests:
+
+
+          - not_null:
+              config:
+                store_failures: true
+                schema: schemafirst_quarantine
+
+
+
+          - unique:
+              config:
+                store_failures: true
+                schema: schemafirst_quarantine
+
+
+
+
+      - name: "citizen_id"
+        description: "Target: INTEGER"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_citizens')
+              field: "citizen_id"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "property_id"
+        description: "Target: INTEGER"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_properties')
+              field: "property_id"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "band_code"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "annual_liability"
+        description: "Target: NUMERIC(18,2)"
+
+
+      - name: "billing_start_date"
+        description: "Target: DATE"
+
+
+      - name: "collector_code"
+        description: "Target: VARCHAR(255)"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_case_correspondence')
+              field: "handled_by_code"
+              config:
+                store_failures: true
+
+
+
+
+
+  - name: stg_electoral_roll_staging
+    description: "SchemaFirst sanitized staging model for electoral_roll_staging"
+    columns:
+
+      - name: "citizen_id"
+        description: "Target: INTEGER"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_citizens')
+              field: "citizen_id"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "ward_code"
+        description: "Target: VARCHAR(255)"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_wards')
+              field: "ward_code"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "reg_date"
+        description: "Target: DATE"
+
+
+      - name: "postal_vote_flag"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "raw_import_line"
+        description: "Target: TEXT"
+
+
+
+  - name: stg_housing_benefit_claims
+    description: "SchemaFirst sanitized staging model for housing_benefit_claims"
+    columns:
+
+      - name: "claim_id"
+        description: "Target: BIGINT"
+
+        tests:
+
+
+          - not_null:
+              config:
+                store_failures: true
+                schema: schemafirst_quarantine
+
+
+
+          - unique:
+              config:
+                store_failures: true
+                schema: schemafirst_quarantine
+
+
+
+
+      - name: "citizen_id"
+        description: "Target: INTEGER"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_citizens')
+              field: "citizen_id"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "tenancy_id"
+        description: "Target: INTEGER"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_tenancies')
+              field: "tenancy_id"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "claim_ref"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "weekly_award_amt"
+        description: "Target: NUMERIC(18,2)"
+
+
+      - name: "assessment_date"
+        description: "Target: DATE"
+
+
+      - name: "assessor_notes"
+        description: "Target: TEXT"
+
+
+
+  - name: stg_legacy_audit_log
+    description: "SchemaFirst sanitized staging model for legacy_audit_log"
+    columns:
+
+      - name: "entity_type"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "entity_ref"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "actor_code"
+        description: "Target: VARCHAR(255)"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_case_correspondence')
+              field: "handled_by_code"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "event_ts"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "payload_blob"
+        description: "Target: TEXT"
+
+
+
+  - name: stg_payment_transactions
+    description: "SchemaFirst sanitized staging model for payment_transactions"
+    columns:
+
+      - name: "account_id"
+        description: "Target: INTEGER"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_council_tax_accounts')
+              field: "account_id"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "payment_date"
+        description: "Target: DATE"
+
+
+      - name: "amount_paid"
+        description: "Target: NUMERIC(18,2)"
+
+
+      - name: "payment_channel"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "remittance_memo"
+        description: "Target: TEXT"
+
+
+
+  - name: stg_properties
+    description: "SchemaFirst sanitized staging model for properties"
+    columns:
+
+      - name: "property_id"
+        description: "Target: BIGINT"
+
+        tests:
+
+
+          - not_null:
+              config:
+                store_failures: true
+                schema: schemafirst_quarantine
+
+
+
+          - unique:
+              config:
+                store_failures: true
+                schema: schemafirst_quarantine
+
+
+
+
+      - name: "uprn"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "address_line1"
+        description: "Target: TEXT"
+
+
+      - name: "postcode"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "ward_code"
+        description: "Target: VARCHAR(255)"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_wards')
+              field: "ward_code"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "void_status"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "inspection_notes"
+        description: "Target: TEXT"
+
+
+
   - name: stg_rent_ledger
     description: "SchemaFirst sanitized staging model for rent_ledger"
     columns:
@@ -87,6 +561,157 @@ models:
 
       - name: "payment_status"
         description: "Target: VARCHAR(255)"
+
+
+
+  - name: stg_repair_work_orders
+    description: "SchemaFirst sanitized staging model for repair_work_orders"
+    columns:
+
+      - name: "work_order_id"
+        description: "Target: BIGINT"
+
+        tests:
+
+
+          - not_null:
+              config:
+                store_failures: true
+                schema: schemafirst_quarantine
+
+
+
+          - unique:
+              config:
+                store_failures: true
+                schema: schemafirst_quarantine
+
+
+
+
+      - name: "property_id"
+        description: "Target: INTEGER"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_properties')
+              field: "property_id"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "reported_by_citizen_id"
+        description: "Target: INTEGER"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_citizens')
+              field: "citizen_id"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "contractor_code"
+        description: "Target: VARCHAR(255)"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_contractors')
+              field: "contractor_code"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "priority_level"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "estimated_cost"
+        description: "Target: NUMERIC(18,2)"
+
+
+      - name: "dispatch_notes"
+        description: "Target: TEXT"
+
+
+
+  - name: stg_safeguarding_referrals
+    description: "SchemaFirst sanitized staging model for safeguarding_referrals"
+    columns:
+
+      - name: "referral_id"
+        description: "Target: BIGINT"
+
+        tests:
+
+
+          - not_null:
+              config:
+                store_failures: true
+                schema: schemafirst_quarantine
+
+
+
+          - unique:
+              config:
+                store_failures: true
+                schema: schemafirst_quarantine
+
+
+
+
+      - name: "citizen_id"
+        description: "Target: INTEGER"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_citizens')
+              field: "citizen_id"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "property_id"
+        description: "Target: INTEGER"
+
+        tests:
+
+
+          - relationships:
+              to: ref('stg_properties')
+              field: "property_id"
+              config:
+                store_failures: true
+
+
+
+
+      - name: "referral_date"
+        description: "Target: DATE"
+
+
+      - name: "risk_tier"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "case_summary"
+        description: "Target: TEXT"
 
 
 
@@ -181,5 +806,43 @@ models:
 
       - name: "tenancy_memo"
         description: "Target: TEXT"
+
+
+
+  - name: stg_wards
+    description: "SchemaFirst sanitized staging model for wards"
+    columns:
+
+      - name: "ward_code"
+        description: "Target: VARCHAR(255)"
+
+        tests:
+
+
+          - not_null:
+              config:
+                store_failures: true
+                schema: schemafirst_quarantine
+
+
+
+          - unique:
+              config:
+                store_failures: true
+                schema: schemafirst_quarantine
+
+
+
+
+      - name: "ward_name"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "borough_zone"
+        description: "Target: VARCHAR(255)"
+
+
+      - name: "council_tax_band_default"
+        description: "Target: VARCHAR(255)"
 
 

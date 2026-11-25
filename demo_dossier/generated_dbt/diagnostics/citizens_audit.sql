@@ -5,7 +5,7 @@
 -- ============================================================================
 
 -- Flaw: cp1252_encoding_ghosts [HIGH] on column "full_name"
--- Evidence: [cp1252_encoding_ghosts] 23/200 (11.5%) sampled rows contain UTF-8/CP1252 mojibake artifacts
+-- Evidence: [cp1252_encoding_ghosts] 17/200 (8.5%) sampled rows contain UTF-8/CP1252 mojibake artifacts
 -- Advice: Re-encode CP1252/Windows-1252 mojibake artifacts back to valid UTF-8 equivalents.
 SELECT "full_name" FROM "citizens" WHERE "full_name" LIKE '%â%' OR "full_name" LIKE '%�%';
 

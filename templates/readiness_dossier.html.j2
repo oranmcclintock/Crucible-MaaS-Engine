@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ branding.brand_name }}: Schema Audit ({{ metadata.source_redacted_url }})</title>
+  <title>{{ branding.brand_name }}: Database Audit ({{ metadata.source_redacted_url }})</title>
   <meta name="description" content="{{ meta_description }}">
   {% if canonical_url %}
   <link rel="canonical" href="{{ canonical_url }}">
   {% endif %}
   <meta property="og:type" content="article">
-  <meta property="og:title" content="{{ branding.brand_name }}: Schema Audit ({{ metadata.source_redacted_url }})">
+  <meta property="og:title" content="{{ branding.brand_name }}: Database Audit ({{ metadata.source_redacted_url }})">
   <meta property="og:description" content="{{ meta_description }}">
   {% if canonical_url %}
   <meta property="og:url" content="{{ canonical_url }}">
@@ -390,7 +390,8 @@
     }
 
     th, td {
-      padding: 9px 12px;
+      padding: 12px 14px;
+      line-height: 1.5;
       text-align: left;
       vertical-align: top;
       border-bottom: 1px solid var(--border);
@@ -401,6 +402,7 @@
     }
 
     th {
+      padding: 10px 14px;
       background: var(--muted);
       font-family: var(--font-mono);
       font-size: 12px;
@@ -677,11 +679,7 @@
     <main id="main-content">
       <section class="dossier-hero">
         <div class="title-row">
-          <h1>{{ branding.brand_name }}: Schema Audit</h1>
-          <span class="status-badge">
-            <span class="status-dot dot-{{ grade_color }}" aria-hidden="true"></span>
-            {{ executive_summary.readiness_grade }}
-          </span>
+          <h1>{{ branding.brand_name }}: Database Audit</h1>
         </div>
         <div class="meta-line">
           <span>target: <strong>{{ metadata.source_redacted_url }}</strong></span>
