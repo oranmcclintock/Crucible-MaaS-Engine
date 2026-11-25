@@ -76,7 +76,7 @@ def cmd_audit(args):
     print("[*] Compiling dbt staging package and diagnostic packs...")
     codegen.compile_dbt_package(profile_path=profile_json_path, out_dir=dbt_dir)
 
-    print("[*] Generating air-gapped GDS technical dossier...")
+    print("[*] Generating air-gapped HTML schema audit...")
     reportgen.generate_dossier(
         profile=profile,
         output_html_path=html_report_path,

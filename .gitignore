@@ -9,9 +9,6 @@ __pycache__/
 *.pyc
 
 # Local scratch and runtime outputs
-generated/
-caseStudy/
-quarantine/
 audit_output/
 /profile.json
 /generated_dbt/

@@ -8,6 +8,7 @@ version = "2.0.0"
 description = "Deterministic Migration Engine: Read-only schema auditor, shadow FK inference, and dbt compiler"
 authors = [{ name = "Crucible Engine Team" }]
 readme = "README.md"
+license = { text = "MIT" }
 requires-python = ">=3.10"
 dependencies = [
     "sqlalchemy>=2.0.0",

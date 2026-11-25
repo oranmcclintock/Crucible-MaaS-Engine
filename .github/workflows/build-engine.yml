@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - '**'
-      - '!crm/**'
-      - '!Dockerfile.crm'
-      - '!.github/workflows/build-crm.yml'
 
 env:
   REGISTRY: ghcr.io

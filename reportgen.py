@@ -1,9 +1,8 @@
 """
 reportgen.py
 ============
-Standalone Air-Gapped Executive Dossier Generator (v2.0).
-Compiles profile.json and dbt assets into a zero-dependency, single-file HTML report
-styled after UK Government Digital Service (GDS) technical assessments.
+Standalone Air-Gapped HTML Schema Audit Generator (v2.0).
+Compiles profile.json and dbt assets into a zero-dependency, single-file HTML report.
 Prints cleanly to PDF via @media print stylesheet rules.
 Zero external CDN dependencies (completely air-gapped).
 """
