@@ -4,279 +4,556 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ branding.brand_name }} — Schema Audit ({{ metadata.source_redacted_url }})</title>
+  <meta name="description" content="{{ meta_description }}">
+  {% if canonical_url %}
+  <link rel="canonical" href="{{ canonical_url }}">
+  {% endif %}
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="{{ branding.brand_name }} — Schema Audit ({{ metadata.source_redacted_url }})">
+  <meta property="og:description" content="{{ meta_description }}">
+  {% if canonical_url %}
+  <meta property="og:url" content="{{ canonical_url }}">
+  {% endif %}
+  <script type="application/ld+json">{{ json_ld | safe }}</script>
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem("crucible-theme");
+        var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (saved === "dark" || (!saved && prefersDark)) {
+          document.documentElement.classList.add("dark");
+        }
+      } catch (e) {}
+    })();
+  </script>
   <style>
     :root {
-      --brand-color: {{ branding.brand_color }};
-      --bg: #ffffff;
-      --surface: #f8fafc;
-      --ink: #0f172a;
-      --muted: #475569;
-      --border: #e2e8f0;
-      --red: #b91c1c;
-      --red-bg: #fef2f2;
-      --amber: #b45309;
-      --amber-bg: #fffbeb;
-      --green: #15803d;
-      --green-bg: #f0fdf4;
-      --blue: #1d4ed8;
-      --blue-bg: #eff6ff;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --background: oklch(0.985 0.002 90);
+      --card: oklch(1.000 0.000 0);
+      --muted: oklch(0.955 0.002 90);
+      --border: oklch(0.890 0.003 90);
+      --foreground: oklch(0.145 0.004 90);
+      --muted-foreground: oklch(0.460 0.005 90);
+      --primary: oklch(0.145 0.004 90);
+      --primary-foreground: oklch(0.985 0.002 90);
+      --success: oklch(0.480 0.120 150);
+      --warning: oklch(0.580 0.140 75);
+      --destructive: oklch(0.500 0.180 25);
+
+      --radius: 0.375rem;
+      --radius-sm: 0.25rem;
+      --font-sans: "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --brand-accent: {{ branding.brand_color }};
     }
 
-    *, *::before, *::after { box-sizing: border-box; }
+    html.dark {
+      --background: oklch(0.130 0.003 260);
+      --card: oklch(0.165 0.003 260);
+      --muted: oklch(0.205 0.004 260);
+      --border: oklch(0.265 0.004 260);
+      --foreground: oklch(0.950 0.002 90);
+      --muted-foreground: oklch(0.650 0.004 90);
+      --primary: oklch(0.950 0.002 90);
+      --primary-foreground: oklch(0.130 0.003 260);
+      --success: oklch(0.680 0.140 150);
+      --warning: oklch(0.750 0.130 75);
+      --destructive: oklch(0.640 0.180 25);
+    }
 
-    html { -webkit-text-size-adjust: 100%; }
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      scroll-behavior: smooth;
+    }
 
     body {
       margin: 0;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: var(--sans);
+      background-color: var(--background);
+      color: var(--foreground);
+      font-family: var(--font-sans);
       font-size: 14px;
       line-height: 1.55;
-      border-top: 3px solid var(--brand-color);
+      -webkit-font-smoothing: antialiased;
     }
 
-    code, pre {
-      font-family: var(--mono);
-      font-size: 12.5px;
+    :focus-visible {
+      outline: 2px solid var(--foreground);
+      outline-offset: 2px;
     }
 
-    code {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      padding: 1px 4px;
-      word-break: break-word;
+    .skip-link {
+      position: absolute;
+      left: 16px;
+      top: -100px;
+      z-index: 100;
+      padding: 8px 12px;
+      background: var(--primary);
+      color: var(--primary-foreground);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      text-decoration: none;
+    }
+
+    .skip-link:focus {
+      top: 12px;
     }
 
     .wrap {
-      max-width: 1040px;
+      max-width: 1120px;
       margin: 0 auto;
-      padding: 24px 20px 48px;
+      padding: 20px 20px 56px;
     }
 
-    header {
-      padding-bottom: 16px;
-      margin-bottom: 24px;
+    /* Masthead */
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-bottom: 14px;
       border-bottom: 1px solid var(--border);
     }
 
-    .header-top {
+    .brand-group {
       display: flex;
       align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
+      gap: 10px;
     }
 
     .brand-logo {
-      max-height: 32px;
+      max-height: 28px;
       max-width: 140px;
       object-fit: contain;
     }
 
+    .brand-label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted-foreground);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      min-height: 30px;
+      background: var(--card);
+      color: var(--foreground);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.2;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: var(--muted);
+    }
+
+    /* Jump-nav TOC */
+    .toc-nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 14px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .toc-label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted-foreground);
+    }
+
+    .toc-nav a {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--foreground);
+      text-decoration: none;
+      padding: 2px 4px;
+      border-radius: var(--radius-sm);
+    }
+
+    .toc-nav a:hover {
+      background: var(--muted);
+      text-decoration: underline;
+    }
+
+    /* Hero / Title */
+    .dossier-hero {
+      margin-bottom: 20px;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
     h1 {
       margin: 0;
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 650;
-      letter-spacing: -0.01em;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+      color: var(--foreground);
     }
 
     .meta-line {
-      margin: 8px 0 0;
+      margin: 10px 0 0;
       display: flex;
       flex-wrap: wrap;
       gap: 6px 16px;
-      font-size: 12.5px;
-      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted-foreground);
+      font-variant-numeric: tabular-nums;
     }
 
-    .meta-line span { word-break: break-all; }
+    .meta-line span {
+      word-break: break-word;
+    }
 
+    .meta-line strong {
+      color: var(--foreground);
+      font-weight: 500;
+    }
+
+    /* Headings */
     h2 {
-      margin: 32px 0 10px;
-      padding-bottom: 6px;
-      font-size: 15px;
+      margin: 36px 0 12px;
+      padding-bottom: 8px;
+      font-size: 16px;
       font-weight: 650;
+      letter-spacing: -0.01em;
+      color: var(--foreground);
       border-bottom: 1px solid var(--border);
     }
 
     h3 {
-      margin: 18px 0 8px;
-      font-size: 13.5px;
-      font-weight: 650;
-      color: var(--ink);
+      margin: 20px 0 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--foreground);
     }
 
-    p { margin: 0 0 12px; color: var(--muted); }
-    p strong { color: var(--ink); }
-
-    .summary-bar {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 10px;
-      margin: 16px 0 24px;
+    p {
+      margin: 0 0 12px;
+      color: var(--muted-foreground);
     }
 
-    .metric {
+    p strong {
+      color: var(--foreground);
+    }
+
+    code, pre {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    code {
+      background: var(--muted);
       border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 12px 14px;
-      background: var(--surface);
+      border-radius: var(--radius-sm);
+      padding: 1px 5px;
+      color: var(--foreground);
+      word-break: break-word;
     }
 
-    .metric.score-RED { border-left: 3px solid var(--red); }
-    .metric.score-AMBER { border-left: 3px solid var(--amber); }
-    .metric.score-GREEN { border-left: 3px solid var(--green); }
-
-    .metric-label {
-      font-size: 11px;
+    /* Status Badges (6px dot + 12px mono uppercase) */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--card);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: var(--muted);
-      margin-bottom: 4px;
+      color: var(--foreground);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
     }
 
-    .metric-val {
-      font-family: var(--mono);
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--muted-foreground);
+    }
+
+    .dot-CRITICAL, .dot-RED { background: var(--destructive); }
+    .dot-HIGH, .dot-AMBER, .dot-WARN { background: var(--warning); }
+    .dot-GREEN, .dot-OK { background: var(--success); }
+    .dot-INFO { background: var(--foreground); }
+
+    /* KPI Strip (6-col desktop / 3-col tablet / 2-col mobile) */
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0 20px;
+    }
+
+    .stat-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      background: var(--card);
+    }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted-foreground);
+      margin-bottom: 6px;
+    }
+
+    .stat-val {
+      font-family: var(--font-mono);
       font-size: 20px;
       font-weight: 700;
-      color: var(--ink);
       line-height: 1.2;
+      color: var(--foreground);
+      font-variant-numeric: tabular-nums;
     }
 
-    .metric-sub {
+    .stat-val.tone-RED { color: var(--destructive); }
+    .stat-val.tone-AMBER { color: var(--warning); }
+    .stat-val.tone-GREEN { color: var(--success); }
+
+    .stat-sub {
       font-size: 12px;
-      color: var(--muted);
-      margin-top: 2px;
+      color: var(--muted-foreground);
+      margin-top: 4px;
+      font-variant-numeric: tabular-nums;
     }
 
-    .pill {
-      display: inline-block;
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 600;
-      padding: 1px 6px;
-      border-radius: 3px;
+    /* Callout Note */
+    .callout {
+      padding: 12px 14px;
       border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--ink);
-      white-space: nowrap;
+      border-radius: var(--radius);
+      background: var(--card);
+      font-size: 13px;
+      color: var(--foreground);
+      margin: 12px 0 18px;
     }
 
-    .pill.CRITICAL, .pill.RED { color: var(--red); background: var(--red-bg); border-color: #fecaca; }
-    .pill.HIGH, .pill.AMBER { color: var(--amber); background: var(--amber-bg); border-color: #fde68a; }
-    .pill.WARN { color: var(--amber); background: var(--amber-bg); border-color: #fde68a; }
-    .pill.GREEN { color: var(--green); background: var(--green-bg); border-color: #bbf7d0; }
-    .pill.INFO { color: var(--blue); background: var(--blue-bg); border-color: #bfdbfe; }
+    .callout-warn {
+      border-color: var(--destructive);
+    }
 
+    /* DataTable */
     .table-wrap {
       width: 100%;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       margin: 10px 0 18px;
       border: 1px solid var(--border);
-      border-radius: 4px;
+      border-radius: var(--radius);
+      background: var(--card);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 13px;
-      min-width: 560px;
+      min-width: 600px;
+      font-variant-numeric: tabular-nums;
     }
 
     th, td {
-      padding: 8px 10px;
+      padding: 9px 12px;
       text-align: left;
       vertical-align: top;
       border-bottom: 1px solid var(--border);
     }
 
-    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
 
     th {
-      background: var(--surface);
-      font-size: 11.5px;
-      font-weight: 650;
+      background: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.03em;
-      color: var(--muted);
+      letter-spacing: 0.04em;
+      color: var(--muted-foreground);
       white-space: nowrap;
     }
 
-    pre {
-      margin: 8px 0 14px;
-      padding: 12px;
-      background: #0f172a;
-      color: #e2e8f0;
-      border-radius: 4px;
-      overflow-x: auto;
-      line-height: 1.45;
+    .num-cell {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
     }
 
-    td pre {
-      margin: 0;
-      padding: 8px;
-      font-size: 11.5px;
-      background: var(--surface);
-      color: var(--ink);
+    .num-bad {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--destructive);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .num-ok {
+      font-family: var(--font-mono);
+      color: var(--success);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* CodeBlock */
+    .code-block {
       border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      margin: 10px 0 16px;
+      overflow: hidden;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted-foreground);
+    }
+
+    .code-block pre {
+      margin: 0;
+      padding: 12px 14px;
+      background: var(--card);
+      color: var(--foreground);
+      overflow-x: auto;
+      line-height: 1.5;
+      font-size: 12px;
+    }
+
+    td .code-block {
+      margin: 0;
       max-width: 380px;
     }
 
-    .note {
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--brand-color);
-      border-radius: 4px;
-      background: var(--surface);
-      font-size: 13px;
-      color: var(--ink);
-      margin: 10px 0 14px;
+    td .code-block pre {
+      padding: 8px 10px;
+      font-size: 12px;
     }
 
-    .note.warn {
-      border-left-color: var(--red);
-      background: var(--red-bg);
+    /* EmptyState */
+    .empty-state {
+      padding: 18px 16px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      color: var(--muted-foreground);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      margin: 10px 0 18px;
     }
 
+    /* Load Order */
     .load-order {
-      margin: 6px 0 14px;
-      padding-left: 20px;
-      font-family: var(--mono);
+      margin: 8px 0 16px;
+      padding-left: 22px;
+      font-family: var(--font-mono);
       font-size: 13px;
+      font-variant-numeric: tabular-nums;
     }
 
-    .load-order li { margin-bottom: 3px; }
+    .load-order li {
+      margin-bottom: 4px;
+    }
+
+    /* Section 4 Controls & Details */
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 36px 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-head h2 {
+      margin: 0;
+      padding: 0;
+      border-bottom: none;
+    }
+
+    .section-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
     details {
       border: 1px solid var(--border);
-      border-radius: 4px;
+      border-radius: var(--radius);
       margin-bottom: 10px;
-      background: var(--bg);
+      background: var(--card);
     }
 
     details > summary {
-      padding: 10px 12px;
+      padding: 10px 14px;
       cursor: pointer;
-      background: var(--surface);
-      font-family: var(--mono);
+      background: var(--muted);
+      font-family: var(--font-mono);
       font-size: 13px;
       font-weight: 600;
+      color: var(--foreground);
       list-style-position: inside;
+      font-variant-numeric: tabular-nums;
     }
 
     details[open] > summary {
       border-bottom: 1px solid var(--border);
     }
 
-    .details-body { padding: 12px; }
+    .details-body {
+      padding: 14px;
+    }
 
     .flaw-item {
-      padding-bottom: 8px;
-      margin-bottom: 8px;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
       border-bottom: 1px dashed var(--border);
     }
 
@@ -288,338 +565,556 @@
 
     .flaw-meta {
       font-size: 12px;
-      color: var(--muted);
-      margin-top: 3px;
+      color: var(--muted-foreground);
+      margin-top: 4px;
     }
 
     .flaw-sql {
       font-size: 12px;
-      margin-top: 3px;
+      margin-top: 4px;
       word-break: break-word;
     }
 
-    .num-bad { font-family: var(--mono); font-weight: 700; color: var(--red); }
-    .num-ok { font-family: var(--mono); color: var(--green); }
-
     footer {
-      margin-top: 40px;
-      padding-top: 14px;
+      margin-top: 44px;
+      padding-top: 16px;
       border-top: 1px solid var(--border);
+      font-family: var(--font-mono);
       font-size: 12px;
-      color: var(--muted);
+      color: var(--muted-foreground);
+    }
+
+    @media (max-width: 960px) {
+      .kpi-strip {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
     }
 
     @media (max-width: 640px) {
-      .wrap { padding: 16px 14px 36px; }
-      h1 { font-size: 18px; }
-      .summary-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .metric { padding: 10px; }
-      .metric-val { font-size: 18px; }
-      th, td { padding: 7px 8px; font-size: 12.5px; }
-      details > summary { font-size: 12px; }
+      .wrap {
+        padding: 14px 14px 40px;
+      }
+      h1 {
+        font-size: 19px;
+      }
+      .kpi-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .stat-card {
+        padding: 10px 12px;
+      }
+      .stat-val {
+        font-size: 18px;
+      }
+      th, td {
+        padding: 8px 10px;
+        font-size: 12px;
+      }
+      details > summary {
+        font-size: 12px;
+      }
     }
 
     @media print {
-      body { font-size: 11.5px; border-top: none; }
-      .wrap { max-width: 100%; padding: 0; }
-      .table-wrap { overflow: visible; border: none; }
-      table { min-width: 0; }
-      pre { background: #f8fafc; color: #0f172a; border: 1px solid #cbd5e1; white-space: pre-wrap; }
-      details { break-inside: avoid; }
+      :root, html.dark {
+        --background: oklch(0.985 0.002 90);
+        --card: oklch(1.000 0.000 0);
+        --muted: oklch(0.955 0.002 90);
+        --border: oklch(0.890 0.003 90);
+        --foreground: oklch(0.145 0.004 90);
+        --muted-foreground: oklch(0.460 0.005 90);
+      }
+      body {
+        font-size: 12px;
+        background: var(--background);
+        color: var(--foreground);
+      }
+      .wrap {
+        max-width: 100%;
+        padding: 0;
+      }
+      .skip-link, .toc-nav, .btn, .section-actions {
+        display: none;
+      }
+      .table-wrap {
+        overflow: visible;
+      }
+      table {
+        min-width: 0;
+      }
+      .code-block pre {
+        white-space: pre-wrap;
+      }
+      details {
+        break-inside: avoid;
+      }
     }
   </style>
 </head>
 <body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
   <div class="wrap">
     {% set grade_color = executive_summary.readiness_grade.split()[0] %}
-    <header>
-      <div class="header-top">
+    <header class="site-header">
+      <div class="brand-group">
         {% if branding.brand_logo %}
         <img src="{{ branding.brand_logo }}" alt="{{ branding.brand_name }} logo" class="brand-logo">
         {% endif %}
-        <h1>{{ branding.brand_name }} &mdash; Schema Audit</h1>
-        <span class="pill {{ grade_color }}">{{ executive_summary.readiness_grade }}</span>
+        <span class="brand-label">{{ branding.brand_name }}</span>
       </div>
-      <div class="meta-line">
-        <span>target: <code>{{ metadata.source_redacted_url }}</code></span>
-        <span>dialect: <code>{{ metadata.dialect }}</code></span>
-        <span>version: <code>{{ metadata.crucible_version }}</code></span>
-        <span>generated: <code>{{ metadata.generated_at }}</code></span>
-      </div>
+      <button type="button" id="theme-toggle" class="btn" aria-pressed="false">Theme: Ink</button>
     </header>
 
-    <div class="summary-bar">
-      <div class="metric score-{{ grade_color }}">
-        <div class="metric-label">Readiness</div>
-        <div class="metric-val">{{ executive_summary.overall_readiness_score }}/100</div>
-        <div class="metric-sub">{{ executive_summary.total_tables }} tables, {{ executive_summary.total_columns }} cols</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Est. Remediation</div>
-        <div class="metric-val">{{ executive_summary.estimated_remediation_hours }}h</div>
-        <div class="metric-sub">rule-weighted effort</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">DMS Blockers</div>
-        <div class="metric-val">{{ executive_summary.blocker_counts.dms_replication_blockers }}</div>
-        <div class="metric-sub">CDC / encoding</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Referential</div>
-        <div class="metric-val">{{ executive_summary.blocker_counts.referential_integrity_failures }}</div>
-        <div class="metric-sub">orphan FK edges</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Data Hygiene</div>
-        <div class="metric-val">{{ executive_summary.blocker_counts.semantic_data_rot }}</div>
-        <div class="metric-sub">type / format flaws</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Shadow PII</div>
-        <div class="metric-val">{{ executive_summary.blocker_counts.shadow_pii_exposures }}</div>
-        <div class="metric-sub">unstructured text</div>
-      </div>
-    </div>
+    <nav class="toc-nav" aria-label="Dossier sections">
+      <span class="toc-label">Sections</span>
+      <a href="#sec-dms">1. DMS &amp; CDC</a>
+      <a href="#sec-pii">2. Shadow PII</a>
+      <a href="#sec-topology">3. Topology &amp; FKs</a>
+      <a href="#sec-tables">4. Table Profiles &amp; dbt</a>
+    </nav>
 
-    <div class="note">
-      Read-only scan. No raw cell values, orphan key values, or partial PII masks are written to this file. Run the generated <code>diagnostics/*_audit.sql</code> queries inside the source perimeter to inspect offending rows.
-    </div>
+    <main id="main-content">
+      <section class="dossier-hero">
+        <div class="title-row">
+          <h1>{{ branding.brand_name }} &mdash; Schema Audit</h1>
+          <span class="status-badge">
+            <span class="status-dot dot-{{ grade_color }}" aria-hidden="true"></span>
+            {{ executive_summary.readiness_grade }}
+          </span>
+        </div>
+        <div class="meta-line">
+          <span>target: <strong>{{ metadata.source_redacted_url }}</strong></span>
+          <span>dialect: <strong>{{ metadata.dialect }}</strong></span>
+          <span>version: <strong>{{ metadata.crucible_version }}</strong></span>
+          <span>generated: <strong>{{ metadata.generated_at }}</strong></span>
+        </div>
+      </section>
 
-    <!-- 1. DMS & CDC Blockers -->
-    <h2>1. DMS &amp; CDC blockers</h2>
-    {% set all_dms_blockers = [] %}
-    {% for tname, tmeta in tables.items() %}
-      {% for b in tmeta.dms_blockers %}
-        {% set _ = all_dms_blockers.append({'table': tname, 'blocker': b}) %}
-      {% endfor %}
-    {% endfor %}
+      <section class="kpi-strip" aria-label="Executive readiness summary">
+        <div class="stat-card">
+          <div class="stat-label">Readiness</div>
+          <div class="stat-val tone-{{ grade_color }}">{{ executive_summary.overall_readiness_score }}/100</div>
+          <div class="stat-sub">{{ executive_summary.total_tables }} tables, {{ executive_summary.total_columns }} cols</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Remediation</div>
+          <div class="stat-val">{{ executive_summary.estimated_remediation_hours }}h</div>
+          <div class="stat-sub">rule-weighted effort</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">DMS Blockers</div>
+          <div class="stat-val">{{ executive_summary.blocker_counts.dms_replication_blockers }}</div>
+          <div class="stat-sub">CDC / encoding</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Referential</div>
+          <div class="stat-val">{{ executive_summary.blocker_counts.referential_integrity_failures }}</div>
+          <div class="stat-sub">orphan FK edges</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Data Hygiene</div>
+          <div class="stat-val">{{ executive_summary.blocker_counts.semantic_data_rot }}</div>
+          <div class="stat-sub">type / format flaws</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Shadow PII</div>
+          <div class="stat-val">{{ executive_summary.blocker_counts.shadow_pii_exposures }}</div>
+          <div class="stat-sub">unstructured text</div>
+        </div>
+      </section>
 
-    {% if all_dms_blockers %}
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Table</th>
-            <th>Severity</th>
-            <th>Rule</th>
-            <th>Column</th>
-            <th>Details</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for item in all_dms_blockers %}
-          <tr>
-            <td><code>{{ item.table }}</code></td>
-            <td><span class="pill {{ item.blocker.severity }}">{{ item.blocker.severity }}</span></td>
-            <td><code>{{ item.blocker.blocker_id }}</code></td>
-            <td>{% if item.blocker.column %}<code>{{ item.blocker.column }}</code>{% else %}&mdash;{% endif %}</td>
-            <td>
-              {{ item.blocker.description }}
-              {% if item.blocker.blocker_id == "missing_primary_key_for_cdc" %}
-                <div class="flaw-meta">AWS DMS cannot apply UPDATE/DELETE CDC events without a primary key.</div>
-              {% elif item.blocker.blocker_id == "postgres_null_byte_poison" %}
-                <div class="flaw-meta">PostgreSQL UTF-8 COPY and DMS tasks abort on 0x00 bytes.</div>
-              {% elif item.blocker.blocker_id == "cp1252_encoding_ghosts" %}
-                <div class="flaw-meta">CP1252 mojibake sequences fail strict UTF-8 target validation.</div>
-              {% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <p>No DMS replication blockers found.</p>
-    {% endif %}
+      <div class="callout">
+        Read-only scan. No raw cell values, orphan key values, or partial PII masks are written to this file. Run the generated <code>diagnostics/*_audit.sql</code> queries inside the source perimeter to inspect offending rows.
+      </div>
 
-    <!-- 2. Shadow PII -->
-    {% set pii_findings = [] %}
-    {% for tname, tmeta in tables.items() %}
-      {% for cname, cmeta in tmeta.columns.items() %}
-        {% for f in cmeta.flaws %}
-          {% if f.category == "shadow_pii_exposures" %}
-            {% set _ = pii_findings.append({'table': tname, 'column': cname, 'flaw': f}) %}
-          {% endif %}
+      <!-- 1. DMS & CDC Blockers -->
+      <h2 id="sec-dms">1. DMS &amp; CDC blockers</h2>
+      {% set all_dms_blockers = [] %}
+      {% for tname, tmeta in tables.items() %}
+        {% for b in tmeta.dms_blockers %}
+          {% set _ = all_dms_blockers.append({'table': tname, 'blocker': b}) %}
         {% endfor %}
       {% endfor %}
-    {% endfor %}
 
-    <h2>2. Shadow PII</h2>
-    {% if pii_findings %}
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Table</th>
-            <th>Column</th>
-            <th>Rule</th>
-            <th>Severity</th>
-            <th>Counts &amp; Remediation</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for p in pii_findings %}
-          <tr>
-            <td><code>{{ p.table }}</code></td>
-            <td><code>{{ p.column }}</code></td>
-            <td><code>{{ p.flaw.flaw_id }}</code></td>
-            <td><span class="pill {{ p.flaw.severity }}">{{ p.flaw.severity }}</span></td>
-            <td>
-              <div>{{ p.flaw.evidence }}</div>
-              <div class="flaw-meta">{{ p.flaw.remediation_advice }}</div>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <p>No UK NINO, NHS number, or redaction marker patterns matched in sampled text columns.</p>
-    {% endif %}
-
-    <!-- 3. Topology & Foreign Keys -->
-    <h2>3. Topology &amp; foreign keys</h2>
-    <h3>Load order</h3>
-    <ol class="load-order">
-      {% for tbl in topology.load_order %}
-      <li>{{ tbl }}</li>
-      {% endfor %}
-    </ol>
-
-    {% if topology.fk_cycle_warning %}
-    <div class="note warn">
-      <strong>FK cycle detected:</strong> <code>{{ topology.fk_cycle_warning }}</code>. Load with deferred constraints.
-    </div>
-    {% endif %}
-
-    <h3>Dependency graph (Mermaid)</h3>
-    <pre>{{ topology.mermaid_dag }}</pre>
-
-    <h3>Foreign key edges</h3>
-    {% if topology.edges %}
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Child</th>
-            <th>Parent</th>
-            <th>Type</th>
-            <th>Status</th>
-            <th>Orphan Rows</th>
-            <th>Distinct Keys</th>
-            <th>Diagnostic SQL</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for edge in topology.edges %}
-          <tr>
-            <td><code>{{ edge.child_table }}.{{ edge.child_col }}</code></td>
-            <td><code>{{ edge.parent_table }}.{{ edge.parent_col }}</code></td>
-            <td>
-              {% if edge.relationship_type == "INFERRED_SHADOW_FK" %}
-              <span class="pill WARN">INFERRED ({{ (edge.confidence * 100)|int }}%)</span>
-              {% else %}
-              <span class="pill INFO">DECLARED</span>
-              {% endif %}
-            </td>
-            <td>
-              {% if edge.status == "HEALTHY" %}
-              <span class="pill GREEN">OK</span>
-              {% else %}
-              <span class="pill RED">ORPHANS</span>
-              {% endif %}
-            </td>
-            <td>
-              {% if edge.orphan_row_count > 0 %}
-              <span class="num-bad">{{ edge.orphan_row_count }}</span>
-              {% else %}
-              <span class="num-ok">0</span>
-              {% endif %}
-            </td>
-            <td>
-              {% if edge.distinct_orphan_keys is defined and edge.distinct_orphan_keys > 0 %}
-              <span class="num-bad">{{ edge.distinct_orphan_keys }}</span>
-              {% else %}
-              <span class="num-ok">0</span>
-              {% endif %}
-            </td>
-            <td>
-              {% if edge.diagnostic_sql %}
-              <pre>{{ edge.diagnostic_sql }}</pre>
-              {% else %}
-              &mdash;
-              {% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <p>No declared or inferred foreign key edges found.</p>
-    {% endif %}
-
-    <!-- 4. Table Profiles & dbt Models -->
-    <h2>4. Table profiles &amp; dbt models</h2>
-    {% for tname, tmeta in tables.items() %}
-    <details>
-      <summary>{{ tname }} &mdash; {{ tmeta.table_readiness_score }}/100 ({{ tmeta.row_count_estimate }} rows, {{ tmeta.columns|length }} cols)</summary>
-      <div class="details-body">
-        <p>
-          pk: <code>{{ tmeta.declared_pk or "none" }}</code> &middot;
-          sampled: <code>{{ tmeta.row_sample_size }}</code> &middot;
-          score: <code>{{ tmeta.table_readiness_score }}/100</code>
-        </p>
-
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Column</th>
-                <th>Declared</th>
-                <th>Target</th>
-                <th>Null / Distinct</th>
-                <th>Findings</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for cname, cmeta in tmeta.columns.items() %}
-              <tr>
-                <td><code>{{ cname }}</code>{% if cmeta.is_declared_pk %} <span class="pill INFO">PK</span>{% endif %}</td>
-                <td><code>{{ cmeta.declared_type }}</code></td>
-                <td><code>{{ cmeta.recommended_target_type }}</code></td>
-                <td><code>{{ (cmeta.null_rate * 100)|int }}%</code> / <code>{{ (cmeta.distinct_rate * 100)|int }}%</code></td>
-                <td>
-                  {% if cmeta.flaws %}
-                    {% for f in cmeta.flaws %}
-                      <div class="flaw-item">
-                        <span class="pill {{ f.severity }}">{{ f.severity }}</span> <code>{{ f.flaw_id }}</code>
-                        <div class="flaw-meta">{{ f.evidence }}</div>
-                        <div class="flaw-sql">dbt: <code>{{ f.dbt_sql_expr }}</code></div>
-                        {% if f.diagnostic_sql %}
-                        <div class="flaw-sql">Audit SQL: <code>{{ f.diagnostic_sql }}</code></div>
-                        {% endif %}
-                      </div>
-                    {% endfor %}
-                  {% else %}
-                    <span class="num-ok">ok</span>
-                  {% endif %}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-
-        {% if dbt_models and dbt_models[tname] %}
-        <h3><code>stg_{{ tname }}.sql</code></h3>
-        <pre>{{ dbt_models[tname] }}</pre>
-        {% endif %}
+      {% if all_dms_blockers %}
+      <div class="table-wrap" tabindex="0">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Table</th>
+              <th scope="col">Severity</th>
+              <th scope="col">Rule</th>
+              <th scope="col">Column</th>
+              <th scope="col">Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in all_dms_blockers %}
+            <tr>
+              <td><code>{{ item.table }}</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-{{ item.blocker.severity }}" aria-hidden="true"></span>
+                  {{ item.blocker.severity }}
+                </span>
+              </td>
+              <td><code>{{ item.blocker.blocker_id }}</code></td>
+              <td>{% if item.blocker.column %}<code>{{ item.blocker.column }}</code>{% else %}&mdash;{% endif %}</td>
+              <td>
+                {{ item.blocker.description }}
+                {% if item.blocker.blocker_id == "missing_primary_key_for_cdc" %}
+                  <div class="flaw-meta">AWS DMS cannot apply UPDATE/DELETE CDC events without a primary key.</div>
+                {% elif item.blocker.blocker_id == "postgres_null_byte_poison" %}
+                  <div class="flaw-meta">PostgreSQL UTF-8 COPY and DMS tasks abort on 0x00 bytes.</div>
+                {% elif item.blocker.blocker_id == "cp1252_encoding_ghosts" %}
+                  <div class="flaw-meta">CP1252 mojibake sequences fail strict UTF-8 target validation.</div>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
-    </details>
-    {% endfor %}
+      {% else %}
+      <div class="empty-state">No DMS replication blockers found.</div>
+      {% endif %}
+
+      <!-- 2. Shadow PII -->
+      {% set pii_findings = [] %}
+      {% for tname, tmeta in tables.items() %}
+        {% for cname, cmeta in tmeta.columns.items() %}
+          {% for f in cmeta.flaws %}
+            {% if f.category == "shadow_pii_exposures" %}
+              {% set _ = pii_findings.append({'table': tname, 'column': cname, 'flaw': f}) %}
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      {% endfor %}
+
+      <h2 id="sec-pii">2. Shadow PII</h2>
+      {% if pii_findings %}
+      <div class="table-wrap" tabindex="0">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Table</th>
+              <th scope="col">Column</th>
+              <th scope="col">Rule</th>
+              <th scope="col">Severity</th>
+              <th scope="col">Counts &amp; Remediation</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in pii_findings %}
+            <tr>
+              <td><code>{{ p.table }}</code></td>
+              <td><code>{{ p.column }}</code></td>
+              <td><code>{{ p.flaw.flaw_id }}</code></td>
+              <td>
+                <span class="status-badge">
+                  <span class="status-dot dot-{{ p.flaw.severity }}" aria-hidden="true"></span>
+                  {{ p.flaw.severity }}
+                </span>
+              </td>
+              <td>
+                <div>{{ p.flaw.evidence }}</div>
+                <div class="flaw-meta">{{ p.flaw.remediation_advice }}</div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">No UK NINO, NHS number, or redaction marker patterns matched in sampled text columns.</div>
+      {% endif %}
+
+      <!-- 3. Topology & Foreign Keys -->
+      <h2 id="sec-topology">3. Topology &amp; foreign keys</h2>
+      <h3>Load order</h3>
+      {% if topology.load_order %}
+      <ol class="load-order">
+        {% for tbl in topology.load_order %}
+        <li>{{ tbl }}</li>
+        {% endfor %}
+      </ol>
+      {% else %}
+      <div class="empty-state">No tables in load order.</div>
+      {% endif %}
+
+      {% if topology.fk_cycle_warning %}
+      <div class="callout callout-warn">
+        <strong>FK cycle detected:</strong> <code>{{ topology.fk_cycle_warning }}</code>. Load with deferred constraints.
+      </div>
+      {% endif %}
+
+      <h3>Dependency graph (Mermaid)</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-title">topology.mmd</span>
+          <button type="button" class="btn copy-btn">Copy</button>
+        </div>
+        <pre tabindex="0">{{ topology.mermaid_dag }}</pre>
+      </div>
+
+      <h3>Foreign key edges</h3>
+      {% if topology.edges %}
+      <div class="table-wrap" tabindex="0">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Child</th>
+              <th scope="col">Parent</th>
+              <th scope="col">Type</th>
+              <th scope="col">Status</th>
+              <th scope="col">Orphan Rows</th>
+              <th scope="col">Distinct Keys</th>
+              <th scope="col">Diagnostic SQL</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for edge in topology.edges %}
+            <tr>
+              <td><code>{{ edge.child_table }}.{{ edge.child_col }}</code></td>
+              <td><code>{{ edge.parent_table }}.{{ edge.parent_col }}</code></td>
+              <td>
+                {% if edge.relationship_type == "INFERRED_SHADOW_FK" %}
+                <span class="status-badge">
+                  <span class="status-dot dot-WARN" aria-hidden="true"></span>
+                  INFERRED ({{ (edge.confidence * 100)|int }}%)
+                </span>
+                {% else %}
+                <span class="status-badge">
+                  <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                  DECLARED
+                </span>
+                {% endif %}
+              </td>
+              <td>
+                {% if edge.status == "HEALTHY" %}
+                <span class="status-badge">
+                  <span class="status-dot dot-GREEN" aria-hidden="true"></span>
+                  OK
+                </span>
+                {% else %}
+                <span class="status-badge">
+                  <span class="status-dot dot-RED" aria-hidden="true"></span>
+                  ORPHANS
+                </span>
+                {% endif %}
+              </td>
+              <td class="num-cell">
+                {% if edge.orphan_row_count > 0 %}
+                <span class="num-bad">{{ edge.orphan_row_count }}</span>
+                {% else %}
+                <span class="num-ok">0</span>
+                {% endif %}
+              </td>
+              <td class="num-cell">
+                {% if edge.distinct_orphan_keys is defined and edge.distinct_orphan_keys > 0 %}
+                <span class="num-bad">{{ edge.distinct_orphan_keys }}</span>
+                {% else %}
+                <span class="num-ok">0</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if edge.diagnostic_sql %}
+                <div class="code-block">
+                  <div class="code-header">
+                    <span class="code-title">SQL</span>
+                    <button type="button" class="btn copy-btn">Copy SQL</button>
+                  </div>
+                  <pre tabindex="0">{{ edge.diagnostic_sql }}</pre>
+                </div>
+                {% else %}
+                &mdash;
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">No declared or inferred foreign key edges found.</div>
+      {% endif %}
+
+      <!-- 4. Table Profiles & dbt Models -->
+      <div class="section-head">
+        <h2 id="sec-tables">4. Table profiles &amp; dbt models</h2>
+        <div class="section-actions">
+          <button type="button" id="expand-all-btn" class="btn">Expand all</button>
+          <button type="button" id="collapse-all-btn" class="btn">Collapse all</button>
+        </div>
+      </div>
+
+      {% if tables %}
+      <div id="table-profiles">
+        {% for tname, tmeta in tables.items() %}
+        <details>
+          <summary>{{ tname }} &mdash; {{ tmeta.table_readiness_score }}/100 ({{ tmeta.row_count_estimate }} rows, {{ tmeta.columns|length }} cols)</summary>
+          <div class="details-body">
+            <p>
+              pk: <code>{{ tmeta.declared_pk or "none" }}</code> &middot;
+              sampled: <code>{{ tmeta.row_sample_size }}</code> &middot;
+              score: <code>{{ tmeta.table_readiness_score }}/100</code>
+            </p>
+
+            <div class="table-wrap" tabindex="0">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Column</th>
+                    <th scope="col">Declared</th>
+                    <th scope="col">Target</th>
+                    <th scope="col">Null / Distinct</th>
+                    <th scope="col">Findings</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for cname, cmeta in tmeta.columns.items() %}
+                  <tr>
+                    <td>
+                      <code>{{ cname }}</code>
+                      {% if cmeta.is_declared_pk %}
+                      <span class="status-badge">
+                        <span class="status-dot dot-INFO" aria-hidden="true"></span>
+                        PK
+                      </span>
+                      {% endif %}
+                    </td>
+                    <td><code>{{ cmeta.declared_type }}</code></td>
+                    <td><code>{{ cmeta.recommended_target_type }}</code></td>
+                    <td class="num-cell"><code>{{ (cmeta.null_rate * 100)|int }}%</code> / <code>{{ (cmeta.distinct_rate * 100)|int }}%</code></td>
+                    <td>
+                      {% if cmeta.flaws %}
+                        {% for f in cmeta.flaws %}
+                          <div class="flaw-item">
+                            <span class="status-badge">
+                              <span class="status-dot dot-{{ f.severity }}" aria-hidden="true"></span>
+                              {{ f.severity }}
+                            </span>
+                            <code>{{ f.flaw_id }}</code>
+                            <div class="flaw-meta">{{ f.evidence }}</div>
+                            <div class="flaw-sql">dbt: <code>{{ f.dbt_sql_expr }}</code></div>
+                            {% if f.diagnostic_sql %}
+                            <div class="flaw-sql">Audit SQL: <code>{{ f.diagnostic_sql }}</code></div>
+                            {% endif %}
+                          </div>
+                        {% endfor %}
+                      {% else %}
+                        <span class="num-ok">ok</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            {% if dbt_models and dbt_models[tname] %}
+            <h3><code>stg_{{ tname }}.sql</code></h3>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-title">stg_{{ tname }}.sql</span>
+                <button type="button" class="btn copy-btn">Copy SQL</button>
+              </div>
+              <pre tabindex="0">{{ dbt_models[tname] }}</pre>
+            </div>
+            {% endif %}
+          </div>
+        </details>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">No tables profiled in this dossier.</div>
+      {% endif %}
+    </main>
 
     <footer>{{ branding.brand_footer }}</footer>
   </div>
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var toggleBtn = document.getElementById("theme-toggle");
+
+      function syncThemeButton() {
+        if (!toggleBtn) return;
+        var isDark = root.classList.contains("dark");
+        toggleBtn.textContent = isDark ? "Theme: Paper" : "Theme: Ink";
+        toggleBtn.setAttribute("aria-pressed", isDark ? "true" : "false");
+      }
+
+      if (toggleBtn) {
+        syncThemeButton();
+        toggleBtn.addEventListener("click", function () {
+          var isDark = root.classList.toggle("dark");
+          try {
+            localStorage.setItem("crucible-theme", isDark ? "dark" : "light");
+          } catch (e) {}
+          syncThemeButton();
+        });
+      }
+
+      var expandBtn = document.getElementById("expand-all-btn");
+      var collapseBtn = document.getElementById("collapse-all-btn");
+      var profilesContainer = document.getElementById("table-profiles");
+
+      if (expandBtn && profilesContainer) {
+        expandBtn.addEventListener("click", function () {
+          var items = profilesContainer.querySelectorAll("details");
+          for (var i = 0; i < items.length; i++) items[i].open = true;
+        });
+      }
+
+      if (collapseBtn && profilesContainer) {
+        collapseBtn.addEventListener("click", function () {
+          var items = profilesContainer.querySelectorAll("details");
+          for (var i = 0; i < items.length; i++) items[i].open = false;
+        });
+      }
+
+      function fallbackCopy(text) {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); } catch (e) {}
+        document.body.removeChild(ta);
+      }
+
+      var copyBtns = document.querySelectorAll(".copy-btn");
+      for (var j = 0; j < copyBtns.length; j++) {
+        (function (btn) {
+          var originalLabel = btn.textContent;
+          btn.addEventListener("click", function () {
+            var block = btn.closest(".code-block");
+            var pre = block ? block.querySelector("pre") : null;
+            if (!pre) return;
+            var text = pre.textContent || "";
+            function markCopied() {
+              btn.textContent = "Copied";
+              setTimeout(function () {
+                btn.textContent = originalLabel;
+              }, 1600);
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(text).then(markCopied, function () {
+                fallbackCopy(text);
+                markCopied();
+              });
+            } else {
+              fallbackCopy(text);
+              markCopied();
+            }
+          });
+        })(copyBtns[j]);
+      }
+    })();
+  </script>
 </body>
 </html>

@@ -30,6 +30,29 @@ _HEX_COLOR_RE = re.compile(r"^#[0-9A-Fa-f]{3}([0-9A-Fa-f]{3})?\Z")
 _LOGO_URI_RE = re.compile(
     r"^(?:https?://|data:image/(?:png|jpeg|jpg|webp|svg\+xml);base64,)"
 )
+_CANONICAL_URL_RE = re.compile(r"^https?://", re.IGNORECASE)
+DEFAULT_CANONICAL_URL = "https://crucible.parkanore.com/"
+
+
+def _validate_canonical_url(canonical_url: str | None) -> str | None:
+    """Validate optional canonical_url to allow only http:// or https:// schemes."""
+    if canonical_url is None:
+        return None
+    if not isinstance(canonical_url, str) or not _CANONICAL_URL_RE.match(canonical_url):
+        raise ValueError(
+            f"Invalid canonical_url {canonical_url!r}: must start with http:// or https://."
+        )
+    return canonical_url
+
+
+def _safe_json_ld(data: dict[str, Any]) -> str:
+    """Serialize JSON-LD safely for embedding inside <script type="application/ld+json">."""
+    raw = json.dumps(data, ensure_ascii=False)
+    return (
+        raw.replace("&", "\\u0026")
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e")
+    )
 
 
 def _resolve_templates_dir() -> str:
@@ -110,6 +133,7 @@ def generate_dossier(
     output_html_path: str,
     dbt_dir: str | None = None,
     branding: dict[str, Any] | None = None,
+    canonical_url: str | None = None,
 ) -> str:
     """Renders the executive readiness dossier to a standalone, zero-dependency HTML file."""
     if branding is None:
@@ -121,6 +145,8 @@ def generate_dossier(
             brand_logo=branding.get("brand_logo"),
             brand_footer=branding.get("brand_footer"),
         )
+
+    validated_canonical_url = _validate_canonical_url(canonical_url)
 
     templates_dir = _resolve_templates_dir()
     html_env = Environment(
@@ -149,14 +175,47 @@ def generate_dossier(
                 table_name, tprofile, sql_env
             )
 
+    metadata = profile.get("metadata", {})
+    executive_summary = profile.get("executive_summary", {})
+    brand_name = resolved_branding.get("brand_name") or DEFAULT_BRANDING["brand_name"]
+    source_url = metadata.get("source_redacted_url", "unknown")
+    readiness_score = executive_summary.get("overall_readiness_score", 0)
+    readiness_grade = executive_summary.get("readiness_grade", "UNKNOWN")
+    total_tables = executive_summary.get("total_tables", 0)
+    total_columns = executive_summary.get("total_columns", 0)
+
+    meta_description = (
+        f"{brand_name} migration readiness dossier for {source_url}: "
+        f"score {readiness_score}/100 ({readiness_grade}) across "
+        f"{total_tables} tables and {total_columns} columns."
+    )
+
+    json_ld_payload: dict[str, Any] = {
+        "@context": "https://schema.org",
+        "@type": "Report",
+        "name": f"{brand_name} — Schema Audit ({source_url})",
+        "description": meta_description,
+        "datePublished": metadata.get("generated_at", ""),
+        "softwareVersion": metadata.get("crucible_version", ""),
+        "author": {
+            "@type": "Organization",
+            "name": brand_name,
+        },
+    }
+    if validated_canonical_url:
+        json_ld_payload["url"] = validated_canonical_url
+
     template = html_env.get_template("readiness_dossier.html.j2")
     rendered_html = template.render(
-        metadata=profile.get("metadata", {}),
-        executive_summary=profile.get("executive_summary", {}),
+        metadata=metadata,
+        executive_summary=executive_summary,
         topology=profile.get("topology", {}),
         tables=profile.get("tables", {}),
         dbt_models=dbt_models,
         branding=resolved_branding,
+        canonical_url=validated_canonical_url,
+        meta_description=meta_description,
+        json_ld=_safe_json_ld(json_ld_payload),
     )
 
     out_dir = os.path.dirname(os.path.abspath(output_html_path))
@@ -174,6 +233,7 @@ def generate_report(
     out_path: str = "migration_readiness_report.html",
     dbt_dir: str | None = None,
     branding: dict[str, Any] | None = None,
+    canonical_url: str | None = None,
 ) -> str:
     """Loads profile.json from disk and renders the executive readiness dossier."""
     with open(profile_path, encoding="utf-8") as f:
@@ -184,6 +244,7 @@ def generate_report(
         output_html_path=out_path,
         dbt_dir=dbt_dir,
         branding=branding,
+        canonical_url=canonical_url,
     )
 
 

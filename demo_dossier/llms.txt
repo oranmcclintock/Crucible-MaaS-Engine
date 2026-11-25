@@ -1,0 +1,13 @@
+# Crucible
+
+> Crucible is an air-gapped, read-only pre-migration database profiler and Migration Readiness Dossier generator. It detects AWS DMS/CDC blockers, shadow PII exposures, orphan foreign key edges, and semantic data rot, and compiles deterministic dbt staging models without exporting raw cell values.
+
+## Live Demo Dossier
+- [Migration Readiness Dossier](https://crucible.parkanore.com/): Interactive, zero-dependency HTML audit dossier generated from a seeded UK local council SQLite database.
+- [Structured Profile JSON](https://crucible.parkanore.com/profile.json): Machine-readable audit telemetry and table/column flaw inventory.
+
+## Dossier Sections
+- Section 1 — DMS & CDC Blockers: Missing primary keys, PostgreSQL NUL byte poison (`0x00`), and CP1252 encoding ghosts.
+- Section 2 — Shadow PII: Unstructured text columns matching UK NINO, NHS number, or redaction marker patterns.
+- Section 3 — Topology & Foreign Keys: Topological load order, Mermaid dependency graph, declared/inferred FK edges, and orphan counts.
+- Section 4 — Table Profiles & dbt Models: Column-level type recommendations, null/distinct rates, remediation expressions, and generated `stg_*.sql` models.

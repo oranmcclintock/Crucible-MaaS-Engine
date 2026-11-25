@@ -1,8 +1,8 @@
 {
   "metadata": {
     "crucible_version": "2.0.0",
-    "generated_at": "2026-11-25T10:42:03.198471+00:00",
-    "source_redacted_url": "sqlite:///demo_legacy_council.db",
+    "generated_at": "2026-11-25T16:08:10.147431+00:00",
+    "source_redacted_url": "sqlite:////tmp/crucible_demo_council.db",
     "dialect": "sqlite",
     "sample_size_per_table": 1000
   },
